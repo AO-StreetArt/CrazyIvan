@@ -13,16 +13,18 @@ addons:
     - g++-5
 services:
   - redis-server
-  - mongodb
 before_install:
   - sudo apt-get install libssl-dev
-  - mkdir ../ex38_deps
-  - sudo cp scripts/linux/deb/build_deps.sh ../ex38_deps
+  - mkdir ../ivan_deps
+  - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps
+  - sudo apt-get install libssl-dev
 install:
   - cd $TRAVIS_BUILD_DIR
   - wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
   - unzip consul_0.6.4_linux_amd64.zip
   - ./consul agent -dev -syslog &
+  - sudo docker pull neo4j
+  - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data neo4j
 script:
   - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
   - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
@@ -32,5 +34,5 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - make rhel
   - make rhel-test
-  - ./data_object_test
+  - ./scene_test
   - ./configuration_test -config-file=src/test/test.properties
