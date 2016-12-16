@@ -13,6 +13,7 @@ addons:
     - g++-5
 services:
   - redis-server
+  - docker
 before_install:
   - sudo apt-get install libssl-dev
   - mkdir ../ivan_deps
