@@ -1,0 +1,15 @@
+*.o
+*.a
+crazy_ivan
+*.log
+*.log.*
+*.cc
+*.pb.*
+*_test
+*_benchmark
+heartbeat_scripts/*
+heartbeat_scripts/*/*
+*.pyc
+scripts/*pb2.py
+*.proto
+src/*.proto
