@@ -18,7 +18,7 @@ int main() {
   start_logging_submodules();
 
   //Basic tests
-  Scene scene1 ();
+  Scene scene1;
 
   //Basic properties
   scene1.set_msg_type(1);
@@ -31,7 +31,7 @@ int main() {
 
   assert( scene1.get_msg_type() == 1 );
   assert( scene1.get_key() == "abcdef" );
-  assert( scene1.get_err_msg() == "Testing" );
+  assert( scene1.get_err() == "Testing" );
   assert( scene1.get_transaction_id() == "ghijklmno" );
   assert( scene1.get_latitude() == 137.0034 );
   assert( scene1.get_longitude() == 89.443 );
@@ -85,7 +85,7 @@ int main() {
 
   assert( scene3.get_msg_type() == 1 );
   assert( scene3.get_key() == "abcdef" );
-  assert( scene3.get_err_msg() == "Testing" );
+  assert( scene3.get_err() == "Testing" );
   assert( scene3.get_transaction_id() == "ghijklmno" );
   assert( scene3.get_latitude() == 137.0034 );
   assert( scene3.get_longitude() == 89.443 );
