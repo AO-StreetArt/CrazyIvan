@@ -41,6 +41,21 @@ if [ ! -d /usr/local/include/Eigen ]; then
 
 fi
 
+#Determine if we Need RapidJSON
+if [ ! -d /usr/local/include/rapidjson ]; then
+
+  printf "Cloning RapidJSON"
+
+  mkdir $PRE/rapidjson
+
+  #Get the RapidJSON Dependency
+  git clone https://github.com/miloyip/rapidjson.git $PRE/rapidjson
+
+  #Move the RapidJSON header files to the include path
+  sudo cp -r $PRE/rapidjson/include/rapidjson/ /usr/local/include
+
+fi
+
 #Ensure we have access to the Protocol Buffer Interfaces
 if [ ! -d /usr/local/include/dvs_interface ]; then
   mkdir $PRE/interfaces/
