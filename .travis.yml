@@ -1,6 +1,6 @@
 # Use new trusty images, should yield newer compilers and packages
 sudo: required
-dist: precise
+dist: trusty
 language: cpp
 
 sudo: required
@@ -15,10 +15,11 @@ services:
   - redis-server
   - docker
 before_install:
+  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+  - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
   - sudo apt-get install libssl-dev
   - mkdir ../ivan_deps
   - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps
-  - sudo apt-get install libssl-dev
 install:
   - cd $TRAVIS_BUILD_DIR
   - wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
@@ -27,8 +28,6 @@ install:
   - sudo docker pull neo4j
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data neo4j
 script:
-  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
-  - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
   - gcc --version
   - cd ../ex38_deps && sudo ./build_deps.sh
   - cat build_deps.log
