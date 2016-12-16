@@ -25,47 +25,48 @@ RedisInterface *r = NULL;
 ConfigurationManager *config = NULL;
 RedisLocker *redis_locks = NULL;
 
+//Create a new scene
 inline std::string process_create_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
+//Update the details of a scene entry
 inline std::string process_update_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
+//Query for scene data
 inline std::string process_retrieve_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
+//Delete a scene
 inline std::string process_delete_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
+//Register a device to a scene
 inline std::string process_registration_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
-inline std::string process_transition_message(Scene *obj_msg) {
-  return "Not Implemented";
-}
-
+//Remove a device from a scene
 inline std::string process_deregistration_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
+//Align an objects transformation with a scene
 inline std::string process_device_alignment_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
-inline std::string process_scene_alignment_message(Scene *obj_msg) {
-  return "Not Implemented";
-}
-
+//Ping the Crazy Ivan Instance
 inline std::string process_ping_message(Scene *obj_msg) {
   processor_logging->debug("Ping Pong");
   return "";
 }
 
+//Kill the Crazy Ivan Instance
 inline std::string process_kill_message(Scene *obj_msg) {
   return "";
 }
@@ -101,17 +102,11 @@ public:
     else if (msg_type == SCENE_ENTER) {
       process_return = process_registration_message(obj_msg);
     }
-    else if (msg_type == SCENE_CHANGE) {
-      process_return = process_transition_message(obj_msg);
-    }
     else if (msg_type == SCENE_LEAVE) {
       process_return = process_deregistration_message(obj_msg);
     }
     else if (msg_type == DEVICE_ALIGN) {
       process_return = process_device_alignment_message(obj_msg);
-    }
-    else if (msg_type == SCENE_ALIGN) {
-      process_return = process_scene_alignment_message(obj_msg);
     }
     else if (msg_type == KILL) {
       process_return = process_kill_message(obj_msg);
