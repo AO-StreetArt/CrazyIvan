@@ -27,6 +27,9 @@ Scene::Scene(protoScene::Scene buffer) {
   trns_flag=false;
   double new_latitude=0.0;
   double new_longitude=0.0;
+  std::string new_err_msg = "";
+  int new_err_code = 100;
+  std::string new_transaction_id = "";
 
   //Perform the conversion
   if (buffer.has_message_type()) {
@@ -34,6 +37,15 @@ Scene::Scene(protoScene::Scene buffer) {
 	}
   if (buffer.has_key()) {
     new_key = buffer.key();
+  }
+  if (buffer.has_transaction_id()) {
+    new_transaction_id = buffer.transaction_id();
+  }
+  if (buffer.has_err_msg()) {
+    new_err_msg = buffer.err_msg();
+  }
+  if (buffer.has_err_code()) {
+    new_err_code = buffer.err_code();
   }
   if (buffer.has_latitude()) {
 		new_latitude = buffer.latitude();
@@ -75,6 +87,9 @@ Scene::Scene(protoScene::Scene buffer) {
   key = new_key;
   latitude = new_latitude;
   longitude = new_longitude;
+  err_code = new_err_code;
+  err_msg = new_err_msg;
+  transaction_id = new_transaction_id;
 }
 
 //Convert to Protocol Buffer message

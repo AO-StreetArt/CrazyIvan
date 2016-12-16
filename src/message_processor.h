@@ -46,11 +46,16 @@ inline std::string process_delete_message(Scene *obj_msg) {
 }
 
 //Register a device to a scene
+//Predict a coordinate transform for the device
+//and pass it back in the response
 inline std::string process_registration_message(Scene *obj_msg) {
   return "Not Implemented";
 }
 
 //Remove a device from a scene
+//If the object is a member of other scenes:
+//  -If a coordinate system transformation exists, then update it with a correction
+//  -If a coordinate system transformation doesn't exist, then create one
 inline std::string process_deregistration_message(Scene *obj_msg) {
   return "Not Implemented";
 }
