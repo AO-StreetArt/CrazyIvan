@@ -20,89 +20,76 @@ int main() {
   //Basic tests
   Scene scene1;
 
+  SceneData * data1 = scene1.add_scene();
+
   //Basic properties
   scene1.set_msg_type(1);
-  scene1.set_key("abcdef");
+  scene1.set_err_code(10);
   scene1.set_err_msg("Testing");
   scene1.set_transaction_id("ghijklmno");
-  scene1.set_latitude(137.0034);
-  scene1.set_longitude(89.443);
-  scene1.set_err_code(10);
+
+  data1->set_name("TestName");
+  data1->set_key("abcdef");
+  data1->set_latitude(137.0034);
+  data1->set_longitude(89.443);
 
   assert( scene1.get_msg_type() == 1 );
-  assert( scene1.get_key() == "abcdef" );
+  assert( scene1.get_err_code() == 10 );
   assert( scene1.get_err() == "Testing" );
   assert( scene1.get_transaction_id() == "ghijklmno" );
-  assert( scene1.get_latitude() == 137.0034 );
-  assert( scene1.get_longitude() == 89.443 );
-  assert( scene1.get_err_code() == 10 );
+
+  assert( scene1.get_scene(0)->get_name() == "TestName" );
+  assert( scene1.get_scene(0)->get_key() == "abcdef" );
+  assert( scene1.get_scene(0)->get_latitude() == 137.0034 );
+  assert( scene1.get_scene(0)->get_longitude() == 89.443 );
 
   //List properties
-  scene1.add_object_id("pqrstuvw1");
-  scene1.add_object_id("pqrstuvw2");
-  scene1.add_device_id("xyzabcdef1");
-  scene1.add_device_id("xyzabcdef2");
+  UserDevice *ud1 = scene1.get_scene(0)->add_device("xyzabcdef1");
+  UserDevice *ud2 = scene1.get_scene(0)->add_device("xyzabcdef2");
 
-  assert( scene1.num_objects() == 2 );
-  assert( scene1.num_devices() == 2 );
-  assert( scene1.get_object_id(0) == "pqrstuvw1" );
-  assert( scene1.get_object_id(1) == "pqrstuvw2" );
-  assert( scene1.get_device_id(0) == "xyzabcdef1" );
-  assert( scene1.get_device_id(1) == "xyzabcdef2" );
-  assert( !(scene1.has_transform()) );
+  assert( scene1.get_scene(0)->num_devices() == 2 );
+  assert( scene1.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
+  assert( scene1.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
+  assert( !(scene1.get_scene(0)->has_transform()) );
 
   //Transform tests
 
   Eigen::Matrix4d transform_matrix = Eigen::Matrix4d::Identity(4, 4);
+  transform_matrix(0,0) = 2.0;
+  scene1.get_scene(0)->set_transform_matrix(transform_matrix);
 
-  Scene scene2 (transform_matrix);
-
-  assert( scene2.has_transform() );
-  assert( scene2.get_transform(0, 0) == 1.0 );
-  assert( scene2.get_transform(1, 1) == 1.0 );
-  assert( scene2.get_transform(2, 2) == 1.0 );
-  assert( scene2.get_transform(3, 3) == 1.0 );
-  assert( scene2.get_transform(1, 0) == 0.0 );
-  assert( scene2.get_transform(0, 1) == 0.0 );
+  assert( scene1.get_scene(0)->has_transform() );
+  assert( scene1.get_scene(0)->get_transform(0, 0) == 2.0 );
+  assert( scene1.get_scene(0)->get_transform(1, 1) == 1.0 );
+  assert( scene1.get_scene(0)->get_transform(2, 2) == 1.0 );
+  assert( scene1.get_scene(0)->get_transform(3, 3) == 1.0 );
+  assert( scene1.get_scene(0)->get_transform(1, 0) == 0.0 );
+  assert( scene1.get_scene(0)->get_transform(0, 1) == 0.0 );
 
   //Protocol Buffer tests
-  scene2.set_msg_type(1);
-  scene2.set_key("abcdef");
-  scene2.set_err_msg("Testing");
-  scene2.set_transaction_id("ghijklmno");
-  scene2.set_latitude(137.0034);
-  scene2.set_longitude(89.443);
-  scene2.set_err_code(10);
-  scene2.add_object_id("pqrstuvw1");
-  scene2.add_object_id("pqrstuvw2");
-  scene2.add_device_id("xyzabcdef1");
-  scene2.add_device_id("xyzabcdef2");
-
-  std::string proto_string = scene2.to_protobuf();
-  protoScene::Scene new_proto;
+  std::string proto_string = scene1.to_protobuf();
+  protoScene::SceneList new_proto;
   new_proto.ParseFromString(proto_string);
   Scene scene3 (new_proto);
 
   assert( scene3.get_msg_type() == 1 );
-  assert( scene3.get_key() == "abcdef" );
-  assert( scene3.get_err() == "Testing" );
-  assert( scene3.get_transaction_id() == "ghijklmno" );
-  assert( scene3.get_latitude() == 137.0034 );
-  assert( scene3.get_longitude() == 89.443 );
   assert( scene3.get_err_code() == 10 );
-  assert( scene3.num_objects() == 2 );
-  assert( scene3.num_devices() == 2 );
-  assert( scene3.get_object_id(0) == "pqrstuvw1" );
-  assert( scene3.get_object_id(1) == "pqrstuvw2" );
-  assert( scene3.get_device_id(0) == "xyzabcdef1" );
-  assert( scene3.get_device_id(1) == "xyzabcdef2" );
-  assert( scene3.has_transform() );
-  assert( scene3.get_transform(0, 0) == 1.0 );
-  assert( scene3.get_transform(1, 1) == 1.0 );
-  assert( scene3.get_transform(2, 2) == 1.0 );
-  assert( scene3.get_transform(3, 3) == 1.0 );
-  assert( scene3.get_transform(1, 0) == 0.0 );
-  assert( scene3.get_transform(0, 1) == 0.0 );
+  assert( scene3.get_transaction_id() == "ghijklmno" );
+  assert( scene3.get_err() == "Testing" );
+
+  assert( scene3.get_scene(0)->get_key() == "abcdef" );
+  assert( scene3.get_scene(0)->get_latitude() == 137.0034 );
+  assert( scene3.get_scene(0)->get_longitude() == 89.443 );
+  assert( scene3.get_scene(0)->num_devices() == 2 );
+  assert( scene3.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
+  assert( scene3.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
+  assert( scene3.get_scene(0)->has_transform() );
+  assert( scene3.get_scene(0)->get_transform(0, 0) == 2.0 );
+  assert( scene3.get_scene(0)->get_transform(1, 1) == 1.0 );
+  assert( scene3.get_scene(0)->get_transform(2, 2) == 1.0 );
+  assert( scene3.get_scene(0)->get_transform(3, 3) == 1.0 );
+  assert( scene3.get_scene(0)->get_transform(1, 0) == 0.0 );
+  assert( scene3.get_scene(0)->get_transform(0, 1) == 0.0 );
 
   shutdown_logging_submodules();
 

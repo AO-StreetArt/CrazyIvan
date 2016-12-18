@@ -5,8 +5,8 @@
 
 #include "aossl/factory/uuid_interface.h"
 
-#ifndef EX38_UUID
-#define EX38_UUID
+#ifndef IVAN_UUID
+#define IVAN_UUID
 
 inline std::string generate_uuid()
 {

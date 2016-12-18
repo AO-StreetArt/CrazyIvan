@@ -136,7 +136,7 @@ void my_signal_handler(int s){
       std::string current_error_message;
       int msg_type = -1;
       rapidjson::Document d;
-      protoScene::Scene new_proto;
+      protoScene::SceneList new_proto;
 
       //Set up our Redis Connection List, which is passed to the Redis Admin to connect
       std::vector<RedisConnChain> RedisConnectionList = cm->get_redisconnlist();
@@ -184,7 +184,7 @@ void my_signal_handler(int s){
       }
 
       //Set up the Message Processor
-      processor = new MessageProcessor (neo, xRedis, cm);
+      processor = new MessageProcessor (neo4j_factory, neo, xRedis, cm, ua);
 
       //Main Request Loop
 
@@ -254,7 +254,8 @@ void my_signal_handler(int s){
 
         // Turn the response from the processor into a response for the client
         resp = new Scene();
-        resp->set_key(translated_object->get_key());
+        SceneData * resp_data = resp->add_scene();
+        resp_data->set_key(translated_object->get_scene(0)->get_key());
         resp->set_err_msg(current_error_message);
         resp->set_err_code(current_error_code);
 
@@ -291,11 +292,11 @@ void my_signal_handler(int s){
         else {
           //If we have a create request, we will get a key back from the processor
           if (msg_type == SCENE_CRT) {
-            resp->set_key( process_result );
+            resp_data->set_key( process_result );
           }
           //Otherwise, set the response key from the translated object
           else {
-            resp->set_key( translated_object->get_key() );
+            resp_data->set_key( translated_object->get_scene(0)->get_key() );
           }
 
           //Send the Inbound response
