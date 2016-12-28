@@ -5,7 +5,7 @@ CC = g++
 SLC = ar rcs
 CFLAGS  = -g -Wall
 STD = -std=c++11
-OBJS = src/Scene.pb.cc src/ivan_log.o src/configuration_manager.o src/globals.o src/scene.o main.o
+OBJS = src/Scene.pb.cc src/ivan_log.o src/configuration_manager.o src/globals.o src/scene.o src/query_helper.o src/message_processor.o main.o
 RHEL_TESTS = scene_test_rhel configuration_test_rhel
 TESTS = scene_test configuration_test
 LIBS = -lpthread -llog4cpp
@@ -64,6 +64,12 @@ src/scene.o: src/scene.cpp src/scene.h src/Scene.pb.cc
 
 src/globals.o: src/globals.cpp src/globals.h
 	$(CC) $(CFLAGS) -o $@ -c src/globals.cpp $(STD)
+
+src/query_helper.o: src/query_helper.h src/query_helper.cpp
+	$(CC) $(CFLAGS) -o $@ -c src/query_helper.cpp $(STD)
+
+src/message_processor.o: src/message_processor.h src/message_processor.cpp
+	$(CC) $(CFLAGS) -o $@ -c src/message_processor.cpp $(STD)
 
 main.o: main.cpp src/ivan_utils.h src/uuid.h src/redis_locking.h src/message_processor.h
 	$(CC) $(CFLAGS) -o $@ -c main.cpp $(STD)

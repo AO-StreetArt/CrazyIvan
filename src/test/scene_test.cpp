@@ -50,21 +50,8 @@ int main() {
   assert( scene1.get_scene(0)->num_devices() == 2 );
   assert( scene1.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
   assert( scene1.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
-  assert( !(scene1.get_scene(0)->has_transform()) );
 
   //Transform tests
-
-  Eigen::Matrix4d transform_matrix = Eigen::Matrix4d::Identity(4, 4);
-  transform_matrix(0,0) = 2.0;
-  scene1.get_scene(0)->set_transform_matrix(transform_matrix);
-
-  assert( scene1.get_scene(0)->has_transform() );
-  assert( scene1.get_scene(0)->get_transform(0, 0) == 2.0 );
-  assert( scene1.get_scene(0)->get_transform(1, 1) == 1.0 );
-  assert( scene1.get_scene(0)->get_transform(2, 2) == 1.0 );
-  assert( scene1.get_scene(0)->get_transform(3, 3) == 1.0 );
-  assert( scene1.get_scene(0)->get_transform(1, 0) == 0.0 );
-  assert( scene1.get_scene(0)->get_transform(0, 1) == 0.0 );
 
   //Protocol Buffer tests
   std::string proto_string = scene1.to_protobuf();
@@ -83,13 +70,6 @@ int main() {
   assert( scene3.get_scene(0)->num_devices() == 2 );
   assert( scene3.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
   assert( scene3.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
-  assert( scene3.get_scene(0)->has_transform() );
-  assert( scene3.get_scene(0)->get_transform(0, 0) == 2.0 );
-  assert( scene3.get_scene(0)->get_transform(1, 1) == 1.0 );
-  assert( scene3.get_scene(0)->get_transform(2, 2) == 1.0 );
-  assert( scene3.get_scene(0)->get_transform(3, 3) == 1.0 );
-  assert( scene3.get_scene(0)->get_transform(1, 0) == 0.0 );
-  assert( scene3.get_scene(0)->get_transform(0, 1) == 0.0 );
 
   shutdown_logging_submodules();
 

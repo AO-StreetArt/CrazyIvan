@@ -16,22 +16,47 @@
 #ifndef SCENE
 #define SCENE
 
+//Transform
+//Stores a translation, local rotation, and global rotation
+class Transform {
+std::vector<double> tran;
+std::vector<double> rot;
+bool tran_flag;
+bool rot_flag;
+public:
+  Transform();
+  Transform(protoScene::SceneList_Transformation data);
+  ~Transform() {}
+  double translation(int index) {return tran[index];}
+  void translate(int index, double amt) {tran[index] = tran[index] + amt;tran_flag=true;}
+  double rotation(int index) {return rot[index];}
+  void rotate(int index, double amt) {rot[index] = rot[index] + amt;rot_flag=true;}
+  void add_transform(Transform &t, bool inverted);
+  void add_transform(Transform &t) {add_transform(t, false);}
+  bool has_translation() {return tran_flag;}
+  bool has_rotation() {return rot_flag;}
+  void invert();
+};
+
 //User Device
 //Stores a transform (relative to current scene) and key
 class UserDevice {
-Eigen::Matrix4d transform_matrix;
+Transform *trans;
 std::string key;
 bool trns_flag;
 public:
   UserDevice(protoScene::SceneList_UserDevice scn_data);
-  UserDevice() {transform_matrix = Eigen::Matrix4d::Identity(4, 4);trns_flag=true;}
-  UserDevice(Eigen::Matrix4d transform) {transform_matrix = transform;trns_flag=true;}
+  UserDevice() {trns_flag=false;}
+  UserDevice(Transform *transform) {trans = transform;trns_flag=true;}
   UserDevice(std::string new_key) {key = new_key;trns_flag=false;}
-  UserDevice(std::string new_key, Eigen::Matrix4d transform) {key = new_key;transform_matrix = transform;trns_flag=true;}
+  UserDevice(std::string new_key, Transform *transform) {key = new_key;trans = transform;trns_flag=true;}
   ~UserDevice() {}
-  void set_transform_matrix(Eigen::Matrix4d new_transform) {transform_matrix = new_transform;trns_flag=true;}
-  double get_transform(int row, int col) {return transform_matrix(row, col);}
-  Eigen::Matrix4d get_transform_matrix() {return transform_matrix;}
+  void set_transform(Transform *transform) {trans = transform;trns_flag=true;}
+  Transform* get_transform() {return trans;}
+  double get_translation(int index) {return trans->translation(index);}
+  double get_rotation(int index) {return trans->rotation(index);}
+  void set_translation(int index, double amt) {trans->translate(index, amt);trns_flag=true;}
+  void set_rotation(int index, double amt) {trans->rotate(index, amt);trns_flag=true;}
   bool has_transform() {return trns_flag;}
   void set_key(std::string new_key) {key = new_key;}
   std::string get_key() {return key;}
@@ -43,24 +68,27 @@ std::string key;
 std::string name;
 double latitude;
 double longitude;
+double distance;
 bool trns_flag;
 std::vector<UserDevice*> devices;
-Eigen::Matrix4d transform_matrix;
+Transform* scene_transform;
 public:
-  SceneData() {key = "";name = "";latitude=0.0;longitude=0.0;trns_flag=false;}
+  SceneData() {key = "";name = "";latitude=0.0;longitude=0.0;distance=0.0;trns_flag=false;}
   SceneData(protoScene::SceneList_Scene scn_data);
-  ~SceneData() {for (unsigned int i = 0; i < devices.size(); i++) {if (devices[i]) {delete devices[i];}}}
+  ~SceneData() {if (scene_transform) {delete scene_transform;} for (unsigned int i = 0; i < devices.size(); i++) {if (devices[i]) {delete devices[i];}}}
   //Setters
   void set_key(std::string new_key) {key=new_key;}
   void set_name(std::string new_name) {name=new_name;}
   void set_latitude(double new_lat) {latitude=new_lat;}
   void set_longitude(double new_long) {longitude=new_long;}
+  void set_distance(double new_dist) {distance=new_dist;}
 
   //Getters
   std::string get_key() {return key;}
   std::string get_name() {return name;}
   double get_latitude() {return latitude;}
   double get_longitude() {return longitude;}
+  double get_distance() {return distance;}
 
   //List
   UserDevice* add_device(std::string device_id) {UserDevice *d = new UserDevice (device_id);devices.push_back(d); return d;}
@@ -69,10 +97,9 @@ public:
   std::vector<UserDevice*> get_devices() {return devices;}
 
   //Transform
-  void set_transform_matrix(Eigen::Matrix4d new_transform) {transform_matrix = new_transform;trns_flag=true;}
-  double get_transform(int row, int col) {return transform_matrix(row, col);}
-  Eigen::Matrix4d get_transform_matrix() {return transform_matrix;}
+  Transform* get_scene_transform() {return scene_transform;}
   bool has_transform() {return trns_flag;}
+  void set_transform(Transform *trns) {scene_transform=trns;}
 };
 
 //A single scene message, may include data for multiple scene objects
@@ -82,6 +109,8 @@ std::string err_msg;
 int err_code;
 std::string transaction_id;
 std::vector<SceneData*> data;
+double distance;
+int num_records;
 public:
   //Constructor
   Scene();
@@ -98,6 +127,8 @@ public:
   void set_transaction_id(std::string new_tran_id) {transaction_id=new_tran_id;}
   void set_err_code(int new_code) {err_code=new_code;}
   SceneData* add_scene() {SceneData *scn = new SceneData;data.push_back(scn);return scn;}
+  void set_distance(double new_dist) {distance = new_dist;}
+  void set_num_records(int new_num) {num_records = new_num;}
   //Getters
   int get_msg_type() {return msg_type;}
   std::string get_err() {return err_msg;}
@@ -105,6 +136,8 @@ public:
   int get_err_code() {return err_code;}
   SceneData* get_scene(int i) {return data[i];}
   int num_scenes() {return data.size();}
+  double get_distance() {return distance;}
+  int get_num_records() {return num_records;}
 
 };
 
