@@ -136,7 +136,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       ResultTreeInterface *tree = results->next();
       while (tree) {
 
-        SceneData * data = sc->add_scene();
+        SceneData new_data;
 
         //Get the first DB Object (Node)
         DbObjectInterface* obj = tree->get(0);
@@ -147,16 +147,16 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
         //Scene object
         DbMapInterface* map = obj->properties();
         if (map->element_exists("key")) {
-          data->set_key( map->get_string_element("key") );
+          new_data.set_key( map->get_string_element("key") );
         }
         if (map->element_exists("name")) {
-          data->set_name( map->get_string_element("name") );
+          new_data.set_name( map->get_string_element("name") );
         }
         if (map->element_exists("latitude")) {
-          data->set_latitude( map->get_float_element("latitude") );
+          new_data.set_latitude( map->get_float_element("latitude") );
         }
         if (map->element_exists("longitude")) {
-          data->set_longitude( map->get_float_element("longitude") );
+          new_data.set_longitude( map->get_float_element("longitude") );
         }
 
         //Get the transform and device info
@@ -173,12 +173,15 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
 
         if (dev_props->element_exists("key")) {
           //Add the device related data to the scene
-          UserDevice *new_dev = data->add_device(dev_props->get_string_element("key"));
+          UserDevice new_dev (dev_props->get_string_element("key"));
           for (int i=0;i<3;i++) {
-            new_dev->set_translation( i, trans->get_float_element(i) );
-            new_dev->set_rotation(i, rot->get_float_element(i));
+            new_dev.set_translation( i, trans->get_float_element(i) );
+            new_dev.set_rotation(i, rot->get_float_element(i));
           }
+          new_data.add_device(new_dev);
         }
+
+        sc->add_scene(new_data);
 
         if (map) {
           delete map;
@@ -554,13 +557,13 @@ void QueryHelper::process_UDUD_transformation(Scene *registered_scenes, Scene *o
   //Get the number of scenes
   int num_scenes = registered_scenes->num_scenes();
   int results = -1;
-  std::string scene2_key = obj_msg->get_scene(0)->get_key();
+  std::string scene2_key = obj_msg->get_scene(0).get_key();
 
   //Iterate through pairs of scenes registered to
   for (int i=0;i<num_scenes;i++) {
 
     //Get the scene ID's
-    std::string scene1_key = registered_scenes->get_scene(i)->get_key();
+    std::string scene1_key = registered_scenes->get_scene(i).get_key();
 
     if (scene1_key != scene2_key) {
 
@@ -569,21 +572,21 @@ void QueryHelper::process_UDUD_transformation(Scene *registered_scenes, Scene *o
       for (int k=0;k<3;k++) {
         //translation
         double new_translation = 0.0;
-        if (obj_msg->get_scene(0)->get_device(0)->get_transform()->has_translation()) {
-          new_translation = new_translation - obj_msg->get_scene(0)->get_device(0)->get_transform()->translation(k);
+        if (obj_msg->get_scene(0).get_device(0).get_transform()->has_translation()) {
+          new_translation = new_translation - obj_msg->get_scene(0).get_device(0).get_transform()->translation(k);
         }
-        if (registered_scenes->get_scene(i)->get_device(0)->get_transform()->has_translation()) {
-          new_translation = new_translation + registered_scenes->get_scene(i)->get_device(0)->get_transform()->translation(k);
+        if (registered_scenes->get_scene(i).get_device(0).get_transform()->has_translation()) {
+          new_translation = new_translation + registered_scenes->get_scene(i).get_device(0).get_transform()->translation(k);
         }
         new_trans.translate( k, new_translation );
 
         //rotation
         double new_rotation = 0.0;
-        if (obj_msg->get_scene(0)->get_device(0)->get_transform()->has_rotation()) {
-          new_rotation = new_rotation - obj_msg->get_scene(0)->get_device(0)->get_transform()->rotation(k);
+        if (obj_msg->get_scene(0).get_device(0).get_transform()->has_rotation()) {
+          new_rotation = new_rotation - obj_msg->get_scene(0).get_device(0).get_transform()->rotation(k);
         }
-        if (registered_scenes->get_scene(i)->get_device(0)->get_transform()->has_rotation()) {
-          new_rotation = new_rotation + registered_scenes->get_scene(i)->get_device(0)->get_transform()->rotation(k);
+        if (registered_scenes->get_scene(i).get_device(0).get_transform()->has_rotation()) {
+          new_rotation = new_rotation + registered_scenes->get_scene(i).get_device(0).get_transform()->rotation(k);
         }
         new_trans.rotate(k, new_rotation );
       }

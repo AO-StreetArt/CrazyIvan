@@ -254,8 +254,8 @@ void my_signal_handler(int s){
 
         // Turn the response from the processor into a response for the client
         resp = new Scene();
-        SceneData * resp_data = resp->add_scene();
-        resp_data->set_key(translated_object->get_scene(0)->get_key());
+        SceneData resp_data;
+        resp_data.set_key(translated_object->get_scene(0).get_key());
         resp->set_err_msg(current_error_message);
         resp->set_err_code(current_error_code);
 
@@ -292,12 +292,14 @@ void my_signal_handler(int s){
         else {
           //If we have a create request, we will get a key back from the processor
           if (msg_type == SCENE_CRT) {
-            resp_data->set_key( process_result );
+            resp_data.set_key( process_result );
           }
           //Otherwise, set the response key from the translated object
           else {
-            resp_data->set_key( translated_object->get_scene(0)->get_key() );
+            resp_data.set_key( translated_object->get_scene(0).get_key() );
           }
+
+          resp->add_scene(resp_data);
 
           //Send the Inbound response
           zmqi->send( resp->to_protobuf() );

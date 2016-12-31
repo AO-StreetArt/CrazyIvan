@@ -12,23 +12,23 @@ void Transform::invert() {
 Transform::Transform() {
   tran_flag=false;
   rot_flag=false;
-  tran[0] = 0.0;
-  tran[1] = 0.0;
-  tran[2] = 0.0;
-  rot[0] = 0.0;
-  rot[1] = 0.0;
-  rot[2] = 0.0;
+  tran.push_back(0.0);
+  tran.push_back(0.0);
+  tran.push_back(0.0);
+  rot.push_back(0.0);
+  rot.push_back(0.0);
+  rot.push_back(0.0);
 }
 
 Transform::Transform(protoScene::SceneList_Transformation data) {
   tran_flag=false;
   rot_flag=false;
-  tran[0] = 0.0;
-  tran[1] = 0.0;
-  tran[2] = 0.0;
-  rot[0] = 0.0;
-  rot[1] = 0.0;
-  rot[2] = 0.0;
+  tran.push_back(0.0);
+  tran.push_back(0.0);
+  tran.push_back(0.0);
+  rot.push_back(0.0);
+  rot.push_back(0.0);
+  rot.push_back(0.0);
   if (data.has_translation()) {
     protoScene::SceneList_Vertex3 ptrans = data.translation();
     tran[0] = ptrans.x();
@@ -88,6 +88,49 @@ UserDevice::UserDevice(protoScene::SceneList_UserDevice ud_data) {
   key=new_key;
 }
 
+//Copy Constructor
+UserDevice::UserDevice(const UserDevice &ud) {
+  key=ud.get_key();
+  trns_flag=false;
+  if ( ud.has_transform() ) {
+    trns_flag=true;
+    trans = new Transform;
+    for (int i=0;i<3;i++) {
+      trans->translate(i, ud.get_translation(i));
+      trans->rotate(i, ud.get_rotation(i));
+    }
+  }
+}
+
+//Copy Constructor
+SceneData::SceneData(const SceneData& sd) {
+  key=sd.get_key();
+  name=sd.get_name();
+  latitude=sd.get_latitude();
+  longitude=sd.get_longitude();
+  distance=sd.get_distance();
+  trns_flag=false;
+  if (sd.has_transform()) {
+    trns_flag=true;
+    scene_transform = new Transform;
+    for (int i=0;i<3;i++) {
+      scene_transform->translate(i, sd.get_scene_transform()->translation(i));
+      scene_transform->rotate(i, sd.get_scene_transform()->rotation(i));
+    }
+  }
+  for (int j=0;j<sd.num_devices();j++) {
+    Transform *new_tran = new Transform;
+    for (int k=0;k<3;k++) {
+      if ( sd.get_device(j).has_transform() ) {
+        new_tran->translate(k, sd.get_device(j).get_translation(k));
+        new_tran->rotate(k, sd.get_device(j).get_rotation(k));
+      }
+    }
+    UserDevice new_dev (sd.get_device(j).get_key(), new_tran);
+    devices.push_back(new_dev);
+  }
+}
+
 //Create a new scene data object from a protocol buffer scene object
 SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
 
@@ -125,7 +168,7 @@ SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
   }
   if (scn_data.devices_size() > 0) {
     for (int k=0; k< scn_data.devices_size(); k++) {
-      UserDevice *ud = new UserDevice (scn_data.devices(k));
+      UserDevice ud (scn_data.devices(k));
       devices.push_back(ud);
     }
   }
@@ -179,7 +222,7 @@ Scene::Scene(protoScene::SceneList buffer) {
     new_num_records = buffer.num_records();
   }
   for (int a = 0; a < buffer.scenes_size(); a++) {
-    SceneData *sc_data = new SceneData (buffer.scenes(a));
+    SceneData sc_data (buffer.scenes(a));
     data.push_back(sc_data);
   }
 
@@ -223,52 +266,52 @@ std::string Scene::to_protobuf() {
     protoScene::SceneList_Scene *scn = new_proto->add_scenes();
 
     //Name & Key
-    std::string key = data[a]->get_key();
+    std::string key = data[a].get_key();
     obj_logging->info("Scene:To Proto message Called on object");
   	obj_logging->info(key);
     if ( !(key.empty()) ) {
   		scn->set_key(key);
   	}
-    std::string name = data[a]->get_name();
+    std::string name = data[a].get_name();
     if ( !(name.empty()) ) {
   		scn->set_name(name);
   	}
 
     //Lat/long
-    scn->set_latitude(data[a]->get_latitude());
-  	scn->set_longitude(data[a]->get_longitude());
+    scn->set_latitude(data[a].get_latitude());
+  	scn->set_longitude(data[a].get_longitude());
 
     //Convert transform
-    if (data[a]->has_transform()) {
+    if (data[a].has_transform()) {
       protoScene::SceneList_Transformation *trn = scn->mutable_transform();
       protoScene::SceneList_Vertex3 *proto_translation = trn->mutable_translation();
       protoScene::SceneList_Vertex3 *proto_rot = trn->mutable_rotation();
-      proto_translation->set_x(data[a]->get_scene_transform()->translation(0));
-      proto_translation->set_y(data[a]->get_scene_transform()->translation(1));
-      proto_translation->set_z(data[a]->get_scene_transform()->translation(2));
-      proto_rot->set_x(data[a]->get_scene_transform()->rotation(0));
-      proto_rot->set_y(data[a]->get_scene_transform()->rotation(1));
-      proto_rot->set_z(data[a]->get_scene_transform()->rotation(2));
+      proto_translation->set_x(data[a].get_scene_transform()->translation(0));
+      proto_translation->set_y(data[a].get_scene_transform()->translation(1));
+      proto_translation->set_z(data[a].get_scene_transform()->translation(2));
+      proto_rot->set_x(data[a].get_scene_transform()->rotation(0));
+      proto_rot->set_y(data[a].get_scene_transform()->rotation(1));
+      proto_rot->set_z(data[a].get_scene_transform()->rotation(2));
     }
 
     //Iterate through the device list for the scene and write those
-    for (int b = 0; b < data[a]->num_devices(); b++) {
+    for (int b = 0; b < data[a].num_devices(); b++) {
       protoScene::SceneList_UserDevice *ud = scn->add_devices();
-      std::string key = data[a]->get_device(b)->get_key();
+      std::string key = data[a].get_device(b).get_key();
       if ( !(key.empty()) ) {
     		ud->set_key(key);
     	}
 
-      if (data[a]->get_device(b)->has_transform()) {
+      if (data[a].get_device(b).has_transform()) {
         protoScene::SceneList_Transformation *trn = ud->mutable_transform();
         protoScene::SceneList_Vertex3 *proto_translation = trn->mutable_translation();
         protoScene::SceneList_Vertex3 *proto_rot = trn->mutable_rotation();
-        proto_translation->set_x(data[a]->get_device(b)->get_transform()->translation(0));
-        proto_translation->set_y(data[a]->get_device(b)->get_transform()->translation(1));
-        proto_translation->set_z(data[a]->get_device(b)->get_transform()->translation(2));
-        proto_rot->set_x(data[a]->get_device(b)->get_transform()->rotation(0));
-        proto_rot->set_y(data[a]->get_device(b)->get_transform()->rotation(1));
-        proto_rot->set_z(data[a]->get_device(b)->get_transform()->rotation(2));
+        proto_translation->set_x(data[a].get_device(b).get_transform()->translation(0));
+        proto_translation->set_y(data[a].get_device(b).get_transform()->translation(1));
+        proto_translation->set_z(data[a].get_device(b).get_transform()->translation(2));
+        proto_rot->set_x(data[a].get_device(b).get_transform()->rotation(0));
+        proto_rot->set_y(data[a].get_device(b).get_transform()->rotation(1));
+        proto_rot->set_z(data[a].get_device(b).get_transform()->rotation(2));
       }
     }
   }
