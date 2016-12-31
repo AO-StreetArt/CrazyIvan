@@ -4,8 +4,7 @@
 
 ## Overview
 
-Crazy Ivan is a service designed to store 'scenes', with relationships between them
-expressed as 4x4 matrices.  These are relationships between coordinate systems, to which
+Crazy Ivan is a service designed to store 'scenes', with relationships between them.  These are relationships between coordinate systems, to which
 each scene is associated.  This allows for establishing relationships between devices in real-space.
 
 Features:
