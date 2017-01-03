@@ -227,6 +227,7 @@ void my_signal_handler(int s){
               tran_id_str = generate_uuid();
               main_logging->debug("Generated Transaction ID: " + tran_id_str);
 
+              //Assign Transaction ID
               if (!translated_object)
               {
                 main_logging->debug("No translated object to assign Transaction ID to");
