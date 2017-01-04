@@ -167,27 +167,28 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
     }
 
     //Execute the query
+    std::string ret_val = "";
     try {
       results = n->execute(scene_query, scene_params);
       if (!results) {
         processor_logging->error("No results returned from update query");
-        return "-1";
+        ret_val = "-1";
       }
       else {
-        return qkey;
+        ret_val = qkey;
       }
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
-      return "-1";
+      ret_val = "-1";
     }
   }
   if (results) {
     delete results;
   }
   release_mutex_lock(obj_msg->get_scene(0).get_key());
-  return "";
+  return ret_val;
 }
 
 //Query for scene data
@@ -356,24 +357,25 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
     scene_params.emplace("inp_key", key_param);
 
     //Execute the query
+    std::string ret_val = "";
     try {
       results = n->execute(scene_query, scene_params);
       if (!results) {
         processor_logging->error("No results returned from update query");
-        return "-1";
+        ret_val = "-1";
       }
       else {
-        return qkey;
+        ret_val = qkey;
       }
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
-      return "-1";
+      ret_val = "-1";
     }
   }
   release_mutex_lock(obj_msg->get_scene(0).get_key());
-  return "";
+  return ret_val;
 }
 
 //----------------------------------------------------------------------------//
@@ -559,6 +561,7 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
     delete registered_scenes;
   }
 
+  release_mutex_lock(obj_msg->get_scene(0).get_key());
   return proto_resp;
 }
 
@@ -598,6 +601,7 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
   std::string proto_resp = build_proto_response(SCENE_LEAVE, current_err_code,\
     current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0).get_key());
 
+  release_mutex_lock(obj_msg->get_scene(0).get_key());
   return proto_resp;
 }
 
@@ -664,5 +668,6 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
     delete registered_scenes;
   }
 
+  release_mutex_lock(obj_msg->get_scene(0).get_key());
   return proto_resp;
 }
