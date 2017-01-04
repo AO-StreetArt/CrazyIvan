@@ -103,6 +103,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
 
 //Update the details of a scene entry
 std::string MessageProcessor::process_update_message(Scene *obj_msg) {
+  std::string ret_val = "";
   get_mutex_lock(obj_msg->get_scene(0).get_key());
   ResultsIteratorInterface *results = NULL;
   processor_logging->debug("Processing Scene Update message");
@@ -167,7 +168,6 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
     }
 
     //Execute the query
-    std::string ret_val = "";
     try {
       results = n->execute(scene_query, scene_params);
       if (!results) {
@@ -335,6 +335,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
 //Delete a scene
 std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
+  std::string ret_val = "";
   get_mutex_lock(obj_msg->get_scene(0).get_key());
   processor_logging->debug("Processing Scene Update message");
   ResultsIteratorInterface *results = NULL;
@@ -357,7 +358,6 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
     scene_params.emplace("inp_key", key_param);
 
     //Execute the query
-    std::string ret_val = "";
     try {
       results = n->execute(scene_query, scene_params);
       if (!results) {
