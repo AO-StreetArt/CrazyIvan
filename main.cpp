@@ -259,6 +259,7 @@ void my_signal_handler(int s){
         resp_data.set_key(translated_object->get_scene(0).get_key());
         resp->set_err_msg(current_error_message);
         resp->set_err_code(current_error_code);
+        resp->set_msg_type(msg_type);
 
         //  Send reply back to client
         //Ping message, send back "success"
@@ -283,9 +284,11 @@ void my_signal_handler(int s){
           main_logging->debug("Response Sent");
         }
 
-        //If we have a load request, we will have a proto buffer string
+        //If we have a load request or a registration/deregistration/alignment,
+        //we will have a proto buffer string
         //in the response from the processor
-        else if (msg_type == SCENE_GET) {
+        else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
+          msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
           zmqi->send( process_result );
         }
 
