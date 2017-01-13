@@ -58,7 +58,7 @@ public:
   double get_rotation(int index) const {return trans->rotation(index);}
   void set_translation(int index, double amt) {trans->translate(index, amt);trns_flag=true;}
   void set_rotation(int index, double amt) {trans->rotate(index, amt);trns_flag=true;}
-  bool has_transform() const {return trns_flag;}
+  bool has_transform() const {if ((!trans) || (!trns_flag)) {return false;} else {return true;}}
   void set_key(std::string new_key) {key = new_key;}
   std::string get_key() const {return key;}
 };

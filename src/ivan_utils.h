@@ -17,8 +17,8 @@ const int SCENE_UPD = 1;
 const int SCENE_GET = 2;
 const int SCENE_DEL = 3;
 const int SCENE_ENTER = 4;
-const int SCENE_LEAVE = 6;
-const int DEVICE_ALIGN = 7;
+const int SCENE_LEAVE = 5;
+const int DEVICE_ALIGN = 6;
 const int KILL = 999;
 const int PING = 555;
 

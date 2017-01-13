@@ -96,8 +96,12 @@ UserDevice::UserDevice(const UserDevice &ud) {
     trns_flag=true;
     trans = new Transform;
     for (int i=0;i<3;i++) {
-      trans->translate(i, ud.get_translation(i));
-      trans->rotate(i, ud.get_rotation(i));
+      if (ud.get_transform()->has_translation()) {
+        trans->translate(i, ud.get_translation(i));
+      }
+      if (ud.get_transform()->has_rotation()) {
+        trans->rotate(i, ud.get_rotation(i));
+      }
     }
   }
 }
@@ -140,9 +144,9 @@ SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
   //New variables
   std::string new_key="";
   std::string new_name="";
-  double new_latitude=0.0;
-  double new_longitude=0.0;
-  double new_distance=0.0;
+  double new_latitude=-9999.0;
+  double new_longitude=-9999.0;
+  double new_distance=-1.0;
   trns_flag=false;
 
   //Perform the translation

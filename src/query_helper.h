@@ -8,6 +8,28 @@
 #ifndef QUERY_HELPER
 #define QUERY_HELPER
 
+//! A Query Exception
+
+//! A child class of std::exception
+//! which holds error information
+struct QueryException: public std::exception
+{
+  //! An error message passed on initialization
+  std::string int_msg;
+
+  //! Create a Neo4j Exception, and store the given error message
+  QueryException (std::string msg) {int_msg = msg;}
+
+  QueryException () {}
+  ~QueryException() throw () {}
+  //! Show the error message in readable format
+  const char * what() const throw ()
+  {
+  std::string what_str = "Error in Query Helper: " + int_msg;
+  return what_str.c_str();
+  }
+};
+
 struct SceneTransformResult {
   Transform transform;
   bool result_flag;
