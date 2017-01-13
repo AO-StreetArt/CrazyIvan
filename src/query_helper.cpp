@@ -64,13 +64,16 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
     while (tree) {
 
       //Get the first DB Object (Node)
+      DbMapInterface* map = NULL;
       DbObjectInterface* obj = tree->get(0);
       processor_logging->debug("Query Result:");
       processor_logging->debug(obj->to_string());
 
+      if ( !(obj->is_node()) ) break;
+
       //Pull the node properties and assign them to the new
       //Scene object
-      DbMapInterface* map = obj->properties();
+      map = obj->properties();
       std::string db_key = "";
       if (map->element_exists("key")) {
         db_key = map->get_string_element("key");
@@ -140,6 +143,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
 
         //Get the first DB Object (Node)
         DbObjectInterface* obj = tree->get(0);
+        if ( !(obj->is_node()) ) break;
         processor_logging->debug("Query Result:");
         processor_logging->debug(obj->to_string());
 
@@ -160,25 +164,37 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
         }
 
         //Get the transform and device info
+        DbListInterface *trans = NULL;
+        DbMapInterface *edge_props = NULL;
+        DbListInterface *rot = NULL;
         DbObjectInterface *edge = tree->get(1);
-        DbObjectInterface *device = tree->get(2);
-
-        //Get the transform and device properties
-        DbMapInterface *edge_props = edge->properties();
-        DbMapInterface *dev_props = device->properties();
-
-        //Get the transform attributes
-        DbListInterface *trans = edge_props->get_list_element("translation");
-        DbListInterface *rot = edge_props->get_list_element("rotation");
-
-        if (dev_props->element_exists("key")) {
-          //Add the device related data to the scene
-          UserDevice new_dev (dev_props->get_string_element("key"));
-          for (int i=0;i<3;i++) {
-            new_dev.set_translation( i, trans->get_float_element(i) );
-            new_dev.set_rotation(i, rot->get_float_element(i));
+        if ( obj->is_edge() )  {
+          edge_props = edge->properties();
+          //Get the transform attributes
+          if (edge_props->element_exists("translation")) {
+            trans = edge_props->get_list_element("translation");
           }
-          new_data.add_device(new_dev);
+          if (edge_props->element_exists("rotation")) {
+            rot = edge_props->get_list_element("rotation");
+          }
+        }
+
+        DbObjectInterface *device = tree->get(2);
+        if ( obj->is_node() ) {
+          //Get the transform and device properties
+          DbMapInterface *dev_props = device->properties();
+
+          if (dev_props->element_exists("key")) {
+            //Add the device related data to the scene
+            UserDevice new_dev (dev_props->get_string_element("key"));
+            for (int i=0;i<3;i++) {
+              if (trans && rot) {
+                new_dev.set_translation( i, trans->get_float_element(i) );
+                new_dev.set_rotation(i, rot->get_float_element(i));
+              }
+            }
+            new_data.add_device(new_dev);
+          }
         }
 
         sc->add_scene(new_data);
@@ -305,13 +321,15 @@ void QueryHelper::remove_device_from_scene(std::string device_id, std::string sc
 
 //Update the device registration
 void QueryHelper::update_device_registration(std::string dev_id, std::string scene_id, Transform &transform) {
-  processor_logging->debug("Creating Device Registration link");
+  processor_logging->debug("Updating Device Registration link");
   ResultsIteratorInterface *results = NULL;
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface* obj = NULL;
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key}})-[trans:TRANSFORM]->(ud:UserDevice {key: {inp_ud_key}})"
-    " SET trans.translation = [{loc_x}, {loc_y}, {loc_z}], trans.rotation: [{rot_x}, {rot_y}, {rot_z}]}"
-    " RETURN trans";
+    " SET trans.translation = [{loc_x}, {loc_y}, {loc_z}], trans.rotation = [{rot_x}, {rot_y}, {rot_z}]"
+    " RETURN scn, trans, ud";
 
   //Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
@@ -350,8 +368,18 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
     processor_logging->error("No Links created");
   }
   else {
+    tree = results->next();
+    obj = tree->get(0);
+    if ( !(obj->is_node()) ) {
+      processor_logging->debug("Query Returned no values");
+      std::string exc_str = "Query Returned no values: ";
+      exc_str = exc_str + udq_string;
+      throw QueryException(exc_str);
+    }
     delete results;
   }
+  if (tree) {delete tree;}
+  if (obj) {delete obj;}
   if (skey_param) {delete skey_param;}
   if (udkey_param) {delete udkey_param;}
   if (locx_param) {delete locx_param;}
@@ -406,13 +434,18 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
     //Find if the first result is forward or backward
     tree = results->next();
     obj = tree->get(0);
-    map = obj->properties();
-    if (map->element_exists("key")) {
-      if ( scene1_key == map->get_string_element("key") ) {
-        return 1;
-      }
-      else if ( scene2_key == map->get_string_element("key") ) {
-        return 2;
+    if ( !(obj->is_edge()) ) {
+      processor_logging->debug("Non-Edge value returned from query");
+    }
+    else {
+      map = obj->properties();
+      if (map->element_exists("key")) {
+        if ( scene1_key == map->get_string_element("key") ) {
+          return 1;
+        }
+        else if ( scene2_key == map->get_string_element("key") ) {
+          return 2;
+        }
       }
     }
   }
@@ -469,13 +502,25 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   q_params.emplace("rot_z", rotz_param);
 
   //Execute the query
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface* obj = NULL;
   results = n->execute(udq_string, q_params);
   if (!results) {
     processor_logging->error("No Links created");
   }
   else {
+    tree = results->next();
+    obj = tree->get(0);
+    if ( !(obj->is_node()) ) {
+      processor_logging->debug("Query Returned no values");
+      std::string exc_str = "Query Returned no values: ";
+      exc_str = exc_str + udq_string;
+      throw QueryException(exc_str);
+    }
     delete results;
   }
+  if (tree) {delete tree;}
+  if (obj) {delete obj;}
   if (s1key_param) {delete s1key_param;}
   if (s2key_param) {delete s2key_param;}
   if (locx_param) {delete locx_param;}
@@ -490,11 +535,13 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
 void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Transform new_trans) {
   processor_logging->debug("Updating Scene link");
   ResultsIteratorInterface *results = NULL;
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface* obj = NULL;
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}})-[trans:TRANSFORM]->(scn2:Scene {key: {inp_key2}})"
     " SET trans.translation = [{loc_x}, {loc_y}, {loc_z}], trans.rotation: [{rot_x}, {rot_y}, {rot_z}]}"
-    " RETURN trans";
+    " RETURN scn, trans, scn2";
 
   //Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
@@ -533,8 +580,18 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
     processor_logging->error("No Links created");
   }
   else {
+    tree = results->next();
+    obj = tree->get(0);
+    if ( !(obj->is_node()) ) {
+      processor_logging->debug("Query Returned no values");
+      std::string exc_str = "Query Returned no values: ";
+      exc_str = exc_str + udq_string;
+      throw QueryException(exc_str);
+    }
     delete results;
   }
+  if (tree) {delete tree;}
+  if (obj) {delete obj;}
   if (s1key_param) {delete s1key_param;}
   if (s2key_param) {delete s2key_param;}
   if (locx_param) {delete locx_param;}
@@ -554,6 +611,8 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
 //which are then processed to generate the Scene-Scene links
 void QueryHelper::process_UDUD_transformation(Scene *registered_scenes, Scene *obj_msg) {
 
+  processor_logging->debug("Processing Scene-Scene Links");
+
   //Get the number of scenes
   int num_scenes = registered_scenes->num_scenes();
   int results = -1;
@@ -568,6 +627,7 @@ void QueryHelper::process_UDUD_transformation(Scene *registered_scenes, Scene *o
     if (scene1_key != scene2_key) {
 
       //Get the user device transforms for each scene, calculate the correct transform
+      processor_logging->debug("Calculating Transform");
       Transform new_trans;
       for (int k=0;k<3;k++) {
         //translation
@@ -592,6 +652,7 @@ void QueryHelper::process_UDUD_transformation(Scene *registered_scenes, Scene *o
       }
 
       //Get any existing scene links
+      processor_logging->debug("Retrieving existing scene links");
       results = get_scene_link(scene1_key, scene2_key);
       if (results == 0) {
         //No links found, create new one

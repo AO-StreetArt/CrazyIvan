@@ -206,7 +206,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
     std::string scene_query = "MATCH (scn:Scene";
     if ( !(obj_msg->get_scene(0).get_name().empty()) ) {
 
-      scene_query = scene_query + " {name = {inp_name}";
+      scene_query = scene_query + " {name: {inp_name}";
       is_started = true;
     }
 
@@ -217,7 +217,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
       else {
         scene_query = scene_query + " {";
       }
-      scene_query = scene_query + "key = {inp_key}";
+      scene_query = scene_query + "key: {inp_key}";
       is_started = true;
     }
 
@@ -227,7 +227,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
     scene_query = scene_query + ")";
 
-    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0 || obj_msg->get_scene(0).get_longitude() == -9999.0 || obj_msg->get_scene(0).get_distance() < 0.0) ) {
+    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0 || obj_msg->get_scene(0).get_longitude() == -9999.0 || obj_msg->get_scene(0).get_distance() < 0.0 ) ) {
       //Query for distance
       scene_query = scene_query + " WHERE ((scn.latitude - {inp_lat}) ^ 2 + (scn.longitude - {inp_long}) ^ 2) ^ (1/2) < {inp_distance}";
     }
@@ -279,7 +279,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
         sc.set_msg_type(SCENE_GET);
         sc.set_transaction_id(obj_msg->get_transaction_id());
         ResultTreeInterface *tree = results->next();
-        while (tree) {
+        while (true) {
 
           SceneData data;
 
@@ -287,6 +287,9 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           DbObjectInterface* obj = tree->get(0);
           processor_logging->debug("Query Result:");
           processor_logging->debug(obj->to_string());
+
+          //Leave the loop if we don't have anything in this result tree
+          if ( !(obj->is_node()) && !(obj->is_edge()) ) break;
 
           //Pull the node properties and assign them to the new
           //Scene object
@@ -445,22 +448,22 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
     get_mutex_lock(obj_msg->get_scene(0).get_key());
   }
   catch (std::exception& e) {
+    processor_logging->error("Error getting mutex lock");
+    processor_logging->error(e.what());
     current_err_code = PROCESSING_ERROR;
     current_err_msg = e.what();
   }
 
   //Determine if the scene exists in the DB
   if (current_err_code == NO_ERROR) {
-    int scn_exist = qh->scene_exists(obj_msg->get_scene(0).get_key());
-    if (scn_exist == -1) {
+    try {
+      does_scene_exist = qh->scene_exists(obj_msg->get_scene(0).get_key());
+    }
+    catch (std::exception& e) {
+      processor_logging->error("Error checking for scene existence");
+      processor_logging->error(e.what());
       current_err_code = PROCESSING_ERROR;
-      current_err_msg = "Error Retrieving Scene from Database";
-    }
-    else if (scn_exist == 0) {
-      does_scene_exist = true;
-    }
-    else {
-      does_scene_exist = false;
+      current_err_msg = e.what();
     }
   }
 
@@ -483,6 +486,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
           obj_msg->get_scene(0).get_device(0).get_key());
       }
       catch (std::exception& e) {
+        processor_logging->error("Error checking if User Device is already registered");
+        processor_logging->error(e.what());
         current_err_code = PROCESSING_ERROR;
         current_err_msg = e.what();
       }
@@ -496,6 +501,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
       registered_scenes = qh->get_registrations(obj_msg->get_scene(0).get_device(0).get_key());
     }
     catch (std::exception& e) {
+      processor_logging->error("Error getting registrations");
+      processor_logging->error(e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -526,6 +533,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
         }
       }
       catch (std::exception& e) {
+        processor_logging->error("Error calculating Scene-Scene Transform");
+        processor_logging->error(e.what());
         current_err_code = PROCESSING_ERROR;
         current_err_msg = e.what();
       }
@@ -540,6 +549,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
         obj_msg->get_scene(0).get_key(), new_transform);
     }
     catch (std::exception& e) {
+      processor_logging->error("Error Registering Device");
+      processor_logging->error(e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -581,17 +592,22 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
     get_mutex_lock(obj_msg->get_scene(0).get_key());
   }
   catch (std::exception& e) {
+    processor_logging->error("Error Getting Mutex Lock");
+    processor_logging->error(e.what());
     current_err_code = PROCESSING_ERROR;
     current_err_msg = e.what();
   }
 
   //Remove the User Device
   if (current_err_code == NO_ERROR) {
+    processor_logging->debug("Removing Device from Scene");
     try {
-      qh->remove_device_from_scene(obj_msg->get_scene(0).get_key(),\
-        obj_msg->get_scene(0).get_device(0).get_key());
+      qh->remove_device_from_scene(obj_msg->get_scene(0).get_device(0).get_key(),\
+        obj_msg->get_scene(0).get_key());
     }
     catch (std::exception& e) {
+      processor_logging->error("Error Removing Device From Scene");
+      processor_logging->error(e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -615,7 +631,7 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
 std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   processor_logging->debug("Processing Alignment Message");
   //Current error information
-  int current_err_code = -1;
+  int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
 
   //Start by getting a mutex lock against the scene
@@ -624,6 +640,8 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
     get_mutex_lock(obj_msg->get_scene(0).get_key());
   }
   catch (std::exception& e) {
+    processor_logging->error("Error Getting Mutex Lock");
+    processor_logging->error(e.what());
     current_err_code = PROCESSING_ERROR;
     current_err_msg = e.what();
   }
@@ -635,6 +653,8 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
         obj_msg->get_scene(0).get_key(), *(obj_msg->get_scene(0).get_device(0).get_transform()) );
     }
     catch (std::exception& e) {
+      processor_logging->error("Error Updating Device Registration");
+      processor_logging->error(e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -643,10 +663,13 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   //Find scenes that the object is registered to
   Scene *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
+    processor_logging->debug("Retrieving Scenes already registered to");
     try {
       registered_scenes = qh->get_registrations(obj_msg->get_scene(0).get_device(0).get_key());
     }
     catch (std::exception& e) {
+      processor_logging->error("Error Retrieving Device Registrations");
+      processor_logging->error(e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -656,7 +679,16 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   //Correct/Create scene-scene transforms
   Transform new_transform;
   if (current_err_code == NO_ERROR) {
-    qh->process_UDUD_transformation(registered_scenes, obj_msg);
+    processor_logging->debug("Updating Scene-Scene Transforms");
+    try {
+      qh->process_UDUD_transformation(registered_scenes, obj_msg);
+    }
+    catch (std::exception& e) {
+      processor_logging->error("Error Correcting/Creating Scene-Scene Transforms");
+      processor_logging->error(e.what());
+      current_err_code = PROCESSING_ERROR;
+      current_err_msg = e.what();
+    }
   }
 
   //Build a protocol buffer response
