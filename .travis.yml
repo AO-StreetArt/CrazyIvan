@@ -20,6 +20,8 @@ before_install:
   - sudo apt-get install libssl-dev
   - mkdir ../ivan_deps
   - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps
+  # Install Python
+  - sudo apt-get install python python-dev python-pip
 install:
   - cd $TRAVIS_BUILD_DIR
   - wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
@@ -28,10 +30,29 @@ install:
   - sudo docker pull neo4j
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data neo4j
 script:
+  # Print the version of gcc
   - gcc --version
+  # Build the dependencies and display the log
   - cd ../ivan_deps && sudo ./build_deps.sh && cat build_deps.log
+  # Build the project and unit tests
   - cd $TRAVIS_BUILD_DIR
   - make rhel
   - make rhel-test
+  # Execute unit tests
   - ./scene_test
   - ./configuration_test -config-file=src/test/test.properties
+  # Clone the repository for the python tests
+  - git clone https://github.com/AO-StreetArt/CrazyIvan_ProtoBufferTests.git
+  # Print the python & pip version
+  - python -V
+  - pip -V
+  # Install python protocol buffer module
+  - sudo pip install protobuf
+  # Compile the protocol buffer class
+  - protoc -I=/usr/local/include/dvs_interface --python_out=src/ /usr/local/include/dvs_interface/Scene.proto
+  # Execute the Creation Test, which also saves the resulting keys into a file called responses.csv
+  - python Scene_pump.py ud_register/xml/Obj_Create.xml
+  # Copy the returned keys into the get CSV
+  - python src/CopyCsvColumn.py src/scn_create.ini
+  # Execute the Get Test
+  - python Scene_pump.py ud_register/xml/Obj_Get.xml

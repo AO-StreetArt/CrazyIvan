@@ -164,18 +164,34 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
         }
 
         //Get the transform and device info
-        DbListInterface *trans = NULL;
         DbMapInterface *edge_props = NULL;
-        DbListInterface *rot = NULL;
         DbObjectInterface *edge = tree->get(1);
+        double translation_x = -999.0;
+        double translation_y = -999.0;
+        double translation_z = -999.0;
+        double rotation_x = -999.0;
+        double rotation_y = -999.0;
+        double rotation_z = -999.0;
         if ( obj->is_edge() )  {
           edge_props = edge->properties();
           //Get the transform attributes
-          if (edge_props->element_exists("translation")) {
-            trans = edge_props->get_list_element("translation");
+          if (edge_props->element_exists("translation_x")) {
+            translation_x = edge_props->get_float_element("translation_x");
           }
-          if (edge_props->element_exists("rotation")) {
-            rot = edge_props->get_list_element("rotation");
+          if (edge_props->element_exists("translation_y")) {
+            translation_y = edge_props->get_float_element("translation_y");
+          }
+          if (edge_props->element_exists("translation_z")) {
+            translation_z = edge_props->get_float_element("translation_z");
+          }
+          if (edge_props->element_exists("rotation_x")) {
+            rotation_x = edge_props->get_float_element("rotation_x");
+          }
+          if (edge_props->element_exists("rotation_y")) {
+            rotation_y = edge_props->get_float_element("rotation_y");
+          }
+          if (edge_props->element_exists("rotation_z")) {
+            rotation_z = edge_props->get_float_element("rotation_z");
           }
         }
 
@@ -187,12 +203,12 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
           if (dev_props->element_exists("key")) {
             //Add the device related data to the scene
             UserDevice new_dev (dev_props->get_string_element("key"));
-            for (int i=0;i<3;i++) {
-              if (trans && rot) {
-                new_dev.set_translation( i, trans->get_float_element(i) );
-                new_dev.set_rotation(i, rot->get_float_element(i));
-              }
-            }
+            new_dev.set_translation( 0, translation_x );
+            new_dev.set_translation( 1, translation_y );
+            new_dev.set_translation( 2, translation_z );
+            new_dev.set_rotation(0, rotation_x);
+            new_dev.set_rotation(1, rotation_y);
+            new_dev.set_rotation(2, rotation_z);
             new_data.add_device(new_dev);
           }
         }
@@ -232,8 +248,8 @@ void QueryHelper::register_device_to_scene(std::string device_id, std::string sc
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key}})"
-    " CREATE (scn)-[trans:TRANSFORM {translation: [{loc_x}, {loc_y}, {loc_z}],"
-      " rotation: [{rot_x}, {rot_y}, {rot_z}]}]->(ud:UserDevice {key: {inp_ud_key}})"
+    " CREATE (scn)-[trans:TRANSFORM {translation_x: {loc_x}, translation_y: {loc_y}, translation_z: {loc_z},"
+      " rotation_x: {rot_x}, rotation_y: {rot_y}, rotation_z: {rot_z}}]->(ud:UserDevice {key: {inp_ud_key}})"
     " RETURN scn, trans, ud";
 
   //Set up the query parameters for query
@@ -328,7 +344,8 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key}})-[trans:TRANSFORM]->(ud:UserDevice {key: {inp_ud_key}})"
-    " SET trans.translation = [{loc_x}, {loc_y}, {loc_z}], trans.rotation = [{rot_x}, {rot_y}, {rot_z}]"
+    " SET trans.translation_x = {loc_x}, trans.translation_y = {loc_y}, trans.translation_z = {loc_z}, "
+      "trans.rotation_x = {rot_x}, trans.rotation_y = {rot_y}, trans.rotation_z = {rot_z}"
     " RETURN scn, trans, ud";
 
   //Set up the query parameters for query
@@ -466,8 +483,8 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}}), (scn2:Scene {key: {inp_key2}}) "
-    "CREATE (scn)-[trans:TRANSFORM {translation: [{loc_x}, {loc_y}, {loc_z}], "
-      "rotation: [{rot_x}, {rot_y}, {rot_z}]}]->(scn2) "
+    "CREATE (scn)-[trans:TRANSFORM {translation_x: {loc_x}, translation_y: {loc_y}, translation_z: {loc_z}, "
+      "rotation_x: {rot_x}, rotation_y: {rot_y}, rotation_z: {rot_z}}]->(scn2) "
     "RETURN scn, trans, scn2";
 
   //Set up the query parameters for query
@@ -540,7 +557,8 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}})-[trans:TRANSFORM]->(scn2:Scene {key: {inp_key2}})"
-    " SET trans.translation = [{loc_x}, {loc_y}, {loc_z}], trans.rotation: [{rot_x}, {rot_y}, {rot_z}]}"
+    " SET trans.translation_x = {loc_x}, trans.translation_y = {loc_y}, trans.translation_z = {loc_z},"
+    " trans.rotation_x: {rot_x}, trans.rotation_y: {rot_y}, trans.rotation_z: {rot_z}"
     " RETURN scn, trans, scn2";
 
   //Set up the query parameters for query
@@ -738,15 +756,23 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
 
           //Get the property values
           map = path_obj->properties();
-          if (map->element_exists("translation")) {
-             tran_list = map->get_list_element("translation");
-             trnx = tran_list->get_float_element(0);
-             trny = tran_list->get_float_element(1);
-             trnz = tran_list->get_float_element(2);
-             rot_list = map->get_list_element("rotation");
-             rotx = rot_list->get_float_element(0);
-             roty = rot_list->get_float_element(1);
-             rotz = rot_list->get_float_element(2);
+          if (map->element_exists("translation_x")) {
+            trnx = map->get_float_element("translation_x");
+          }
+          if (map->element_exists("translation_y")) {
+            trny = map->get_float_element("translation_y");
+          }
+          if (map->element_exists("translation_z")) {
+            trnz = map->get_float_element("translation_z");
+          }
+          if (map->element_exists("rotation_x")) {
+            rotx = map->get_float_element("rotation_x");
+          }
+          if (map->element_exists("rotation_y")) {
+            roty = map->get_float_element("rotation_y");
+          }
+          if (map->element_exists("rotation_z")) {
+            rotz = map->get_float_element("rotation_z");
           }
 
           //Is our edge backward?

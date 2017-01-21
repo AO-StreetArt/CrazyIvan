@@ -80,6 +80,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
   }
 
   //Execute the query
+  std::string ret_val = "";
   try {
     results = n->execute(scene_query, scene_params);
     if (!results) {
@@ -87,18 +88,18 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
       return "-1";
     }
     else {
-      return new_key;
+      ret_val = new_key;
     }
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
     processor_logging->error(e.what());
-    return "-1";
+    ret_val = "-1";
   }
   if (results) {
     delete results;
   }
-  return "";
+  return ret_val;
 }
 
 //Update the details of a scene entry
@@ -196,10 +197,11 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
   ResultsIteratorInterface *results = NULL;
   processor_logging->debug("Processing Scene Update message");
   bool is_started = false;
+  std::string ret_val = "";
 
   if (obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0 && obj_msg->get_scene(0).get_key().empty()) {
     processor_logging->error("No fields found in update message");
-    return "-1";
+    ret_val = "-1";
   }
   else {
     //Set up the Cypher Query for scene creation
@@ -270,7 +272,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
       results = n->execute(scene_query, scene_params);
       if (!results) {
         processor_logging->error("No results returned from update query");
-        return "-1";
+        ret_val = "-1";
       }
       else {
         //Pull results and return
@@ -321,19 +323,19 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           }
           tree = results->next();
         }
-        return sc.to_protobuf();
+        ret_val = sc.to_protobuf();
       }
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
-      return "-1";
+      ret_val = "-1";
     }
   }
   if (results) {
     delete results;
   }
-  return "";
+  return ret_val;
 }
 
 //Delete a scene
