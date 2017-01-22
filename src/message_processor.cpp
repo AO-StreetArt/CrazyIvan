@@ -200,7 +200,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
   std::string ret_val = "";
 
   if (obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0 && obj_msg->get_scene(0).get_key().empty()) {
-    processor_logging->error("No fields found in update message");
+    processor_logging->error("No fields found in get message");
     ret_val = "-1";
   }
   else {
