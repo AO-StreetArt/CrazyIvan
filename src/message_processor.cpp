@@ -281,6 +281,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
         sc.set_msg_type(SCENE_GET);
         sc.set_transaction_id(obj_msg->get_transaction_id());
         ResultTreeInterface *tree = results->next();
+        int num_results = 0
         while (true) {
 
           SceneData data;
@@ -292,6 +293,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
           //Leave the loop if we don't have anything in this result tree
           if ( !(obj->is_node()) && !(obj->is_edge()) ) break;
+          num_results=num_results+1;
 
           //Pull the node properties and assign them to the new
           //Scene object
@@ -323,7 +325,12 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           }
           tree = results->next();
         }
-        ret_val = sc.to_protobuf();
+        if (num_results>0) {
+          ret_val = sc.to_protobuf();
+        }
+        else {
+          ret_val = "-2";
+        }
       }
     }
     catch (std::exception& e) {

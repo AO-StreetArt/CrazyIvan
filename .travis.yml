@@ -51,8 +51,8 @@ script:
   # Compile the protocol buffer class
   - protoc -I=/usr/local/include/dvs_interface --python_out=src/ /usr/local/include/dvs_interface/Scene.proto
   # Execute the Creation Test, which also saves the resulting keys into a file called responses.csv
-  - python Scene_pump.py ud_register/xml/Obj_Create.xml
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Create.xml
   # Copy the returned keys into the get CSV
-  - python src/CopyCsvColumn.py src/scn_create.ini
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_create.ini
   # Execute the Get Test
-  - python Scene_pump.py ud_register/xml/Obj_Get.xml
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
