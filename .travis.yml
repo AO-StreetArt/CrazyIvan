@@ -48,6 +48,9 @@ script:
   - pip -V
   # Install python protocol buffer module
   - sudo pip install protobuf
+  - pip install protobuf
+  - sudo pip install --user protobuf
+  - pip install --user protobuf
   # Compile the protocol buffer class
   - protoc -I=/usr/local/include/dvs_interface --python_out=src/ /usr/local/include/dvs_interface/Scene.proto
   # Execute the Creation Test, which also saves the resulting keys into a file called responses.csv
