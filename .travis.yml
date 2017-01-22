@@ -26,7 +26,7 @@ install:
   - cd $TRAVIS_BUILD_DIR
   - wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
   - unzip consul_0.6.4_linux_amd64.zip
-  - ./consul agent -dev -syslog &
+  - ./consul agent -dev -bind=127.0.0.1 &
   - sudo docker pull neo4j
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data neo4j
 script:
@@ -62,5 +62,9 @@ script:
   - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_get.ini
   - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_update.ini
   - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_del.ini
+  # Execute the Get Test
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
+  # Execute the Update Test
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Update.xml
   # Execute the Get Test
   - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
