@@ -58,7 +58,9 @@ script:
   - ./crazy_ivan -consul-addr=localhost:8500 -ip=localhost -port=5555 &
   # Execute the Creation Test, which also saves the resulting keys into a file called responses.csv
   - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Create.xml
-  # Copy the returned keys into the get CSV
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_create.ini
+  # Copy the returned keys into the other CSVs
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_get.ini
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_update.ini
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_del.ini
   # Execute the Get Test
   - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
