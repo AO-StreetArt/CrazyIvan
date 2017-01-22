@@ -329,7 +329,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           ret_val = sc.to_protobuf();
         }
         else {
-          ret_val = "";
+          ret_val = "-2";
         }
       }
     }

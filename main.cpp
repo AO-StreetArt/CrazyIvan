@@ -284,6 +284,14 @@ void my_signal_handler(int s){
           main_logging->debug("Response Sent");
         }
 
+        else if (process_result == "-2") {
+          resp->set_msg_type(NOT_FOUND);
+          resp->set_err_msg("Document not found");
+          //Send the Inbound response
+          zmqi->send( resp->to_protobuf() );
+          main_logging->debug("Response Sent");
+        }
+
         //If we have a load request or a registration/deregistration/alignment,
         //we will have a proto buffer string
         //in the response from the processor
