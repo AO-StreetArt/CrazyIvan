@@ -112,7 +112,7 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
 
   if ((obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0) || obj_msg->get_scene(0).get_key().empty()) {
     processor_logging->error("No fields found in update message");
-    rev_al = "-1";
+    ret_val = "-1";
   }
   else {
     //Set up the Cypher Query for scene update
