@@ -196,6 +196,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
 
       //Pull the node properties and assign them to the new
       //Scene object
+      processor_logging->debug("Getting Scene Properties");
       DbMapInterface* map = obj->properties();
       if (map->element_exists("key")) {
         new_data.set_key( map->get_string_element("key") );
@@ -219,6 +220,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       double rotation_y = -999.0;
       double rotation_z = -999.0;
       if ( edge->is_edge() )  {
+        processor_logging->debug("Getting Edge Properties");
         edge_props = edge->properties();
         //Get the transform attributes
         if (edge_props->element_exists("translation_x")) {
@@ -242,6 +244,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       }
 
       if ( device->is_node() ) {
+        processor_logging->debug("Getting Device Properties");
         //Get the transform and device properties
         DbMapInterface *dev_props = device->properties();
 
