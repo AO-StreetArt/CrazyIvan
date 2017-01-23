@@ -63,9 +63,20 @@ script:
   - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_get.ini
   - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_update.ini
   - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_del.ini
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/ud_register.ini
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/ud_deregister.ini
+  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/ud_align.ini
   # Execute the Get Test
   - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
   # Execute the Update Test
   - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Update.xml
   # Execute the Get Test
   - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
+  # Execute the Device Registration Test
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/UD_Register.xml
+  # Execute the Device Alignment Test
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/UD_Align.xml
+  # Execute the Device Deregistration test
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/UD_Deregister.xml
+  # Execute the Scene Delete Test
+  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Delete.xml
