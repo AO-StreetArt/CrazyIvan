@@ -264,14 +264,18 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
         }
       }
 
+      processor_logging->debug("Adding Scene");
       sc->add_scene(new_data);
 
+      processor_logging->debug("Cleanup");
       if (map) {
         delete map;
       }
       if (obj) {
         delete obj;
       }
+
+      processor_logging->debug("Getting next result");
       tree = results->next();
     }
     if (tree) {
@@ -281,7 +285,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
   }
   if (udkey_param) {delete udkey_param;}
   if (num_records == 0) {
-    processor_logging->debug("No Scenes found for the given device");
+    processor_logging->error("No Scenes found for the given device");
     return NULL;
   }
   return sc;
