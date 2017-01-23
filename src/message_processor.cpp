@@ -527,8 +527,9 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   Transform new_transform;
 
   //If we are not registering the first device, the scene exists,
-  //and the device is not already registered
-  if ( !(is_first_device) && does_scene_exist && !(already_registered) && current_err_code == NO_ERROR ) {
+  //the device is not already registered to the scene in question but
+  //is registered to other scenes
+  if ( !(is_first_device) && does_scene_exist && !(already_registered) && current_err_code == NO_ERROR && previously_registered ) {
     processor_logging->debug("Attempting to calculate UD Transform from Existing Registrations");
     //Iterate through the scenes the device is already registered to
     //Try to find a path from these scenes to the current one in order
