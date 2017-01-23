@@ -250,20 +250,24 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
         //Get the transform and device properties
         DbMapInterface *dev_props = device->properties();
 
-        if (dev_props->element_exists("key")) {
-          //Add the device related data to the scene
-          UserDevice new_dev (dev_props->get_string_element("key"));
-          new_dev.set_translation( 0, translation_x );
-          new_dev.set_translation( 1, translation_y );
-          new_dev.set_translation( 2, translation_z );
-          new_dev.set_rotation(0, rotation_x);
-          new_dev.set_rotation(1, rotation_y);
-          new_dev.set_rotation(2, rotation_z);
-          new_data.add_device(new_dev);
+        if (dev_props) {
+          if (dev_props->element_exists("key")) {
+            processor_logging->debug("Device Key Found");
+            //Add the device related data to the scene
+            UserDevice new_dev (dev_props->get_string_element("key"));
+            new_dev.set_translation( 0, translation_x );
+            new_dev.set_translation( 1, translation_y );
+            new_dev.set_translation( 2, translation_z );
+            new_dev.set_rotation(0, rotation_x);
+            new_dev.set_rotation(1, rotation_y);
+            new_dev.set_rotation(2, rotation_z);
+            processor_logging->debug("Adding device to scene data");
+            new_data.add_device(new_dev);
+          }
         }
       }
 
-      processor_logging->debug("Adding Scene");
+      processor_logging->debug("Adding Scene data to scene");
       sc->add_scene(new_data);
 
       processor_logging->debug("Cleanup");
