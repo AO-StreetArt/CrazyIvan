@@ -170,6 +170,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     return NULL;
   }
 
+  int num_records = 0;
   if (!results) {
     processor_logging->debug("No Scenes found for the given device");
     return NULL;
@@ -179,6 +180,8 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     //Build the scene list
     ResultTreeInterface *tree = results->next();
     while (tree) {
+
+      num_records = num_records + 1;
 
       processor_logging->debug("Record returned from results iterator");
 
@@ -269,14 +272,18 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       if (obj) {
         delete obj;
       }
-      if (tree) {
-        delete tree;
-      }
       tree = results->next();
+    }
+    if (tree) {
+      delete tree;
     }
     delete results;
   }
   if (udkey_param) {delete udkey_param;}
+  if (num_records == 0) {
+    processor_logging->debug("No Scenes found for the given device");
+    return NULL;
+  }
   return sc;
 }
 
