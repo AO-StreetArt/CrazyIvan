@@ -254,7 +254,8 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
           if (dev_props->element_exists("key")) {
             processor_logging->debug("Device Key Found");
             //Add the device related data to the scene
-            UserDevice new_dev (dev_props->get_string_element("key"));
+            Transform *new_transform = new Transform;
+            UserDevice new_dev (dev_props->get_string_element("key"), new_transform);
             new_dev.set_translation( 0, translation_x );
             new_dev.set_translation( 1, translation_y );
             new_dev.set_translation( 2, translation_z );
@@ -264,6 +265,9 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
             processor_logging->debug("Adding device to scene data");
             new_data.add_device(new_dev);
           }
+        }
+        else {
+          processor_logging->error("Null map returned for device properties");
         }
       }
 
