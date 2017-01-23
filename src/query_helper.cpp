@@ -181,8 +181,6 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     ResultTreeInterface *tree = results->next();
     while (tree) {
 
-      num_records = num_records + 1;
-
       processor_logging->debug("Record returned from results iterator");
 
       SceneData new_data;
@@ -192,6 +190,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       DbObjectInterface *edge = tree->get(1);
       DbObjectInterface *device = tree->get(2);
       if ( !(obj->is_node()) ) break;
+      num_records = num_records + 1;
       processor_logging->debug("Query Result:");
       processor_logging->debug(obj->to_string());
       processor_logging->debug(edge->to_string());
