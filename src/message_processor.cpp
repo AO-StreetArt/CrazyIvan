@@ -177,6 +177,11 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
       }
       else {
         ret_val = qkey;
+        ResultTreeInterface *tree = results->next();
+        if (tree) {
+          DbObjectInterface* obj = tree->get(0);
+          if ( !(obj->is_node()) ) ret_val = "-2";
+        }
       }
     }
     catch (std::exception& e) {
@@ -349,7 +354,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
   std::string ret_val = "";
   get_mutex_lock(obj_msg->get_scene(0).get_key());
-  processor_logging->debug("Processing Scene Update message");
+  processor_logging->debug("Processing Scene Delete message");
   ResultsIteratorInterface *results = NULL;
 
   if ( obj_msg->get_scene(0).get_key().empty() ) {
@@ -378,6 +383,12 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
       }
       else {
         ret_val = qkey;
+        ResultTreeInterface *tree = results->next();
+        if (tree) {
+          DbObjectInterface* obj = tree->get(0);
+          if ( !(obj->is_node()) ) ret_val = "-2";
+        }
+        delete results;
       }
     }
     catch (std::exception& e) {
