@@ -130,104 +130,6 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
   //Execute the query
   try {
     results = n->execute(udq_string, udq_params);
-    if (!results) {
-      processor_logging->debug("No Scenes found for the given device");
-      return NULL;
-    }
-    else {
-      //Iterate through the results
-      //Build the scene list
-      ResultTreeInterface *tree = results->next();
-      while (tree) {
-
-        SceneData new_data;
-
-        //Get the first DB Object (Node)
-        DbObjectInterface* obj = tree->get(0);
-        if ( !(obj->is_node()) ) break;
-        processor_logging->debug("Query Result:");
-        processor_logging->debug(obj->to_string());
-
-        //Pull the node properties and assign them to the new
-        //Scene object
-        DbMapInterface* map = obj->properties();
-        if (map->element_exists("key")) {
-          new_data.set_key( map->get_string_element("key") );
-        }
-        if (map->element_exists("name")) {
-          new_data.set_name( map->get_string_element("name") );
-        }
-        if (map->element_exists("latitude")) {
-          new_data.set_latitude( map->get_float_element("latitude") );
-        }
-        if (map->element_exists("longitude")) {
-          new_data.set_longitude( map->get_float_element("longitude") );
-        }
-
-        //Get the transform and device info
-        DbMapInterface *edge_props = NULL;
-        DbObjectInterface *edge = tree->get(1);
-        double translation_x = -999.0;
-        double translation_y = -999.0;
-        double translation_z = -999.0;
-        double rotation_x = -999.0;
-        double rotation_y = -999.0;
-        double rotation_z = -999.0;
-        if ( obj->is_edge() )  {
-          edge_props = edge->properties();
-          //Get the transform attributes
-          if (edge_props->element_exists("translation_x")) {
-            translation_x = edge_props->get_float_element("translation_x");
-          }
-          if (edge_props->element_exists("translation_y")) {
-            translation_y = edge_props->get_float_element("translation_y");
-          }
-          if (edge_props->element_exists("translation_z")) {
-            translation_z = edge_props->get_float_element("translation_z");
-          }
-          if (edge_props->element_exists("rotation_x")) {
-            rotation_x = edge_props->get_float_element("rotation_x");
-          }
-          if (edge_props->element_exists("rotation_y")) {
-            rotation_y = edge_props->get_float_element("rotation_y");
-          }
-          if (edge_props->element_exists("rotation_z")) {
-            rotation_z = edge_props->get_float_element("rotation_z");
-          }
-        }
-
-        DbObjectInterface *device = tree->get(2);
-        if ( obj->is_node() ) {
-          //Get the transform and device properties
-          DbMapInterface *dev_props = device->properties();
-
-          if (dev_props->element_exists("key")) {
-            //Add the device related data to the scene
-            UserDevice new_dev (dev_props->get_string_element("key"));
-            new_dev.set_translation( 0, translation_x );
-            new_dev.set_translation( 1, translation_y );
-            new_dev.set_translation( 2, translation_z );
-            new_dev.set_rotation(0, rotation_x);
-            new_dev.set_rotation(1, rotation_y);
-            new_dev.set_rotation(2, rotation_z);
-            new_data.add_device(new_dev);
-          }
-        }
-
-        sc->add_scene(new_data);
-
-        if (map) {
-          delete map;
-        }
-        if (obj) {
-          delete obj;
-        }
-        if (tree) {
-          delete tree;
-        }
-        tree = results->next();
-      }
-    }
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -235,7 +137,104 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     processor_logging->error(e.what());
     return NULL;
   }
-  if (results) {
+
+  if (!results) {
+    processor_logging->debug("No Scenes found for the given device");
+    return NULL;
+  }
+  else {
+    //Iterate through the results
+    //Build the scene list
+    ResultTreeInterface *tree = results->next();
+    while (tree) {
+
+      SceneData new_data;
+
+      //Get the first DB Object (Node)
+      DbObjectInterface* obj = tree->get(0);
+      if ( !(obj->is_node()) ) break;
+      processor_logging->debug("Query Result:");
+      processor_logging->debug(obj->to_string());
+
+      //Pull the node properties and assign them to the new
+      //Scene object
+      DbMapInterface* map = obj->properties();
+      if (map->element_exists("key")) {
+        new_data.set_key( map->get_string_element("key") );
+      }
+      if (map->element_exists("name")) {
+        new_data.set_name( map->get_string_element("name") );
+      }
+      if (map->element_exists("latitude")) {
+        new_data.set_latitude( map->get_float_element("latitude") );
+      }
+      if (map->element_exists("longitude")) {
+        new_data.set_longitude( map->get_float_element("longitude") );
+      }
+
+      //Get the transform and device info
+      DbMapInterface *edge_props = NULL;
+      DbObjectInterface *edge = tree->get(1);
+      double translation_x = -999.0;
+      double translation_y = -999.0;
+      double translation_z = -999.0;
+      double rotation_x = -999.0;
+      double rotation_y = -999.0;
+      double rotation_z = -999.0;
+      if ( obj->is_edge() )  {
+        edge_props = edge->properties();
+        //Get the transform attributes
+        if (edge_props->element_exists("translation_x")) {
+          translation_x = edge_props->get_float_element("translation_x");
+        }
+        if (edge_props->element_exists("translation_y")) {
+          translation_y = edge_props->get_float_element("translation_y");
+        }
+        if (edge_props->element_exists("translation_z")) {
+          translation_z = edge_props->get_float_element("translation_z");
+        }
+        if (edge_props->element_exists("rotation_x")) {
+          rotation_x = edge_props->get_float_element("rotation_x");
+        }
+        if (edge_props->element_exists("rotation_y")) {
+          rotation_y = edge_props->get_float_element("rotation_y");
+        }
+        if (edge_props->element_exists("rotation_z")) {
+          rotation_z = edge_props->get_float_element("rotation_z");
+        }
+      }
+
+      DbObjectInterface *device = tree->get(2);
+      if ( obj->is_node() ) {
+        //Get the transform and device properties
+        DbMapInterface *dev_props = device->properties();
+
+        if (dev_props->element_exists("key")) {
+          //Add the device related data to the scene
+          UserDevice new_dev (dev_props->get_string_element("key"));
+          new_dev.set_translation( 0, translation_x );
+          new_dev.set_translation( 1, translation_y );
+          new_dev.set_translation( 2, translation_z );
+          new_dev.set_rotation(0, rotation_x);
+          new_dev.set_rotation(1, rotation_y);
+          new_dev.set_rotation(2, rotation_z);
+          new_data.add_device(new_dev);
+        }
+      }
+
+      sc->add_scene(new_data);
+
+      if (map) {
+        delete map;
+      }
+      if (obj) {
+        delete obj;
+      }
+      if (tree) {
+        delete tree;
+      }
+      tree = results->next();
+    }
     delete results;
   }
   if (udkey_param) {delete udkey_param;}
@@ -285,7 +284,15 @@ void QueryHelper::register_device_to_scene(std::string device_id, std::string sc
   q_params.emplace("rot_z", rotz_param);
 
   //Execute the query
-  results = n->execute(udq_string, q_params);
+  try {
+    results = n->execute(udq_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(udq_string);
+    processor_logging->error(e.what());
+  }
+
   if (!results) {
     processor_logging->error("No Links created");
   }
@@ -327,7 +334,15 @@ void QueryHelper::remove_device_from_scene(std::string device_id, std::string sc
   q_params.emplace("inp_ud_key", udkey_param);
 
   //Execute the query
-  results = n->execute(query_string, q_params);
+  try {
+    results = n->execute(query_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(query_string);
+    processor_logging->error(e.what());
+  }
+
   if (!results) {
     processor_logging->error("No Links destroyed");
   }
@@ -381,9 +396,25 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   q_params.emplace("rot_z", rotz_param);
 
   //Execute the query
-  results = n->execute(udq_string, q_params);
+  bool has_exception = false;
+  std::string exc_string = "";
+  try {
+    results = n->execute(udq_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(udq_string);
+    processor_logging->error(e.what());
+    has_exception = true;
+    std::string e_string (e.what());
+    exc_string = e_string;
+  }
+
   if (!results) {
     processor_logging->error("No Links created");
+    std::string exc_str = "No Links created: ";
+    exc_string = exc_str + udq_string;
+    has_exception = true;
   }
   else {
     tree = results->next();
@@ -391,8 +422,8 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
     if ( !(obj->is_node()) ) {
       processor_logging->debug("Query Returned no values");
       std::string exc_str = "Query Returned no values: ";
-      exc_str = exc_str + udq_string;
-      throw QueryException(exc_str);
+      exc_string = exc_str + udq_string;
+      has_exception = true;
     }
     delete results;
   }
@@ -406,6 +437,9 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   if (rotx_param) {delete rotx_param;}
   if (roty_param) {delete roty_param;}
   if (rotz_param) {delete rotz_param;}
+  if (has_exception) {
+    throw QueryException(exc_string);
+  }
 }
 
 //----------------------------------------------------------------------------//
@@ -447,7 +481,15 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
   q_params.emplace("inp_key2", skey2_param);
 
   //Execute the query
-  results = n->execute(query_string, q_params);
+  int ret_val = 0;
+  try {
+    results = n->execute(query_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(query_string);
+    processor_logging->error(e.what());
+  }
   if (results) {
     //Find if the first result is forward or backward
     tree = results->next();
@@ -459,13 +501,14 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
       map = obj->properties();
       if (map->element_exists("key")) {
         if ( scene1_key == map->get_string_element("key") ) {
-          return 1;
+          ret_val = 1;
         }
         else if ( scene2_key == map->get_string_element("key") ) {
-          return 2;
+          ret_val = 2;
         }
       }
     }
+    delete results;
   }
 
   if (skey1_param) {delete skey1_param;}
@@ -474,7 +517,7 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
   if (obj) {delete obj;}
   if (map) {delete map;}
 
-  return 0;
+  return ret_val;
 }
 
 //Create the scene-scene link
@@ -522,9 +565,25 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   //Execute the query
   ResultTreeInterface *tree = NULL;
   DbObjectInterface* obj = NULL;
-  results = n->execute(udq_string, q_params);
+  bool has_exception = false;
+  std::string exc_string = "";
+  try {
+    results = n->execute(udq_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(udq_string);
+    processor_logging->error(e.what());
+    has_exception = true;
+    std::string e_string (e.what());
+    exc_string = e_string;
+  }
+
   if (!results) {
     processor_logging->error("No Links created");
+    std::string exc_str = "No Links created: ";
+    exc_string = exc_str + udq_string;
+    has_exception = true;
   }
   else {
     tree = results->next();
@@ -532,8 +591,8 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
     if ( !(obj->is_node()) ) {
       processor_logging->debug("Query Returned no values");
       std::string exc_str = "Query Returned no values: ";
-      exc_str = exc_str + udq_string;
-      throw QueryException(exc_str);
+      exc_string = exc_str + udq_string;
+      has_exception = true;
     }
     delete results;
   }
@@ -547,6 +606,9 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   if (rotx_param) {delete rotx_param;}
   if (roty_param) {delete roty_param;}
   if (rotz_param) {delete rotz_param;}
+  if (has_exception) {
+    throw QueryException(exc_string);
+  }
 }
 
 //TO-DO: Update the scene-scene link
@@ -594,18 +656,34 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
   q_params.emplace("rot_z", rotz_param);
 
   //Execute the query
-  results = n->execute(udq_string, q_params);
+  bool has_exception = false;
+  std::string exc_string = "";
+  try {
+    results = n->execute(udq_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(udq_string);
+    processor_logging->error(e.what());
+    has_exception = true;
+    std::string e_string (e.what());
+    exc_string = e_string;
+  }
+
   if (!results) {
     processor_logging->error("No Links created");
+    has_exception = true;
+    std::string exc_str = "No Links created: ";
+    exc_string = exc_str + udq_string;
   }
   else {
     tree = results->next();
     obj = tree->get(0);
     if ( !(obj->is_node()) ) {
       processor_logging->debug("Query Returned no values");
+      has_exception = true;
       std::string exc_str = "Query Returned no values: ";
-      exc_str = exc_str + udq_string;
-      throw QueryException(exc_str);
+      exc_string = exc_str + udq_string;
     }
     delete results;
   }
@@ -619,6 +697,9 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
   if (rotx_param) {delete rotx_param;}
   if (roty_param) {delete roty_param;}
   if (rotz_param) {delete rotz_param;}
+  if (has_exception) {
+    throw QueryException(exc_string);
+  }
 }
 
 //----------------------------------------------------------------------------//
@@ -722,7 +803,17 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
   path_q_params.emplace("inp_key_start", pkey2_param);
 
   //Execute the query
-  results = n->execute(path_q_string, path_q_params);
+  try {
+    results = n->execute(path_q_string, path_q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(path_q_string);
+    processor_logging->error(e.what());
+    std::string err_str (e.what());
+    throw QueryException(err_str);
+  }
+
   if (!results) {
     processor_logging->error("No Path between scenes found");
   }
