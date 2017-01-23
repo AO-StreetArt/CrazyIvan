@@ -17,16 +17,36 @@ bool QueryHelper::scene_exists(std::string inp_key) {
   query_params.emplace("inp_key", query_param);
 
   //Execute the query
-  results = n->execute(query_string, query_params);
+  bool ret_val = false;
+  bool has_exception = false;
+  std::string exc_string = "";
+  try {
+    results = n->execute(query_string, query_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(udq_string);
+    processor_logging->error(e.what());
+    has_exception = true;
+    std::string e_string (e.what());
+    exc_string = e_string;
+  }
+
   if (!results) {
     processor_logging->debug("No Scenes found for the given key");
-    return false;
   }
   else {
+    ResultTreeInterface *tree = results->next();
+    if (tree) {
+      DbObjectInterface* obj = tree->get(0);
+      if ( obj->is_node() ) ret_val = true;
+    }
+
     delete results;
   }
   if (query_param) {delete query_param;}
-  return true;
+  if (has_exception) {throw QueryException(exc_string);}
+  return ret_val;
 }
 
 //----------------------------------------------------------------------------//
@@ -52,7 +72,20 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
 
   //Execute the query
   bool ret_val = false;
-  results = n->execute(q_string, q_params);
+  bool has_exception = false;
+  std::string exc_string = "";
+  try {
+    results = n->execute(q_string, q_params);
+  }
+  catch (std::exception& e) {
+    processor_logging->error("Error running Query:");
+    processor_logging->error(udq_string);
+    processor_logging->error(e.what());
+    has_exception = true;
+    std::string e_string (e.what());
+    exc_string = e_string;
+  }
+
   if (!results) {
     processor_logging->debug("User Device not found registered to the given scene");
     return false;
@@ -86,9 +119,6 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
       }
 
       //Cleanup
-      if (tree) {
-        delete tree;
-      }
       if (obj) {
         delete obj;
       }
@@ -99,11 +129,13 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
       //Iterate to the next result
       tree = results->next();
     }
-  }
-  if (results) {
+    if (tree) {
+      delete tree;
+    }
     delete results;
   }
   if (key_param) {delete key_param;}
+  if (has_exception) {throw QueryException(exc_string);}
   return ret_val;
 }
 
@@ -148,13 +180,19 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     ResultTreeInterface *tree = results->next();
     while (tree) {
 
+      processor_logging->debug("Record returned from results iterator");
+
       SceneData new_data;
 
       //Get the first DB Object (Node)
       DbObjectInterface* obj = tree->get(0);
+      DbObjectInterface *edge = tree->get(1);
+      DbObjectInterface *device = tree->get(2);
       if ( !(obj->is_node()) ) break;
       processor_logging->debug("Query Result:");
       processor_logging->debug(obj->to_string());
+      processor_logging->debug(edge->to_string());
+      processor_logging->debug(device->to_string());
 
       //Pull the node properties and assign them to the new
       //Scene object
@@ -174,14 +212,13 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
 
       //Get the transform and device info
       DbMapInterface *edge_props = NULL;
-      DbObjectInterface *edge = tree->get(1);
       double translation_x = -999.0;
       double translation_y = -999.0;
       double translation_z = -999.0;
       double rotation_x = -999.0;
       double rotation_y = -999.0;
       double rotation_z = -999.0;
-      if ( obj->is_edge() )  {
+      if ( edge->is_edge() )  {
         edge_props = edge->properties();
         //Get the transform attributes
         if (edge_props->element_exists("translation_x")) {
@@ -204,8 +241,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
         }
       }
 
-      DbObjectInterface *device = tree->get(2);
-      if ( obj->is_node() ) {
+      if ( device->is_node() ) {
         //Get the transform and device properties
         DbMapInterface *dev_props = device->properties();
 
