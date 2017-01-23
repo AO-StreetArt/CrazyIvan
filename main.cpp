@@ -100,7 +100,7 @@ void my_signal_handler(int s){
       //Set up the UUID Generator
       ua = uuid_factory->get_uuid_interface();
 
-      std::string service_instance_id = "CLyman-";
+      std::string service_instance_id = "Ivan-";
       try {
         service_instance_id = service_instance_id + generate_uuid();
       }

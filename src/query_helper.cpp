@@ -51,6 +51,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
   q_params.emplace("inp_key", key_param);
 
   //Execute the query
+  bool ret_val = false;
   results = n->execute(q_string, q_params);
   if (!results) {
     processor_logging->debug("User Device not found registered to the given scene");
@@ -81,7 +82,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
 
       if (db_key == inp_device) {
         processor_logging->debug("Existing registration detected");
-        return true;
+        ret_val = true;
       }
 
       //Cleanup
@@ -103,7 +104,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
     delete results;
   }
   if (key_param) {delete key_param;}
-  return false;
+  return ret_val;
 }
 
 //Get scenes that this user device is registered to
@@ -814,9 +815,7 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
         }
       }
     }
-    if (results) {
-      delete results;
-    }
+    delete results;
   }
   if (tree) {
     delete tree;
