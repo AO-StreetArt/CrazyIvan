@@ -363,7 +363,7 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
   }
   else {
     //Set up the Cypher Query for scene delete
-    std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn";
+    std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn";
     processor_logging->debug("Executing Delete Query");
 
     //Set up the query parameters for scene delete
@@ -377,24 +377,24 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
     //Execute the query
     try {
       results = n->execute(scene_query, scene_params);
-      if (!results) {
-        processor_logging->error("No results returned from update query");
-        ret_val = "-1";
-      }
-      else {
-        ret_val = qkey;
-        ResultTreeInterface *tree = results->next();
-        if (tree) {
-          DbObjectInterface* obj = tree->get(0);
-          if ( !(obj->is_node()) ) ret_val = "-2";
-        }
-        delete results;
-      }
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
       ret_val = "-1";
+    }
+    if (!results) {
+      processor_logging->error("No results returned from update query");
+      ret_val = "-1";
+    }
+    else {
+      ret_val = qkey;
+      ResultTreeInterface *tree = results->next();
+      if (tree) {
+        DbObjectInterface* obj = tree->get(0);
+        if ( !(obj->is_node()) ) ret_val = "-2";
+      }
+      delete results;
     }
   }
   release_mutex_lock(obj_msg->get_scene(0).get_key());
