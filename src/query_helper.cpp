@@ -25,7 +25,7 @@ bool QueryHelper::scene_exists(std::string inp_key) {
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
+    processor_logging->error(query_string);
     processor_logging->error(e.what());
     has_exception = true;
     std::string e_string (e.what());
@@ -79,7 +79,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
+    processor_logging->error(q_string);
     processor_logging->error(e.what());
     has_exception = true;
     std::string e_string (e.what());
