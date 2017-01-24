@@ -100,7 +100,7 @@ void my_signal_handler(int s){
       //Set up the UUID Generator
       ua = uuid_factory->get_uuid_interface();
 
-      std::string service_instance_id = "CLyman-";
+      std::string service_instance_id = "Ivan-";
       try {
         service_instance_id = service_instance_id + generate_uuid();
       }
@@ -279,6 +279,14 @@ void my_signal_handler(int s){
         else if (process_result == "-1") {
           resp->set_msg_type(PROCESSING_ERROR);
           resp->set_err_msg("Error encountered in document processing");
+          //Send the Inbound response
+          zmqi->send( resp->to_protobuf() );
+          main_logging->debug("Response Sent");
+        }
+
+        else if (process_result == "-2") {
+          resp->set_msg_type(NOT_FOUND);
+          resp->set_err_msg("Document not found");
           //Send the Inbound response
           zmqi->send( resp->to_protobuf() );
           main_logging->debug("Response Sent");

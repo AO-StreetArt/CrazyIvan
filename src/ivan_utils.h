@@ -25,6 +25,7 @@ const int PING = 555;
 //Error Response Codes
 const int NO_ERROR = 100;
 const int ERROR = 101;
+const int NOT_FOUND = 102;
 const int TRANSLATION_ERROR = 110;
 const int PROCESSING_ERROR = 120;
 const int DEVICE_LOCK = 130;

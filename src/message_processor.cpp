@@ -80,6 +80,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
   }
 
   //Execute the query
+  std::string ret_val = "";
   try {
     results = n->execute(scene_query, scene_params);
     if (!results) {
@@ -87,18 +88,18 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
       return "-1";
     }
     else {
-      return new_key;
+      ret_val = new_key;
     }
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
     processor_logging->error(e.what());
-    return "-1";
+    ret_val = "-1";
   }
   if (results) {
     delete results;
   }
-  return "";
+  return ret_val;
 }
 
 //Update the details of a scene entry
@@ -111,7 +112,7 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
 
   if ((obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0) || obj_msg->get_scene(0).get_key().empty()) {
     processor_logging->error("No fields found in update message");
-    return "-1";
+    ret_val = "-1";
   }
   else {
     //Set up the Cypher Query for scene update
@@ -176,6 +177,11 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
       }
       else {
         ret_val = qkey;
+        ResultTreeInterface *tree = results->next();
+        if (tree) {
+          DbObjectInterface* obj = tree->get(0);
+          if ( !(obj->is_node()) ) ret_val = "-2";
+        }
       }
     }
     catch (std::exception& e) {
@@ -196,10 +202,11 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
   ResultsIteratorInterface *results = NULL;
   processor_logging->debug("Processing Scene Update message");
   bool is_started = false;
+  std::string ret_val = "";
 
   if (obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0 && obj_msg->get_scene(0).get_key().empty()) {
-    processor_logging->error("No fields found in update message");
-    return "-1";
+    processor_logging->error("No fields found in get message");
+    ret_val = "-1";
   }
   else {
     //Set up the Cypher Query for scene creation
@@ -270,7 +277,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
       results = n->execute(scene_query, scene_params);
       if (!results) {
         processor_logging->error("No results returned from update query");
-        return "-1";
+        ret_val = "-1";
       }
       else {
         //Pull results and return
@@ -279,6 +286,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
         sc.set_msg_type(SCENE_GET);
         sc.set_transaction_id(obj_msg->get_transaction_id());
         ResultTreeInterface *tree = results->next();
+        int num_results = 0;
         while (true) {
 
           SceneData data;
@@ -290,6 +298,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
           //Leave the loop if we don't have anything in this result tree
           if ( !(obj->is_node()) && !(obj->is_edge()) ) break;
+          num_results=num_results+1;
 
           //Pull the node properties and assign them to the new
           //Scene object
@@ -321,26 +330,31 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           }
           tree = results->next();
         }
-        return sc.to_protobuf();
+        if (num_results>0) {
+          ret_val = sc.to_protobuf();
+        }
+        else {
+          ret_val = "-2";
+        }
       }
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
-      return "-1";
+      ret_val = "-1";
     }
   }
   if (results) {
     delete results;
   }
-  return "";
+  return ret_val;
 }
 
 //Delete a scene
 std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
   std::string ret_val = "";
   get_mutex_lock(obj_msg->get_scene(0).get_key());
-  processor_logging->debug("Processing Scene Update message");
+  processor_logging->debug("Processing Scene Delete message");
   ResultsIteratorInterface *results = NULL;
 
   if ( obj_msg->get_scene(0).get_key().empty() ) {
@@ -349,7 +363,7 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
   }
   else {
     //Set up the Cypher Query for scene delete
-    std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn";
+    std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn";
     processor_logging->debug("Executing Delete Query");
 
     //Set up the query parameters for scene delete
@@ -363,18 +377,24 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
     //Execute the query
     try {
       results = n->execute(scene_query, scene_params);
-      if (!results) {
-        processor_logging->error("No results returned from update query");
-        ret_val = "-1";
-      }
-      else {
-        ret_val = qkey;
-      }
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
       ret_val = "-1";
+    }
+    if (!results) {
+      processor_logging->error("No results returned from update query");
+      ret_val = "-1";
+    }
+    else {
+      ret_val = qkey;
+      ResultTreeInterface *tree = results->next();
+      if (tree) {
+        DbObjectInterface* obj = tree->get(0);
+        if ( !(obj->is_node()) ) ret_val = "-2";
+      }
+      delete results;
     }
   }
   release_mutex_lock(obj_msg->get_scene(0).get_key());
@@ -518,8 +538,10 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   Transform new_transform;
 
   //If we are not registering the first device, the scene exists,
-  //and the device is not already registered
-  if ( !(is_first_device) && does_scene_exist && !(already_registered) && current_err_code == NO_ERROR ) {
+  //the device is not already registered to the scene in question but
+  //is registered to other scenes
+  if ( !(is_first_device) && does_scene_exist && !(already_registered) && current_err_code == NO_ERROR && previously_registered ) {
+    processor_logging->debug("Attempting to calculate UD Transform from Existing Registrations");
     //Iterate through the scenes the device is already registered to
     //Try to find a path from these scenes to the current one in order
     //to establish a transform

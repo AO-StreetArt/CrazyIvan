@@ -16,6 +16,25 @@
 #ifndef SCENE
 #define SCENE
 
+struct SceneException: public std::exception
+{
+  //! An error message passed on initialization
+  std::string int_msg;
+
+  //! Create a Mongo Exception, and store the given error message
+  SceneException (std::string msg) {int_msg = msg;}
+
+  SceneException () {}
+  ~SceneException() throw () {}
+
+  //! Show the error message in readable format
+  const char * what() const throw ()
+  {
+  std::string what_str = "Error in Scene: " + int_msg;
+  return what_str.c_str();
+  }
+};
+
 //Transform
 //Stores a translation, local rotation, and global rotation
 class Transform {
@@ -56,8 +75,8 @@ public:
   Transform* get_transform() const {return trans;}
   double get_translation(int index) const {return trans->translation(index);}
   double get_rotation(int index) const {return trans->rotation(index);}
-  void set_translation(int index, double amt) {trans->translate(index, amt);trns_flag=true;}
-  void set_rotation(int index, double amt) {trans->rotate(index, amt);trns_flag=true;}
+  void set_translation(int index, double amt) {if (trns_flag) {trans->translate(index, amt);} else {throw SceneException("Attempting to set translation on Device without transform");}}
+  void set_rotation(int index, double amt) {if (trns_flag) {trans->rotate(index, amt);} else {throw SceneException("Attempting to set rotation on Device without transform");}}
   bool has_transform() const {if ((!trans) || (!trns_flag)) {return false;} else {return true;}}
   void set_key(std::string new_key) {key = new_key;}
   std::string get_key() const {return key;}
