@@ -4,6 +4,9 @@
 //decides how the application needs to be configured.  It may configure either
 //from a configuration file, or from a Consul agent
 
+#ifndef CONFIG_MANAGER
+#define CONFIG_MANAGER
+
 #include <string>
 #include <fstream>
 #include <cstdlib>
@@ -30,9 +33,6 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-
-#ifndef CONFIG_MANAGER
-#define CONFIG_MANAGER
 
 class ConfigurationManager
 {
