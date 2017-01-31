@@ -18,14 +18,14 @@
 
 #include "ivan_log.h"
 
-#include "aossl/consul/include/factory_consul.h"
-#include "aossl/interpreter/properties_reader/include/factory_props.h"
-
 #include "aossl/interpreter/cli/include/commandline_interface.h"
 #include "aossl/consul/include/consul_interface.h"
 #include "aossl/interpreter/properties_reader/include/properties_reader_interface.h"
 #include "aossl/logging/include/logging_interface.h"
 #include "aossl/redis/include/redis_interface.h"
+
+#include "aossl/consul/include/factory_consul.h"
+#include "aossl/interpreter/properties_reader/include/factory_props.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
