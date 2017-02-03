@@ -2,8 +2,8 @@
 //Across different files.  These are either numeric constants or
 //singletons which form the backbone of the service.
 
-#include "aossl/interpreter/cli/include/commandline_interface.h"
-#include "aossl/interpreter/cli/include/factory_cli.h"
+#include "aossl/commandline/include/commandline_interface.h"
+#include "aossl/commandline/include/factory_cli.h"
 
 #include "aossl/neo4j/include/neo4j_interface.h"
 #include "aossl/neo4j/include/factory_neo4j.h"
