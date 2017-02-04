@@ -5,8 +5,8 @@
 #include <assert.h>
 #include <string>
 
-#include "aossl/factory/logging_interface.h"
-#include "aossl/factory_logging.h"
+#include "aossl/logging/include/logging_interface.h"
+#include "aossl/logging/include/factory_logging.h"
 
 int main() {
 
