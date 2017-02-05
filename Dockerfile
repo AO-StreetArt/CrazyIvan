@@ -66,6 +66,12 @@ RUN tar -vxjf 3.2.8.tar.bz2
 RUN mkdir $PRE/eigen
 RUN mv ./eigen-eigen* $PRE/eigen
 
+#Get the RapidJSON Dependency
+RUN git clone https://github.com/miloyip/rapidjson.git
+
+#Move the RapidJSON header files to the include path
+RUN cp -r rapidjson/include/rapidjson/ /usr/local/include
+
 #Move the Eigen files
 RUN sudo cp -r $PRE/eigen/eigen*/Eigen /usr/local/include
 
