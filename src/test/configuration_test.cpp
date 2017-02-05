@@ -3,12 +3,15 @@
 
 #include "../configuration_manager.h"
 #include <assert.h>
-#include "aossl/factory/logging_interface.h"
-#include "aossl/factory/commandline_interface.h"
-#include "aossl/factory/uuid_interface.h"
-#include "aossl/factory_cli.h"
-#include "aossl/factory_logging.h"
-#include "aossl/factory_uuid.h"
+
+#include "aossl/commandline/include/commandline_interface.h"
+#include "aossl/commandline/include/factory_cli.h"
+
+#include "aossl/logging/include/logging_interface.h"
+#include "aossl/logging/include/factory_logging.h"
+
+#include "aossl/uuid/include/uuid_interface.h"
+#include "aossl/uuid/include/factory_uuid.h"
 
 int main( int argc, char** argv )
 {

@@ -2,8 +2,8 @@
 #include "ivan_utils.h"
 #include "scene.h"
 
-#include "aossl/factory/neo4j_interface.h"
-#include "aossl/factory_neo4j.h"
+#include "aossl/neo4j/include/neo4j_interface.h"
+#include "aossl/neo4j/include/factory_neo4j.h"
 
 #ifndef QUERY_HELPER
 #define QUERY_HELPER

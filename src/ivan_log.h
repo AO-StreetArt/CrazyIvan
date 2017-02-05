@@ -1,7 +1,7 @@
 #ifndef IVAN_LOGGING
 #define IVAN_LOGGING
 
-#include "aossl/factory/logging_interface.h"
+#include "aossl/logging/include/logging_interface.h"
 
 extern LoggingCategoryInterface *uuid_logging;
 extern LoggingCategoryInterface *config_logging;

@@ -29,6 +29,10 @@ RUN apt-get install -y build-essential libtool pkg-config autoconf automake uuid
 RUN git clone https://github.com/redis/hiredis.git ./hiredis
 RUN cd ./hiredis && make && make install
 
+#Get the Mongo Dependencies
+RUN git clone https://github.com/mongodb/mongo-c-driver.git
+RUN cd mongo-c-driver && ./autogen.sh --with-libbson=bundled && make && sudo make install
+
 #Get the Neo4j Dependencies
 RUN git clone https://github.com/cleishm/libneo4j-client.git ./$PRE/neo
 RUN cd $PRE/neo && ./autogen.sh && ./configure --disable-tools && make clean check && sudo make install
@@ -83,7 +87,7 @@ RUN cd $PRE/interfaces && sudo make install
 RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
 
 #Install the shared service library
-RUN cd AOSharedServiceLibrary && make no-couchbase && make install-no-couchbase
+RUN cd AOSharedServiceLibrary && make && make install
 
 #Pull the project source from github
 RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git

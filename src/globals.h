@@ -2,19 +2,23 @@
 //Across different files.  These are either numeric constants or
 //singletons which form the backbone of the service.
 
-#include "aossl/factory/neo4j_interface.h"
-#include "aossl/factory/redis_interface.h"
-#include "aossl/factory/uuid_interface.h"
-#include "aossl/factory/commandline_interface.h"
-#include "aossl/factory/zmq_interface.h"
-#include "aossl/factory/logging_interface.h"
+#include "aossl/commandline/include/commandline_interface.h"
+#include "aossl/commandline/include/factory_cli.h"
 
-#include "aossl/factory_cli.h"
-#include "aossl/factory_neo4j.h"
-#include "aossl/factory_logging.h"
-#include "aossl/factory_redis.h"
-#include "aossl/factory_uuid.h"
-#include "aossl/factory_zmq.h"
+#include "aossl/neo4j/include/neo4j_interface.h"
+#include "aossl/neo4j/include/factory_neo4j.h"
+
+#include "aossl/logging/include/logging_interface.h"
+#include "aossl/logging/include/factory_logging.h"
+
+#include "aossl/redis/include/redis_interface.h"
+#include "aossl/redis/include/factory_redis.h"
+
+#include "aossl/uuid/include/uuid_interface.h"
+#include "aossl/uuid/include/factory_uuid.h"
+
+#include "aossl/zmq/include/zmq_interface.h"
+#include "aossl/zmq/include/factory_zmq.h"
 
 #include "message_processor.h"
 #include "configuration_manager.h"
