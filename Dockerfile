@@ -102,13 +102,14 @@ RUN cd CrazyIvan && make
 
 #Expose some of the default ports
 EXPOSE 22
-EXPOSE 5555
-EXPOSE 5556
 EXPOSE 8091
 EXPOSE 8092
 EXPOSE 8093
 EXPOSE 11210
 EXPOSE 12345
 
-#Start up the SSH terminal so that we can connect & start the app
-CMD tail -f /dev/null
+#Expose the 5000 port range for DVS Services
+EXPOSE 5000-5999
+
+#Start up Crazy Ivan
+ENTRYPOINT ["crazy_ivan"]
