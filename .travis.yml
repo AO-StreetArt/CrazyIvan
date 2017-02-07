@@ -38,6 +38,9 @@ before_install:
   - sudo pip install protobuf pyzmq
   - pip install protobuf pyzmq
   - sudo pip install --user protobuf pyzmq
+  # Get DVS Interfaces
+  - git clone https://github.com/AO-StreetArt/DvsInterface.git
+  - cd DvsInterface && sudo make install
 install:
   - cd $TRAVIS_BUILD_DIR
   # Setup Consul
@@ -53,7 +56,7 @@ install:
   - cd $TRAVIS_BUILD_DIR
   - git clone https://github.com/AO-StreetArt/CrazyIvan_ProtoBufferTests.git
   # Compile the protocol buffer class for use with the Python tests
-  - protoc -I=/usr/local/include/dvs_interface --python_out=src/ /usr/local/include/dvs_interface/Scene.proto
+  - protoc -I=/usr/local/include/dvs_interface --python_out=CrazyIvan_ProtoBufferTests/src/ /usr/local/include/dvs_interface/Scene.proto
 script:
   # Wait for some time to allow the docker instance to finish building
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./wait.sh
