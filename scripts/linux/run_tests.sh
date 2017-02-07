@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the directory where the tests reside
-TEST_DIR=${1:-CrazyIvan_ProtoBufferTests}
+TEST_DIR=${1:-.}
 
 # Run the Tests for Crazy Ivan
 
