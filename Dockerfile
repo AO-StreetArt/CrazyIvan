@@ -102,8 +102,8 @@ RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
 RUN cd CrazyIvan && make && make test
 
 # Execute Unit Tests
-RUN ./scene_test
-RUN ./configuration_test -config-file=src/test/test.properties
+RUN cd CrazyIvan && ./scene_test
+RUN cd CrazyIvan && ./configuration_test -config-file=src/test/test.properties
 
 #Expose some of the default ports
 EXPOSE 22
@@ -117,4 +117,4 @@ EXPOSE 12345
 EXPOSE 5000-5999
 
 #Start up Crazy Ivan
-ENTRYPOINT ["crazy_ivan"]
+ENTRYPOINT ["CrazyIvan/crazy_ivan"]
