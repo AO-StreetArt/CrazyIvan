@@ -63,4 +63,4 @@ script:
   # Start Crazy Ivan
   - ./run_docker_instance.sh $TRAVIS_BRANCH localhost:8500 localhost 5555
   # Execute the Python Tests
-  - cd scripts/linux && ./run_tests.sh ../CrazyIvan_ProtoBufferTests
+  - cd $TRAVIS_BUILD_DIR/CrazyIvan_ProtoBufferTests && ./run_tests.sh
