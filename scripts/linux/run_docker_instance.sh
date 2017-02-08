@@ -22,4 +22,5 @@ else
     docker run --name crazyivan --link $LINK_NAME:$LINK_IMAGE -d aostreetart/crazyivan:$BRANCH_NAME -consul-addr=$CONSUL_ADDR -ip=$IP -port=$PORT
   else
     docker run --name crazyivan --link $LINK_NAME:$LINK_IMAGE --link $LINK_NAME2:$LINK_IMAGE2 --link $LINK_NAME3:$LINK_IMAGE3 -d aostreetart/crazyivan:$BRANCH_NAME -consul-addr=$CONSUL_ADDR -ip=$IP -port=$PORT
+  fi
 fi
