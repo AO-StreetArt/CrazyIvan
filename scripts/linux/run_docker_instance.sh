@@ -7,7 +7,7 @@ PORT=${4:-5555}
 LINK_NAME=${5:-database}
 LINK_IMAGE=${6:-neo4j}
 
-TAG_NAME=""
+TAG_NAME="latest"
 
 if [ $BRANCH_NAME != "master" ]; then
   TAG_NAME=$BRANCH_NAME
