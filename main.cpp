@@ -88,7 +88,12 @@ void my_signal_handler(int s){
 	    std::string initFileName;
 
       //See if we have a command line setting for the log file
-      if ( cli->opt_exist("-log-conf") ) {
+      const char * env_logging_file = std::getenv("CRAZYIVAN_LOGGING_CONF");
+      if ( env_logging_file ) {
+        std::string tempFileName (env_logging_file);
+        initFileName = tempFileName;
+      }
+      else if ( cli->opt_exist("-log-conf") ) {
         initFileName = cli->get_opt("-log-conf");
       }
       else

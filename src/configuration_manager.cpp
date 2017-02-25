@@ -328,7 +328,7 @@ bool ConfigurationManager::configure ()
 
     bool ret_val = false;
 
-    //TO-DO: See if we have any environment variables specified
+    //See if we have any environment variables specified
     const char * env_consul_addr = std::getenv("CRAZYIVAN_CONSUL_ADDR");
     const char * env_ip = std::getenv("CRAZYIVAN_IP");
     const char * env_port = std::getenv("CRAZYIVAN_PORT");
