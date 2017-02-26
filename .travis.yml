@@ -22,8 +22,6 @@ addons:
     - protobuf-compiler
     - libprotobuf-dev
 services:
-  # Start up a Redis Server
-  - redis-server
   # Start up Docker
   - docker
 before_install:
@@ -44,14 +42,19 @@ before_install:
 install:
   - cd $TRAVIS_BUILD_DIR
   # Setup Consul
-  - wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
-  - unzip consul_0.6.4_linux_amd64.zip
-  - ./consul agent -dev -bind=127.0.0.1 &
+  - sudo docker pull consul
+  - sudo docker run -d --name=registry consul
   # Set up Neo4j
   - sudo docker pull neo4j
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name database neo4j
+  # Set up Redis
+  - sudo docker pull redis
+  - sudo docker run --name cache -d redis
   # Populate Consul Configuration variables
-  - cd $TRAVIS_BUILD_DIR/scripts/linux && ./populate_consul.sh
+  - sudo docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
+  - sudo docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
+  - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
+  - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
   # Clone the repository for the python tests
   - cd $TRAVIS_BUILD_DIR
   - git clone https://github.com/AO-StreetArt/CrazyIvan_ProtoBufferTests.git
@@ -61,6 +64,6 @@ script:
   # Wait for some time to allow the docker instance to finish building
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./wait.sh
   # Start Crazy Ivan
-  - ./run_docker_instance.sh $TRAVIS_BRANCH localhost:8500 localhost 5555 database neo4j
+  - ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500 localhost 5555
   # Execute the Python Tests
   - cd $TRAVIS_BUILD_DIR/CrazyIvan_ProtoBufferTests && ./run_tests.sh

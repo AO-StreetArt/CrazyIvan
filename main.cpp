@@ -172,10 +172,10 @@ void my_signal_handler(int s){
       std::string DBConnStr = cm->get_dbconnstr();
       try {
         neo = neo4j_factory->get_neo4j_interface( DBConnStr );
-        main_logging->debug("Connected to Mongo");
+        main_logging->debug("Connected to Neo4j");
       }
       catch (std::exception& e) {
-        main_logging->error("Exception encountered during Mongo Initialization");
+        main_logging->error("Exception encountered during Neo4j Initialization");
         main_logging->error(e.what());
         shutdown();
         exit(1);
