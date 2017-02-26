@@ -1,6 +1,6 @@
 ################################################################
 
-# Dockerfile to build Ex38 Container Images
+# Dockerfile to build Crazy Ivan Container Images
 # Based on Ubuntu-ssh
 
 ################################################################
@@ -98,17 +98,23 @@ RUN cd AOSharedServiceLibrary && make && make install
 #Pull the project source from github
 RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
 
-RUN cd CrazyIvan && make
+# Build the Project & Unit Tests
+RUN cd CrazyIvan && make && make test
+
+# Execute Unit Tests
+RUN cd CrazyIvan && ./scene_test
+RUN cd CrazyIvan && ./configuration_test -config-file=src/test/test.properties
 
 #Expose some of the default ports
 EXPOSE 22
-EXPOSE 5555
-EXPOSE 5556
 EXPOSE 8091
 EXPOSE 8092
 EXPOSE 8093
 EXPOSE 11210
 EXPOSE 12345
 
-#Start up the SSH terminal so that we can connect & start the app
-CMD tail -f /dev/null
+#Expose the 5000 port range for DVS Services
+EXPOSE 5000-5999
+
+#Start up Crazy Ivan
+ENTRYPOINT ["CrazyIvan/crazy_ivan"]

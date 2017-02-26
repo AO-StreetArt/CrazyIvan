@@ -236,7 +236,13 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
     if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0 || obj_msg->get_scene(0).get_longitude() == -9999.0 || obj_msg->get_scene(0).get_distance() < 0.0 ) ) {
       //Query for distance
-      scene_query = scene_query + " WHERE ((scn.latitude - {inp_lat}) ^ 2 + (scn.longitude - {inp_long}) ^ 2) ^ (1/2) < {inp_distance}";
+      //Assumes distance supplied is in meters
+      //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
+      std::string where_clause = "WHERE ( 12742000 * asin((((sin((scn.longitude -"
+                                  " {inp_long}) / 2) ^ 2) + (cos({inp_long}) * "
+                                  "cos(scn.longitude) * (sin((scn.latitude - "
+                                  "{inp_lat}) / 2) ^ 2))) ^ (1/2)))) < {inp_distance}";
+      scene_query = scene_query + where_clause;
     }
 
     scene_query = scene_query + " RETURN scn";
@@ -267,7 +273,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
       double qlong = obj_msg->get_scene(0).get_longitude();
       Neo4jQueryParameterInterface* long_param = neo_factory->get_neo4j_query_parameter(qlong);
       scene_params.emplace("inp_long", long_param);
-      double qdist = obj_msg->get_distance();
+      double qdist = obj_msg->get_scene(0).get_distance();
       Neo4jQueryParameterInterface* dist_param = neo_factory->get_neo4j_query_parameter(qdist);
       scene_params.emplace("inp_distance", dist_param);
     }
