@@ -106,5 +106,5 @@ EXPOSE 12345
 #Expose the 5000 port range for DVS Services
 EXPOSE 5000-5999
 
-#Build & Start up Crazy Ivan
+#Build & Start up Crazy Ivan with script as entry point
 ENTRYPOINT ["CrazyIvan/scripts/linux/start_docker_instance.sh"]
