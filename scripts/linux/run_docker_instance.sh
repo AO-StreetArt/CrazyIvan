@@ -11,4 +11,4 @@ if [ $BRANCH_NAME != "master" ]; then
   TAG_NAME=$BRANCH_NAME
 fi
 
-docker run --name crazyivan --link database:neo4j --link registry:consul --link cache:redis -p 5555:5555 -d aostreetart/crazyivan:$TAG_NAME -consul-addr=$CONSUL_ADDR -ip=$IP -port=$PORT -log-conf=CrazyIvan/log4cpp.properties
+docker run --name crazyivan --link database:neo4j --link registry:consul --link cache:redis -p $PORT:$PORT -d aostreetart/crazyivan:$TAG_NAME -consul-addr=$CONSUL_ADDR -ip=$IP -port=$PORT -log-conf=/usr/local/etc/CrazyIvan/log4cpp.properties $TAG_NAME

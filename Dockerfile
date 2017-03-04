@@ -95,16 +95,6 @@ RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
 #Install the shared service library
 RUN cd AOSharedServiceLibrary && make && make install
 
-#Pull the project source from github
-RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
-
-# Build the Project & Unit Tests
-RUN cd CrazyIvan && make && make test
-
-# Execute Unit Tests
-RUN cd CrazyIvan && ./scene_test
-RUN cd CrazyIvan && ./configuration_test -config-file=src/test/test.properties
-
 #Expose some of the default ports
 EXPOSE 22
 EXPOSE 8091
@@ -116,5 +106,7 @@ EXPOSE 12345
 #Expose the 5000 port range for DVS Services
 EXPOSE 5000-5999
 
-#Start up Crazy Ivan
-ENTRYPOINT ["CrazyIvan/crazy_ivan"]
+RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
+
+#Build & Start up Crazy Ivan with script as entry point
+ENTRYPOINT ["CrazyIvan/scripts/linux/start_docker_instance.sh"]
