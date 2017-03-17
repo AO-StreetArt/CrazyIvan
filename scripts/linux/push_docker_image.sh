@@ -7,4 +7,4 @@ BRANCH_NAME=$4
 DIR=$5
 
 cd $DIR && sudo docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-cd $DIR && sudo docker push aostreetart/CrazyIvan:$BRANCH_NAME
+cd $DIR && sudo docker push aostreetart/crazyivan:$BRANCH_NAME
