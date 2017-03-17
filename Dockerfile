@@ -118,4 +118,4 @@ EXPOSE 12345
 EXPOSE 5000-5999
 
 #Build & Start up Crazy Ivan with script as entry point
-ENTRYPOINT ["CrazyIvan/crazyivan"]
+ENTRYPOINT ["CrazyIvan/crazy_ivan"]
