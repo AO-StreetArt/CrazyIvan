@@ -328,18 +328,34 @@ bool ConfigurationManager::configure ()
 
     bool ret_val = false;
 
+    //See if we have any environment variables specified
+    const char * env_consul_addr = std::getenv("CRAZYIVAN_CONSUL_ADDR");
+    const char * env_ip = std::getenv("CRAZYIVAN_IP");
+    const char * env_port = std::getenv("CRAZYIVAN_PORT");
+    const char * env_db_addr = std::getenv("CRAZYIVAN_DB_ADDR");
+    const char * env_conf_file = std::getenv("CRAZYIVAN_CONFIG_FILE");
+
     //Check if we have a configuration file specified
-    if ( cli->opt_exist("-config-file") ) {
+    if ( env_conf_file ) {
+      std::string env_conf_loc (env_conf_file);
+      ret_val = configure_from_file( env_conf_loc );
+    }
+
+    else if ( cli->opt_exist("-config-file") ) {
       ret_val =  configure_from_file( cli->get_opt("-config-file") );
     }
 
     //Check if we have a consul address specified
-
-    else if ( cli->opt_exist("-consul-addr") && cli->opt_exist("-ip") && cli->opt_exist("-port") && cli->opt_exist("-db-addr") )
-    {
-      ret_val = configure_from_consul( cli->get_opt("-consul-addr"), cli->get_opt("-ip"), cli->get_opt("-port") );
+    else if (env_consul_addr && env_ip && env_port) {
+      std::string env_consul_addr_str (env_consul_addr);
+      std::string env_ip_str (env_ip);
+      std::string env_port_str (env_port);
+      ret_val = configure_from_consul( env_consul_addr_str, env_ip_str, env_port_str );
+      if (env_db_addr) {
+        std::string env_db_addr_str (env_db_addr);
+        DB_ConnStr = env_db_addr_str;
+      }
       if (ret_val) {
-        DB_ConnStr = cli->get_opt("-db-addr");
         isConsulActive = true;
       }
       else {
@@ -347,13 +363,19 @@ bool ConfigurationManager::configure ()
       }
     }
 
-    else if ( cli->opt_exist("-consul-addr") && cli->opt_exist("-ip") && cli->opt_exist("-port"))
+
+    else if ( cli->opt_exist("-consul-addr") && cli->opt_exist("-ip") && cli->opt_exist("-port") )
     {
-      ret_val =  configure_from_consul( cli->get_opt("-consul-addr"), cli->get_opt("-ip"), cli->get_opt("-port") );
+      ret_val = configure_from_consul( cli->get_opt("-consul-addr"), cli->get_opt("-ip"), cli->get_opt("-port") );
+      if ( cli->opt_exist("-db-addr") ) {
+        DB_ConnStr = cli->get_opt("-db-addr");
+      }
       if (ret_val) {
         isConsulActive = true;
       }
-      return ret_val;
+      else {
+        config_logging->error("Configuration from Consul failed, keeping defaults");
+      }
     }
 
     //Check for the dev flag, which starts up with default ports and no consul connection

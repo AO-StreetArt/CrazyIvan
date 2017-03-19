@@ -191,7 +191,6 @@ Scene::Scene() {
   err_code=100;
   err_msg = "";
   transaction_id = "";
-  distance = -1.0;
   num_records = 10;
 }
 
@@ -203,7 +202,6 @@ Scene::Scene(protoScene::SceneList buffer) {
   std::string new_err_msg = "";
   int new_err_code = 100;
   std::string new_transaction_id = "";
-  double new_distance = -1.0;
   int new_num_records = 10;
 
   //Perform the conversion
@@ -219,9 +217,6 @@ Scene::Scene(protoScene::SceneList buffer) {
   if (buffer.has_err_code()) {
     new_err_code = buffer.err_code();
   }
-  if (buffer.has_distance()) {
-    new_distance = buffer.distance();
-  }
   if (buffer.has_num_records()) {
     new_num_records = buffer.num_records();
   }
@@ -235,7 +230,6 @@ Scene::Scene(protoScene::SceneList buffer) {
   err_code = new_err_code;
   err_msg = new_err_msg;
   transaction_id = new_transaction_id;
-  distance = new_distance;
   num_records = new_num_records;
 }
 
@@ -257,7 +251,6 @@ std::string Scene::to_protobuf() {
 		new_proto->set_err_msg(err_msg);
 	}
 	new_proto->set_err_code(err_code);
-  new_proto->set_distance(distance);
 
   //Determine how many scenes we want to return in the message
   int num_scenes = static_cast<int>(data.size());
@@ -284,6 +277,11 @@ std::string Scene::to_protobuf() {
     //Lat/long
     scn->set_latitude(data[a].get_latitude());
   	scn->set_longitude(data[a].get_longitude());
+
+    //distance
+    if (data[a].get_distance() >= 0.0) {
+      scn->set_distance(data[a].get_distance());
+    }
 
     //Convert transform
     if (data[a].has_transform()) {

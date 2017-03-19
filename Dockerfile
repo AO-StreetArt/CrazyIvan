@@ -1,6 +1,6 @@
 ################################################################
 
-# Dockerfile to build Ex38 Container Images
+# Dockerfile to build Crazy Ivan Container Images
 # Based on Ubuntu-ssh
 
 ################################################################
@@ -28,6 +28,10 @@ RUN apt-get install -y build-essential libtool pkg-config autoconf automake uuid
 #Get the Redis Dependencies
 RUN git clone https://github.com/redis/hiredis.git ./hiredis
 RUN cd ./hiredis && make && make install
+
+#Get the Mongo Dependencies
+RUN git clone https://github.com/mongodb/mongo-c-driver.git
+RUN cd mongo-c-driver && ./autogen.sh --with-libbson=bundled && make && sudo make install
 
 #Get the Neo4j Dependencies
 RUN git clone https://github.com/cleishm/libneo4j-client.git ./$PRE/neo
@@ -62,6 +66,12 @@ RUN tar -vxjf 3.2.8.tar.bz2
 RUN mkdir $PRE/eigen
 RUN mv ./eigen-eigen* $PRE/eigen
 
+#Get the RapidJSON Dependency
+RUN git clone https://github.com/miloyip/rapidjson.git
+
+#Move the RapidJSON header files to the include path
+RUN cp -r rapidjson/include/rapidjson/ /usr/local/include
+
 #Move the Eigen files
 RUN sudo cp -r $PRE/eigen/eigen*/Eigen /usr/local/include
 
@@ -85,20 +95,20 @@ RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
 #Install the shared service library
 RUN cd AOSharedServiceLibrary && make && make install
 
-#Pull the project source from github
-RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
-
-RUN cd CrazyIvan && make
-
 #Expose some of the default ports
 EXPOSE 22
-EXPOSE 5555
-EXPOSE 5556
 EXPOSE 8091
 EXPOSE 8092
 EXPOSE 8093
 EXPOSE 11210
 EXPOSE 12345
 
-#Start up the SSH terminal so that we can connect & start the app
-CMD tail -f /dev/null
+#Expose the 5000 port range for DVS Services
+EXPOSE 5000-5999
+
+RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
+
+RUN cd CrazyIvan && make
+
+#Build & Start up Crazy Ivan with script as entry point
+ENTRYPOINT ["CrazyIvan/scripts/linux/start_docker_instance.sh"]

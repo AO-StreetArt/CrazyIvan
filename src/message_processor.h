@@ -7,10 +7,10 @@
 
 #include "rapidjson/document.h"
 
-#include "aossl/factory/redis_interface.h"
-#include "aossl/factory/neo4j_interface.h"
-#include "aossl/factory/zmq_interface.h"
-#include "aossl/factory/uuid_interface.h"
+#include "aossl/neo4j/include/neo4j_interface.h"
+#include "aossl/redis/include/redis_interface.h"
+#include "aossl/uuid/include/uuid_interface.h"
+#include "aossl/zmq/include/zmq_interface.h"
 
 #ifndef MSG_PROCESSOR
 #define MSG_PROCESSOR

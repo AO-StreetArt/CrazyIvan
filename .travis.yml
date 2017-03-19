@@ -3,27 +3,31 @@ sudo: required
 dist: trusty
 language: cpp
 
-sudo: required
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
+    # Install GCC
     - gcc-5
     - g++-5
+    # Install Python
+    - python
+    - python-dev
+    - python-pip
+    # Install LibSSL
+    - libssl-dev
+    # Install Protocol Buffer Compiler
+    - protobuf-compiler
+    - libprotobuf-dev
 services:
-  - redis-server
+  # Start up Docker
   - docker
 before_install:
   - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
   - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
   # Print the version of gcc
   - gcc --version
-  - sudo apt-get install libssl-dev
-  - mkdir ../ivan_deps
-  - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps
-  # Install Python
-  - sudo apt-get install python python-dev python-pip
   # Print the python & pip version
   - python -V
   - pip -V
@@ -31,52 +35,34 @@ before_install:
   - sudo pip install protobuf pyzmq
   - pip install protobuf pyzmq
   - sudo pip install --user protobuf pyzmq
+  # Get DVS Interfaces
+  - git clone https://github.com/AO-StreetArt/DvsInterface.git
+  - cd DvsInterface && sudo make install
 install:
   - cd $TRAVIS_BUILD_DIR
-  - wget https://releases.hashicorp.com/consul/0.6.4/consul_0.6.4_linux_amd64.zip
-  - unzip consul_0.6.4_linux_amd64.zip
-  - ./consul agent -dev -bind=127.0.0.1 &
+  # Setup Consul
+  - sudo docker pull consul
+  - sudo docker run -d --name=registry consul
+  # Set up Neo4j
   - sudo docker pull neo4j
-  - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data neo4j
-  # Build the dependencies and display the log
-  - cd ../ivan_deps && sudo ./build_deps.sh && cat build_deps.log
+  - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name database neo4j
+  # Set up Redis
+  - sudo docker pull redis
+  - sudo docker run --name cache -d redis
   # Populate Consul Configuration variables
-  - cd $TRAVIS_BUILD_DIR/scripts/linux && ./populate_consul.sh
+  - sudo docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
+  - sudo docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
+  - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
+  - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
   # Clone the repository for the python tests
   - cd $TRAVIS_BUILD_DIR
   - git clone https://github.com/AO-StreetArt/CrazyIvan_ProtoBufferTests.git
   # Compile the protocol buffer class for use with the Python tests
-  - protoc -I=/usr/local/include/dvs_interface --python_out=src/ /usr/local/include/dvs_interface/Scene.proto
+  - protoc -I=/usr/local/include/dvs_interface --python_out=CrazyIvan_ProtoBufferTests/src/ /usr/local/include/dvs_interface/Scene.proto
 script:
-  # Build the project and unit tests
-  - cd $TRAVIS_BUILD_DIR
-  - make rhel
-  - make rhel-test
-  # Execute unit tests
-  - ./scene_test
-  - ./configuration_test -config-file=src/test/test.properties
+  # Wait for some time to allow the docker instance to finish building
+  - cd $TRAVIS_BUILD_DIR/scripts/linux && ./wait.sh
   # Start Crazy Ivan
-  - ./crazy_ivan -consul-addr=localhost:8500 -ip=localhost -port=5555 &
-  # Execute the Creation Test, which also saves the resulting keys into a file called responses.csv
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Create.xml
-  # Copy the returned keys into the other CSVs
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_get.ini
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_update.ini
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/scn_del.ini
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/ud_register.ini
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/ud_deregister.ini
-  - python CrazyIvan_ProtoBufferTests/src/CopyCsvColumn.py CrazyIvan_ProtoBufferTests/src/ud_align.ini
-  # Execute the Get Test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
-  # Execute the Update Test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Update.xml
-  # Execute the Get Test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Get.xml
-  # Execute the Device Registration Test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/UD_Register.xml
-  # Execute the Device Alignment Test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/UD_Align.xml
-  # Execute the Device Deregistration test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/UD_Deregister.xml
-  # Execute the Scene Delete Test
-  - python CrazyIvan_ProtoBufferTests/Scene_pump.py CrazyIvan_ProtoBufferTests/ud_register/xml/Obj_Delete.xml
+  - ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500 localhost 5555
+  # Execute the Python Tests
+  - cd $TRAVIS_BUILD_DIR/CrazyIvan_ProtoBufferTests && ./run_tests.sh

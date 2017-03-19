@@ -130,7 +130,6 @@ std::string err_msg;
 int err_code;
 std::string transaction_id;
 std::vector<SceneData> data;
-double distance;
 int num_records;
 public:
   //Constructor
@@ -148,7 +147,6 @@ public:
   void set_transaction_id(std::string new_tran_id) {transaction_id=new_tran_id;}
   void set_err_code(int new_code) {err_code=new_code;}
   void add_scene(SceneData scn) {data.push_back(scn);}
-  void set_distance(double new_dist) {distance = new_dist;}
   void set_num_records(int new_num) {num_records = new_num;}
   //Getters
   int get_msg_type() {return msg_type;}
@@ -157,7 +155,6 @@ public:
   int get_err_code() {return err_code;}
   SceneData get_scene(int i) {return data[i];}
   int num_scenes() {return data.size();}
-  double get_distance() {return distance;}
   int get_num_records() {return num_records;}
 
 };
