@@ -108,5 +108,7 @@ EXPOSE 5000-5999
 
 RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
 
+RUN cd CrazyIvan && make
+
 #Build & Start up Crazy Ivan with script as entry point
 ENTRYPOINT ["CrazyIvan/scripts/linux/start_docker_instance.sh"]
