@@ -8,6 +8,8 @@
 #Based on Ubuntu 14.04
 FROM ubuntu:14.04
 
+ARG TAG_NAME=latest
+
 #Set the Maintainer
 MAINTAINER Alex Barry
 
@@ -95,6 +97,15 @@ RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
 #Install the shared service library
 RUN cd AOSharedServiceLibrary && make && make install
 
+RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
+
+# Build the Project & Unit Tests
+RUN cd CrazyIvan && make && make test
+
+# Execute Unit Tests
+RUN cd CrazyIvan && ./scene_test
+RUN cd CrazyIvan && ./configuration_test -config-file=src/test/test.properties
+
 #Expose some of the default ports
 EXPOSE 22
 EXPOSE 8091
@@ -111,4 +122,4 @@ RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
 RUN cd CrazyIvan && make
 
 #Build & Start up Crazy Ivan with script as entry point
-ENTRYPOINT ["CrazyIvan/scripts/linux/start_docker_instance.sh"]
+ENTRYPOINT ["CrazyIvan/crazy_ivan"]
