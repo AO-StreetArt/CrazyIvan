@@ -19,7 +19,7 @@ Crazy Ivan is a part of the AO Distributed Visualization Server, along with [CLy
 ## Table of Contents
 
 * [Quickstart] (https://github.com/AO-StreetArt/CrazyIvan/tree/master/docs/quickstart)
-* [Configuration] (https://github.com/AO-StreetArt/CrazyIvantree/master/docs/config)
+* [Configuration] (https://github.com/AO-StreetArt/CrazyIvan/tree/master/docs/config)
 * [API] (https://github.com/AO-StreetArt/CrazyIvan/tree/master/docs/api)
 * [Architecture] (https://github.com/AO-StreetArt/CrazyIvan/tree/master/docs/arch)
 * [Deployment] (https://github.com/AO-StreetArt/CrazyIvan/tree/master/docs/deploy)
