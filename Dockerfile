@@ -123,9 +123,5 @@ EXPOSE 12345
 #Expose the 5000 port range for DVS Services
 EXPOSE 5000-5999
 
-RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
-
-RUN cd CrazyIvan && make
-
 #Build & Start up Crazy Ivan with script as entry point
 ENTRYPOINT ["CrazyIvan/crazy_ivan"]
