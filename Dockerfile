@@ -21,7 +21,7 @@ RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update
-RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5 build-essential libprotobuf-dev protobuf-compiler liblog4cpp5-dev libhayai-dev libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git
+RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5 build-essential libprotobuf-dev protobuf-compiler libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git liblog4cpp5-dev
 RUN	apt-get clean
 
 #Build the dependencies and place them in the correct places
@@ -88,6 +88,9 @@ RUN apt-add-repository -y ppa:bruun/hayai
 
 #Update the apt-get cache
 RUN apt-get update
+
+#Install Hayai
+RUN apt-get install -y libhayai-dev
 
 #Ensure we have access to the Protocol Buffer Interfaces
 RUN mkdir $PRE/interfaces/
