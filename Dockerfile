@@ -21,14 +21,17 @@ RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update
-RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5
+RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5 build-essential libprotobuf-dev protobuf-compiler liblog4cpp5-dev libhayai-dev libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git
 RUN	apt-get clean
 
 #Build the dependencies and place them in the correct places
 RUN apt-get update
 
-#Ensure that specific build requirements are satisfied
-RUN apt-get install -y build-essential libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git software-properties-common
+#Set up g++ 5 as the default c++ compiler
+RUN unlink /usr/bin/gcc && ln -s /usr/bin/gcc-5 /usr/bin/gcc
+RUN unlink /usr/bin/g++ && ln -s /usr/bin/g++-5 /usr/bin/g++
+
+RUN gcc --version
 
 #Get the Redis Dependencies
 RUN git clone https://github.com/redis/hiredis.git ./hiredis
@@ -85,9 +88,6 @@ RUN apt-add-repository -y ppa:bruun/hayai
 
 #Update the apt-get cache
 RUN apt-get update
-
-#Install the dependencies
-RUN apt-get install -y build-essential libprotobuf-dev protobuf-compiler liblog4cpp5-dev libhayai-dev
 
 #Ensure we have access to the Protocol Buffer Interfaces
 RUN mkdir $PRE/interfaces/
