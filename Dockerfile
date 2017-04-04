@@ -21,7 +21,7 @@ RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update
-RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5.0
+RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5
 RUN	apt-get clean
 
 #Build the dependencies and place them in the correct places
