@@ -55,6 +55,7 @@ public:
   bool has_translation() const {return tran_flag;}
   bool has_rotation() const {return rot_flag;}
   void invert();
+  void clear() {tran.clear();rot.clear();tran_flag=false;rot_flag=false;}
 };
 
 //User Device

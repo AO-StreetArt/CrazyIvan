@@ -4,6 +4,9 @@ bool QueryHelper::scene_exists(std::string inp_key) {
   //Determine if the scene exists
   processor_logging->debug("Determine if the scene exists");
   ResultsIteratorInterface *results = NULL;
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface *obj = NULL;
+  Neo4jQueryParameterInterface *query_param = NULL;
   //Create the query string
   std::string query_string =
     "MATCH (scn:Scene {key: {inp_key}})"
@@ -11,7 +14,7 @@ bool QueryHelper::scene_exists(std::string inp_key) {
 
   //Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> query_params;
-  Neo4jQueryParameterInterface* query_param = neo_factory->get_neo4j_query_parameter(inp_key);
+  query_param = neo_factory->get_neo4j_query_parameter(inp_key);
   processor_logging->debug("Key:");
   processor_logging->debug(inp_key);
   query_params.emplace("inp_key", query_param);
@@ -36,16 +39,17 @@ bool QueryHelper::scene_exists(std::string inp_key) {
     processor_logging->debug("No Scenes found for the given key");
   }
   else {
-    ResultTreeInterface *tree = results->next();
+    tree = results->next();
     if (tree) {
-      DbObjectInterface* obj = tree->get(0);
+      obj = tree->get(0);
       if ( obj->is_node() ) ret_val = true;
     }
-
-    delete results;
   }
-  if (query_param) {delete query_param;}
-  if (has_exception) {throw QueryException(exc_string);}
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
+  if (query_param) delete query_param;
+  if (has_exception) throw QueryException(exc_string);
   return ret_val;
 }
 
@@ -57,6 +61,10 @@ bool QueryHelper::scene_exists(std::string inp_key) {
 bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_device) {
   processor_logging->debug("Checking the existing User Devices registered to the Scene");
   ResultsIteratorInterface *results = NULL;
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface *obj = NULL;
+  DbMapInterface *map = NULL;
+  Neo4jQueryParameterInterface *key_param = NULL;
   //Create the query string
   std::string q_string =
     "MATCH (scn:Scene {key: {inp_key}})-[tr:TRANSFORM]->(ud:UserDevice)"
@@ -65,7 +73,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
   //Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
   std::string qkey = inp_string;
-  Neo4jQueryParameterInterface* key_param = neo_factory->get_neo4j_query_parameter(qkey);
+  key_param = neo_factory->get_neo4j_query_parameter(qkey);
   processor_logging->debug("Key:");
   processor_logging->debug(qkey);
   q_params.emplace("inp_key", key_param);
@@ -94,12 +102,11 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
   else {
     //Check if the registering user device is already registered
     processor_logging->debug("User Devices detected, starting iterative checking to see if the current registration has already been processed");
-    ResultTreeInterface *tree = results->next();
+    tree = results->next();
     while (tree) {
 
       //Get the first DB Object (Node)
-      DbMapInterface* map = NULL;
-      DbObjectInterface* obj = tree->get(0);
+      obj = tree->get(0);
       processor_logging->debug("Query Result:");
       processor_logging->debug(obj->to_string());
 
@@ -119,21 +126,18 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
       }
 
       //Cleanup
-      if (obj) {
-        delete obj;
-      }
-      if (map) {
-        delete map;
-      }
+      if (map) delete map;
+      if (obj) delete obj;
+      if (tree) delete tree;
 
       //Iterate to the next result
       tree = results->next();
     }
-    if (tree) {
-      delete tree;
-    }
-    delete results;
   }
+  if (map) delete map;
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
   if (key_param) {delete key_param;}
   if (has_exception) {throw QueryException(exc_string);}
   return ret_val;
@@ -144,6 +148,14 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
 Scene* QueryHelper::get_registrations(std::string inp_device) {
   processor_logging->debug("Checking for other scenes the user device is registered to");
   ResultsIteratorInterface *results = NULL;
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface *obj = NULL;
+  DbObjectInterface *edge = NULL;
+  DbObjectInterface *device = NULL;
+  DbMapInterface *edge_props = NULL;
+  DbMapInterface* map = NULL;
+  DbMapInterface *dev_props = NULL;
+  Neo4jQueryParameterInterface *udkey_param = NULL;
   //Create the return object
   Scene *sc = new Scene;
   //Create the query string
@@ -154,7 +166,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
   //Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> udq_params;
   std::string udqkey = inp_device;
-  Neo4jQueryParameterInterface* udkey_param = neo_factory->get_neo4j_query_parameter(udqkey);
+  udkey_param = neo_factory->get_neo4j_query_parameter(udqkey);
   processor_logging->debug("Key:");
   processor_logging->debug(udqkey);
   udq_params.emplace("inp_key", udkey_param);
@@ -178,7 +190,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
   else {
     //Iterate through the results
     //Build the scene list
-    ResultTreeInterface *tree = results->next();
+    tree = results->next();
     while (tree) {
 
       processor_logging->debug("Record returned from results iterator");
@@ -186,9 +198,9 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       SceneData new_data;
 
       //Get the first DB Object (Node)
-      DbObjectInterface* obj = tree->get(0);
-      DbObjectInterface *edge = tree->get(1);
-      DbObjectInterface *device = tree->get(2);
+      obj = tree->get(0);
+      edge = tree->get(1);
+      device = tree->get(2);
       if ( !(obj->is_node()) ) break;
       num_records = num_records + 1;
       processor_logging->debug("Query Result:");
@@ -199,7 +211,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       //Pull the node properties and assign them to the new
       //Scene object
       processor_logging->debug("Getting Scene Properties");
-      DbMapInterface* map = obj->properties();
+      map = obj->properties();
       if (map->element_exists("key")) {
         new_data.set_key( map->get_string_element("key") );
       }
@@ -214,7 +226,6 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       }
 
       //Get the transform and device info
-      DbMapInterface *edge_props = NULL;
       double translation_x = -999.0;
       double translation_y = -999.0;
       double translation_z = -999.0;
@@ -248,7 +259,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       if ( device->is_node() ) {
         processor_logging->debug("Getting Device Properties");
         //Get the transform and device properties
-        DbMapInterface *dev_props = device->properties();
+        dev_props = device->properties();
 
         if (dev_props) {
           if (dev_props->element_exists("key")) {
@@ -275,22 +286,23 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       sc->add_scene(new_data);
 
       processor_logging->debug("Cleanup");
-      if (map) {
-        delete map;
-      }
-      if (obj) {
-        delete obj;
-      }
+      if (map) delete map;
+      if (obj) delete obj;
+      if (tree) delete tree;
 
       processor_logging->debug("Getting next result");
       tree = results->next();
     }
-    if (tree) {
-      delete tree;
-    }
-    delete results;
   }
-  if (udkey_param) {delete udkey_param;}
+  if (edge_props) delete edge_props;
+  if (dev_props) delete dev_props;
+  if (map) delete map;
+  if (obj) delete obj;
+  if (edge) delete edge;
+  if (device) delete device;
+  if (tree) delete tree;
+  if (results) delete results;
+  if (udkey_param) delete udkey_param;
   if (num_records == 0) {
     processor_logging->error("No Scenes found for the given device");
     return NULL;
@@ -302,6 +314,15 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
 void QueryHelper::register_device_to_scene(std::string device_id, std::string scene_id, Transform &transform) {
   processor_logging->debug("Creating Device Registration link");
   ResultsIteratorInterface *results = NULL;
+  Neo4jQueryParameterInterface *skey_param = NULL;
+  Neo4jQueryParameterInterface *udkey_param = NULL;
+  Neo4jQueryParameterInterface *locx_param = NULL;
+  Neo4jQueryParameterInterface *locy_param = NULL;
+  Neo4jQueryParameterInterface *locz_param = NULL;
+  Neo4jQueryParameterInterface *rotx_param = NULL;
+  Neo4jQueryParameterInterface *roty_param = NULL;
+  Neo4jQueryParameterInterface *rotz_param = NULL;
+
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key}})"
@@ -313,29 +334,29 @@ void QueryHelper::register_device_to_scene(std::string device_id, std::string sc
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   //Insert the scene key into the query list
-  Neo4jQueryParameterInterface* skey_param = neo_factory->get_neo4j_query_parameter(scene_id);
+  skey_param = neo_factory->get_neo4j_query_parameter(scene_id);
   processor_logging->debug("Scene Key:");
   processor_logging->debug(scene_id);
   q_params.emplace("inp_key", skey_param);
 
   //Insert the device key into the query list
-  Neo4jQueryParameterInterface* udkey_param = neo_factory->get_neo4j_query_parameter(device_id);
+  udkey_param = neo_factory->get_neo4j_query_parameter(device_id);
   processor_logging->debug("Device Key:");
   processor_logging->debug(device_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   //Insert translation
-  Neo4jQueryParameterInterface* locx_param = neo_factory->get_neo4j_query_parameter(transform.translation(0));
-  Neo4jQueryParameterInterface* locy_param = neo_factory->get_neo4j_query_parameter(transform.translation(1));
-  Neo4jQueryParameterInterface* locz_param = neo_factory->get_neo4j_query_parameter(transform.translation(2));
+  locx_param = neo_factory->get_neo4j_query_parameter(transform.translation(0));
+  locy_param = neo_factory->get_neo4j_query_parameter(transform.translation(1));
+  locz_param = neo_factory->get_neo4j_query_parameter(transform.translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   //Insert rotation
-  Neo4jQueryParameterInterface* rotx_param = neo_factory->get_neo4j_query_parameter(transform.rotation(0));
-  Neo4jQueryParameterInterface* roty_param = neo_factory->get_neo4j_query_parameter(transform.rotation(1));
-  Neo4jQueryParameterInterface* rotz_param = neo_factory->get_neo4j_query_parameter(transform.rotation(2));
+  rotx_param = neo_factory->get_neo4j_query_parameter(transform.rotation(0));
+  roty_param = neo_factory->get_neo4j_query_parameter(transform.rotation(1));
+  rotz_param = neo_factory->get_neo4j_query_parameter(transform.rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
@@ -370,6 +391,8 @@ void QueryHelper::register_device_to_scene(std::string device_id, std::string sc
 void QueryHelper::remove_device_from_scene(std::string device_id, std::string scene_id) {
   //Set up the Cypher Query for device deletion
   ResultsIteratorInterface *results = NULL;
+  Neo4jQueryParameterInterface* skey_param = NULL;
+  Neo4jQueryParameterInterface* udkey_param = NULL;
   std::string query_string =
     "MATCH (scn:Scene {key: {inp_key}})-[trans:TRANSFORM]->(ud:UserDevice {key: {inp_ud_key}})"
     " DETACH DELETE ud RETURN scn";
@@ -379,13 +402,13 @@ void QueryHelper::remove_device_from_scene(std::string device_id, std::string sc
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   //Insert the scene key into the query list
-  Neo4jQueryParameterInterface* skey_param = neo_factory->get_neo4j_query_parameter(scene_id);
+  skey_param = neo_factory->get_neo4j_query_parameter(scene_id);
   processor_logging->debug("Scene Key:");
   processor_logging->debug(scene_id);
   q_params.emplace("inp_key", skey_param);
 
   //Insert the device key into the query list
-  Neo4jQueryParameterInterface* udkey_param = neo_factory->get_neo4j_query_parameter(device_id);
+  udkey_param = neo_factory->get_neo4j_query_parameter(device_id);
   processor_logging->debug("Device Key:");
   processor_logging->debug(device_id);
   q_params.emplace("inp_ud_key", udkey_param);
@@ -400,12 +423,10 @@ void QueryHelper::remove_device_from_scene(std::string device_id, std::string sc
     processor_logging->error(e.what());
   }
 
-  if (!results) {
-    processor_logging->error("No Links destroyed");
-  }
-  else {delete results;}
-  if (skey_param) {delete skey_param;}
-  if (udkey_param) {delete udkey_param;}
+  if (!results) processor_logging->error("No Links destroyed");
+  else delete results;
+  if (skey_param) delete skey_param;
+  if (udkey_param) delete udkey_param;
 }
 
 //Update the device registration
@@ -413,7 +434,15 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   processor_logging->debug("Updating Device Registration link");
   ResultsIteratorInterface *results = NULL;
   ResultTreeInterface *tree = NULL;
-  DbObjectInterface* obj = NULL;
+  DbObjectInterface *obj = NULL;
+  Neo4jQueryParameterInterface *skey_param = NULL;
+  Neo4jQueryParameterInterface *udkey_param = NULL;
+  Neo4jQueryParameterInterface *locx_param = NULL;
+  Neo4jQueryParameterInterface *locy_param = NULL;
+  Neo4jQueryParameterInterface *locz_param = NULL;
+  Neo4jQueryParameterInterface *rotx_param = NULL;
+  Neo4jQueryParameterInterface *roty_param = NULL;
+  Neo4jQueryParameterInterface *rotz_param = NULL;
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key}})-[trans:TRANSFORM]->(ud:UserDevice {key: {inp_ud_key}})"
@@ -425,29 +454,29 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   //Insert the scene key into the query list
-  Neo4jQueryParameterInterface* skey_param = neo_factory->get_neo4j_query_parameter(scene_id);
+  skey_param = neo_factory->get_neo4j_query_parameter(scene_id);
   processor_logging->debug("Scene Key:");
   processor_logging->debug(scene_id);
   q_params.emplace("inp_key", skey_param);
 
   //Insert the device key into the query list
-  Neo4jQueryParameterInterface* udkey_param = neo_factory->get_neo4j_query_parameter(dev_id);
+  udkey_param = neo_factory->get_neo4j_query_parameter(dev_id);
   processor_logging->debug("Device Key:");
   processor_logging->debug(dev_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   //Insert translation
-  Neo4jQueryParameterInterface* locx_param = neo_factory->get_neo4j_query_parameter(transform.translation(0));
-  Neo4jQueryParameterInterface* locy_param = neo_factory->get_neo4j_query_parameter(transform.translation(1));
-  Neo4jQueryParameterInterface* locz_param = neo_factory->get_neo4j_query_parameter(transform.translation(2));
+  locx_param = neo_factory->get_neo4j_query_parameter(transform.translation(0));
+  locy_param = neo_factory->get_neo4j_query_parameter(transform.translation(1));
+  locz_param = neo_factory->get_neo4j_query_parameter(transform.translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   //Insert rotation
-  Neo4jQueryParameterInterface* rotx_param = neo_factory->get_neo4j_query_parameter(transform.rotation(0));
-  Neo4jQueryParameterInterface* roty_param = neo_factory->get_neo4j_query_parameter(transform.rotation(1));
-  Neo4jQueryParameterInterface* rotz_param = neo_factory->get_neo4j_query_parameter(transform.rotation(2));
+  rotx_param = neo_factory->get_neo4j_query_parameter(transform.rotation(0));
+  roty_param = neo_factory->get_neo4j_query_parameter(transform.rotation(1));
+  rotz_param = neo_factory->get_neo4j_query_parameter(transform.rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
@@ -482,21 +511,19 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
       exc_string = exc_str + udq_string;
       has_exception = true;
     }
-    delete results;
   }
-  if (tree) {delete tree;}
-  if (obj) {delete obj;}
-  if (skey_param) {delete skey_param;}
-  if (udkey_param) {delete udkey_param;}
-  if (locx_param) {delete locx_param;}
-  if (locy_param) {delete locy_param;}
-  if (locz_param) {delete locz_param;}
-  if (rotx_param) {delete rotx_param;}
-  if (roty_param) {delete roty_param;}
-  if (rotz_param) {delete rotz_param;}
-  if (has_exception) {
-    throw QueryException(exc_string);
-  }
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
+  if (skey_param) delete skey_param;
+  if (udkey_param) delete udkey_param;
+  if (locx_param) delete locx_param;
+  if (locy_param) delete locy_param;
+  if (locz_param) delete locz_param;
+  if (rotx_param) delete rotx_param;
+  if (roty_param) delete roty_param;
+  if (rotz_param) delete rotz_param;
+  if (has_exception) throw QueryException(exc_string);
 }
 
 //----------------------------------------------------------------------------//
@@ -515,6 +542,9 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
   ResultTreeInterface *tree = NULL;
   DbObjectInterface* obj = NULL;
   DbMapInterface* map = NULL;
+  Neo4jQueryParameterInterface* skey1_param = NULL;
+  Neo4jQueryParameterInterface* skey2_param = NULL;
+
   //Create the query string
   std::string query_string =
     "MATCH (scn:Scene)-[trans:TRANSFORM]->(scn2:Scene)"
@@ -526,13 +556,13 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   //Insert the first scene key into the query list
-  Neo4jQueryParameterInterface* skey1_param = neo_factory->get_neo4j_query_parameter(scene1_key);
+  skey1_param = neo_factory->get_neo4j_query_parameter(scene1_key);
   processor_logging->debug("Scene 1 Key:");
   processor_logging->debug(scene1_key);
   q_params.emplace("inp_key1", skey1_param);
 
   //Insert the second scene key into the query list
-  Neo4jQueryParameterInterface* skey2_param = neo_factory->get_neo4j_query_parameter(scene2_key);
+  skey2_param = neo_factory->get_neo4j_query_parameter(scene2_key);
   processor_logging->debug("Scene 2 Key:");
   processor_logging->debug(scene2_key);
   q_params.emplace("inp_key2", skey2_param);
@@ -565,14 +595,14 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
         }
       }
     }
-    delete results;
   }
 
-  if (skey1_param) {delete skey1_param;}
-  if (skey2_param) {delete skey2_param;}
-  if (tree) {delete tree;}
-  if (obj) {delete obj;}
-  if (map) {delete map;}
+  if (map) delete map;
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
+  if (skey1_param) delete skey1_param;
+  if (skey2_param) delete skey2_param;
 
   return ret_val;
 }
@@ -581,6 +611,16 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
 void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Transform new_trans) {
   processor_logging->debug("Creating Device Registration link");
   ResultsIteratorInterface *results = NULL;
+  ResultTreeInterface *tree = NULL;
+  DbObjectInterface* obj = NULL;
+  Neo4jQueryParameterInterface* s1key_param = NULL;
+  Neo4jQueryParameterInterface* s2key_param = NULL;
+  Neo4jQueryParameterInterface* locx_param = NULL;
+  Neo4jQueryParameterInterface* locy_param = NULL;
+  Neo4jQueryParameterInterface* locz_param = NULL;
+  Neo4jQueryParameterInterface* rotx_param = NULL;
+  Neo4jQueryParameterInterface* roty_param = NULL;
+  Neo4jQueryParameterInterface* rotz_param = NULL;
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}}), (scn2:Scene {key: {inp_key2}}) "
@@ -592,36 +632,34 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   //Insert the scene key into the query list
-  Neo4jQueryParameterInterface* s1key_param = neo_factory->get_neo4j_query_parameter(s1_key);
+  s1key_param = neo_factory->get_neo4j_query_parameter(s1_key);
   processor_logging->debug("Scene 1 Key:");
   processor_logging->debug(s1_key);
   q_params.emplace("inp_key1", s1key_param);
 
   //Insert the device key into the query list
-  Neo4jQueryParameterInterface* s2key_param = neo_factory->get_neo4j_query_parameter(s2_key);
+  s2key_param = neo_factory->get_neo4j_query_parameter(s2_key);
   processor_logging->debug("Scene 2 Key:");
   processor_logging->debug(s2_key);
   q_params.emplace("inp_key2", s2key_param);
 
   //Insert translation
-  Neo4jQueryParameterInterface* locx_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(0));
-  Neo4jQueryParameterInterface* locy_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(1));
-  Neo4jQueryParameterInterface* locz_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(2));
+  locx_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(0));
+  locy_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(1));
+  locz_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   //Insert rotation
-  Neo4jQueryParameterInterface* rotx_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(0));
-  Neo4jQueryParameterInterface* roty_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(1));
-  Neo4jQueryParameterInterface* rotz_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(2));
+  rotx_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(0));
+  roty_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(1));
+  rotz_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
 
   //Execute the query
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface* obj = NULL;
   bool has_exception = false;
   std::string exc_string = "";
   try {
@@ -668,12 +706,20 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   }
 }
 
-//TO-DO: Update the scene-scene link
+//Update the scene-scene link
 void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Transform new_trans) {
   processor_logging->debug("Updating Scene link");
   ResultsIteratorInterface *results = NULL;
   ResultTreeInterface *tree = NULL;
   DbObjectInterface* obj = NULL;
+  Neo4jQueryParameterInterface* s1key_param = NULL;
+  Neo4jQueryParameterInterface* s2key_param = NULL;
+  Neo4jQueryParameterInterface* locx_param = NULL;
+  Neo4jQueryParameterInterface* locy_param = NULL;
+  Neo4jQueryParameterInterface* locz_param = NULL;
+  Neo4jQueryParameterInterface* rotx_param = NULL;
+  Neo4jQueryParameterInterface* roty_param = NULL;
+  Neo4jQueryParameterInterface* rotz_param = NULL;
   //Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}})-[trans:TRANSFORM]->(scn2:Scene {key: {inp_key2}})"
@@ -685,29 +731,29 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   //Insert the scene key into the query list
-  Neo4jQueryParameterInterface* s1key_param = neo_factory->get_neo4j_query_parameter(s1_key);
+  s1key_param = neo_factory->get_neo4j_query_parameter(s1_key);
   processor_logging->debug("Scene 1 Key:");
   processor_logging->debug(s1_key);
   q_params.emplace("inp_key1", s1key_param);
 
   //Insert the device key into the query list
-  Neo4jQueryParameterInterface* s2key_param = neo_factory->get_neo4j_query_parameter(s2_key);
+  s2key_param = neo_factory->get_neo4j_query_parameter(s2_key);
   processor_logging->debug("Scene 2 Key:");
   processor_logging->debug(s2_key);
   q_params.emplace("inp_key2", s2key_param);
 
   //Insert translation
-  Neo4jQueryParameterInterface* locx_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(0));
-  Neo4jQueryParameterInterface* locy_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(1));
-  Neo4jQueryParameterInterface* locz_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(2));
+  locx_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(0));
+  locy_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(1));
+  locz_param = neo_factory->get_neo4j_query_parameter(new_trans.translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   //Insert rotation
-  Neo4jQueryParameterInterface* rotx_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(0));
-  Neo4jQueryParameterInterface* roty_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(1));
-  Neo4jQueryParameterInterface* rotz_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(2));
+  rotx_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(0));
+  roty_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(1));
+  rotz_param = neo_factory->get_neo4j_query_parameter(new_trans.rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
@@ -841,6 +887,8 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
   DbMapInterface *map = NULL;
   DbListInterface *tran_list = NULL;
   DbListInterface *rot_list = NULL;
+  Neo4jQueryParameterInterface* pkey1_param = NULL;
+  Neo4jQueryParameterInterface* pkey2_param = NULL;
 
   //Find the shortest path
 
@@ -849,12 +897,12 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
 
   //Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> path_q_params;
-  Neo4jQueryParameterInterface* pkey1_param = neo_factory->get_neo4j_query_parameter(scene_id1);
+  pkey1_param = neo_factory->get_neo4j_query_parameter(scene_id1);
   processor_logging->debug("Start Key:");
   processor_logging->debug(scene_id1);
   path_q_params.emplace("inp_key_start", pkey1_param);
 
-  Neo4jQueryParameterInterface* pkey2_param = neo_factory->get_neo4j_query_parameter(scene_id2);
+  pkey2_param = neo_factory->get_neo4j_query_parameter(scene_id2);
   processor_logging->debug("End Key:");
   processor_logging->debug(scene_id2);
   path_q_params.emplace("inp_key_start", pkey2_param);
@@ -943,47 +991,17 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
           new_tran.rotate(2, rotz);
 
         }
-
-        //Cleanup at the end of the loop
-        if (path_obj) {
-          delete path_obj;
-          path_obj = NULL;
-        }
-        if (map) {
-          delete map;
-          map = NULL;
-        }
-        if (tran_list) {
-          delete tran_list;
-          tran_list = NULL;
-        }
-        if (rot_list) {
-          delete rot_list;
-          rot_list = NULL;
-        }
       }
     }
-    delete results;
   }
-  if (tree) {
-    delete tree;
-  }
-  if (obj) {
-    delete obj;
-  }
-  if (path_obj) {
-    delete path_obj;
-  }
-  if (map) {
-    delete map;
-  }
-  if (tran_list) {
-    delete tran_list;
-  }
-  if (rot_list) {
-    delete rot_list;
-  }
-  SceneTransformResult str;
+  if (map) delete map;
+  if (tran_list) delete tran_list;
+  if (rot_list) delete rot_list;
+  if (path_obj) delete path_obj;
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
+  str.clear();
   str.transform = new_tran;
   str.result_flag = true;
   return str;

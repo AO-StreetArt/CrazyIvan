@@ -30,6 +30,8 @@ ConfigurationManager *config = NULL;
 RedisLocker *redis_locks = NULL;
 uuidInterface *ugen = NULL;
 QueryHelper *qh = NULL;
+std::string ret_val = "";
+std::string proto_resp = "";
 
 //---------------------------Internal Methods---------------------------------//
 

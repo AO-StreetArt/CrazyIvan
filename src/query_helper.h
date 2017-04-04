@@ -33,6 +33,7 @@ struct QueryException: public std::exception
 struct SceneTransformResult {
   Transform transform;
   bool result_flag;
+  void clear() {result_flag=false;transform.clear();}
 };
 
 //The class contains helper methods for working with
@@ -40,6 +41,7 @@ struct SceneTransformResult {
 class QueryHelper {
 Neo4jInterface *n = NULL;
 Neo4jComponentFactory *neo_factory = NULL;
+SceneTransformResult str;
 public:
   QueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf) {n=neo;neo_factory=nf;}
   ~QueryHelper() {}
