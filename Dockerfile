@@ -18,7 +18,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 #Ensure that base level build requirements are satisfied
 RUN apt-get update
-RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh
+RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5.0
 RUN	apt-get clean
 
 #Build the dependencies and place them in the correct places
