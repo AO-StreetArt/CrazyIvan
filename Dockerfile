@@ -17,6 +17,7 @@ MAINTAINER Alex Barry
 ENV DEBIAN_FRONTEND noninteractive
 
 #Ensure that base level build requirements are satisfied
+RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update
