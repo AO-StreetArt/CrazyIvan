@@ -88,16 +88,16 @@ public:
 
 //Stores the data for a single scene
 class SceneData {
-std::string key;
-std::string name;
-double latitude;
-double longitude;
-double distance;
-bool trns_flag;
+std::string key = "";
+std::string name = "";
+double latitude = 0.0;
+double longitude = 0.0;
+double distance = 0.0;
+bool trns_flag = false;
 std::vector<UserDevice> devices;
 Transform* scene_transform;
 public:
-  SceneData() {key = "";name = "";latitude=0.0;longitude=0.0;distance=0.0;trns_flag=false;}
+  SceneData() {}
   SceneData(protoScene::SceneList_Scene scn_data);
   SceneData(const SceneData& sd);
   ~SceneData() {if (trns_flag) {delete scene_transform;} }
