@@ -103,7 +103,7 @@ RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
 #Install the shared service library
 RUN cd AOSharedServiceLibrary && make && make install
 
-RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
+RUN git clone --branch=BRANCH_NAME https://github.com/AO-StreetArt/CrazyIvan.git
 
 # Build the Project & Unit Tests
 RUN cd CrazyIvan && make && make test
