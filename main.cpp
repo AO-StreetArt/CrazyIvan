@@ -17,7 +17,6 @@
 #include "src/ivan_utils.h"
 #include "src/configuration_manager.h"
 #include "src/globals.h"
-#include "src/uuid.h"
 #include "src/scene.h"
 #include "src/Scene.pb.h"
 #include "src/message_processor.h"
@@ -111,8 +110,13 @@ void my_signal_handler(int s){
       ua = uuid_factory->get_uuid_interface();
 
       std::string service_instance_id = "Ivan-";
+      UuidContainer sid_container;
       try {
-        service_instance_id = service_instance_id + generate_uuid();
+        sid_container = ua->generate();
+        if (!sid_container.err.empty()) {
+          uuid_logging->error(sid_container.err);
+        }
+        service_instance_id = service_instance_id + sid_container.id;
       }
       catch (std::exception& e) {
         main_logging->error("Exception encountered during Service Instance ID Generation");
@@ -228,14 +232,19 @@ void my_signal_handler(int s){
         }
 
         //Determine the Transaction ID
-        std::string tran_id_str = "";
+        UuidContainer id_container;
+        id_container.id = "";
         if ( cm->get_transactionidsactive() ) {
           std::string existing_trans_id = translated_object->get_transaction_id();
           //If no transaction ID is sent in, generate a new one
           if ( existing_trans_id.empty() ) {
             try {
-              tran_id_str = generate_uuid();
-              main_logging->debug("Generated Transaction ID: " + tran_id_str);
+              UuidContainer id_container;
+              id_container = ua->generate();
+              if (!id_container.err.empty()) {
+                uuid_logging->error(id_container.err);
+              }
+              main_logging->debug("Generated Transaction ID: " + id_container.id);
 
               //Assign Transaction ID
               if (!translated_object)
@@ -243,7 +252,7 @@ void my_signal_handler(int s){
                 main_logging->debug("No translated object to assign Transaction ID to");
               }
               else {
-                translated_object->set_transaction_id(tran_id_str);
+                translated_object->set_transaction_id(id_container.id);
               }
             }
             catch (std::exception& e) {
@@ -254,11 +263,11 @@ void my_signal_handler(int s){
           }
           //Otherwise, use the existing transaction ID
           else {
-            tran_id_str = existing_trans_id;
+            id_container.id = existing_trans_id;
           }
         }
         main_logging->debug("Transaction ID: ");
-        main_logging->debug(tran_id_str);
+        main_logging->debug(id_container.id);
 
         //Process the translated object
         std::string process_result = processor->process_message(translated_object);

@@ -16,22 +16,25 @@
 #ifndef SCENE
 #define SCENE
 
+//! A Scene Exception
+
+//! A child class of std::exception
+//! which holds error information
 struct SceneException: public std::exception
 {
   //! An error message passed on initialization
   std::string int_msg;
+  const char * int_msg_cstr;
 
-  //! Create a Mongo Exception, and store the given error message
-  SceneException (std::string msg) {int_msg = msg;}
+  //! Create a Neo4j Exception, and store the given error message
+  SceneException (std::string msg) {int_msg = "Error in Neo4j Request: " + msg;int_msg_cstr = int_msg.c_str();}
 
   SceneException () {}
   ~SceneException() throw () {}
-
   //! Show the error message in readable format
   const char * what() const throw ()
   {
-  std::string what_str = "Error in Scene: " + int_msg;
-  return what_str.c_str();
+    return int_msg_cstr;
   }
 };
 
@@ -154,7 +157,7 @@ public:
   std::string get_err() {return err_msg;}
   std::string get_transaction_id() {return transaction_id;}
   int get_err_code() {return err_code;}
-  SceneData get_scene(int i) {return data[i];}
+  SceneData get_scene(unsigned int i) {if (i<data.size()) {return data[i];} else {throw SceneException("Attempted to access invalid scene data");}}
   int num_scenes() {return data.size();}
   int get_num_records() {return num_records;}
 

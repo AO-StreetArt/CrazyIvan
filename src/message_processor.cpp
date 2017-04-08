@@ -60,8 +60,12 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     processor_logging->info("Processing Scene Creation message");
 
     //Generate a new key
-    std::string new_key = create_uuid();
-    if (new_key.empty()) {
+    UuidContainer id_container;
+    id_container = ugen->generate();
+    if (!id_container.err.empty()) {
+      uuid_logging->error(id_container.err);
+    }
+    if (id_container.id.empty()) {
       processor_logging->error("Unknown error generating new key for scene");
       return "-1";
     }
@@ -71,9 +75,9 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
 
     //Set up the query parameters for scene creation
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    key_param = neo_factory->get_neo4j_query_parameter(new_key);
+    key_param = neo_factory->get_neo4j_query_parameter(id_container.id);
     processor_logging->info("Key:");
-    processor_logging->info(new_key);
+    processor_logging->info(id_container.id);
     scene_params.emplace("inp_key", key_param);
     std::string qname = obj_msg->get_scene(0).get_name();
     if ( !(qname.empty()) ) {
@@ -119,7 +123,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     }
     else {
       processor_logging->info("Scene Successfully added");
-      ret_val = new_key;
+      ret_val = id_container.id;
       tree = results->next();
       if (tree) {
         obj = tree->get(0);
