@@ -79,7 +79,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     processor_logging->info("Key:");
     processor_logging->info(id_container.id);
     scene_params.emplace("inp_key", key_param);
-    std::string qname = obj_msg->get_scene(0).get_name();
+    std::string qname = obj_msg->get_scene(0)->get_name();
     if ( !(qname.empty()) ) {
       name_param = neo_factory->get_neo4j_query_parameter(qname);
       processor_logging->debug("Name:");
@@ -87,16 +87,16 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
       scene_params.emplace("inp_name", name_param);
       scene_query = scene_query + ", name: {inp_name}";
     }
-    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0) ) {
-      qlat = obj_msg->get_scene(0).get_latitude();
+    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
+      qlat = obj_msg->get_scene(0)->get_latitude();
       lat_param = neo_factory->get_neo4j_query_parameter(qlat);
       processor_logging->debug("Latitude:");
       processor_logging->debug(std::to_string(qlat));
       scene_params.emplace("inp_lat", lat_param);
       scene_query = scene_query + ", latitude: {inp_lat}";
     }
-    if ( !(obj_msg->get_scene(0).get_longitude() == -9999.0) ) {
-      qlong = obj_msg->get_scene(0).get_longitude();
+    if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
+      qlong = obj_msg->get_scene(0)->get_longitude();
       long_param = neo_factory->get_neo4j_query_parameter(qlong);
       processor_logging->debug("Longitude:");
       processor_logging->debug(std::to_string(qlong));
@@ -151,7 +151,7 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
 
   //Retrieve a Redis Mutex Lock on the scene
   if (config->get_atomictransactions()) {
-    get_mutex_lock(obj_msg->get_scene(0).get_key());
+    get_mutex_lock(obj_msg->get_scene(0)->get_key());
   }
 
   //Declare base variables
@@ -165,19 +165,19 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
   processor_logging->debug("Processing Scene Update message");
 
   //Ensure that we have fields in the query
-  if ((obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0) || obj_msg->get_scene(0).get_key().empty()) {
+  if ((obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0) || obj_msg->get_scene(0)->get_key().empty()) {
     processor_logging->error("No fields found in update message");
     ret_val = "-1";
   }
   else {
     //Set up the Cypher Query for scene update
     std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) SET ";
-    if ( !(obj_msg->get_scene(0).get_name().empty()) ) {
+    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
       scene_query = scene_query + "scn.name = {inp_name}";
       is_started = true;
     }
 
-    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0) ) {
+    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
       if (is_started) {
         scene_query = scene_query + ", ";
       }
@@ -185,7 +185,7 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
       is_started = true;
     }
 
-    if ( !(obj_msg->get_scene(0).get_longitude() == -9999.0) ) {
+    if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
       if (is_started) {
         scene_query = scene_query + ", ";
       }
@@ -200,25 +200,25 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
 
     //Set up the query parameters for scene update
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    std::string qkey = obj_msg->get_scene(0).get_key();
+    std::string qkey = obj_msg->get_scene(0)->get_key();
     key_param = neo_factory->get_neo4j_query_parameter(qkey);
     processor_logging->debug("Key:");
     processor_logging->debug(qkey);
     scene_params.emplace("inp_key", key_param);
-    if ( !(obj_msg->get_scene(0).get_name().empty()) ) {
-      std::string qname = obj_msg->get_scene(0).get_name();
+    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
+      std::string qname = obj_msg->get_scene(0)->get_name();
       name_param = neo_factory->get_neo4j_query_parameter(qname);
       processor_logging->debug("Name:");
       processor_logging->debug(qname);
       scene_params.emplace("inp_name", name_param);
     }
-    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0) ) {
-      double qlat = obj_msg->get_scene(0).get_latitude();
+    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
+      double qlat = obj_msg->get_scene(0)->get_latitude();
       lat_param = neo_factory->get_neo4j_query_parameter(qlat);
       scene_params.emplace("inp_lat", lat_param);
     }
-    if ( !(obj_msg->get_scene(0).get_longitude() == -9999.0) ) {
-      double qlong = obj_msg->get_scene(0).get_longitude();
+    if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
+      double qlong = obj_msg->get_scene(0)->get_longitude();
       long_param = neo_factory->get_neo4j_query_parameter(qlong);
       scene_params.emplace("inp_long", long_param);
     }
@@ -264,7 +264,7 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
 
   //Release the Redis Mutex Lock
   if (config->get_atomictransactions()) {
-    release_mutex_lock(obj_msg->get_scene(0).get_key());
+    release_mutex_lock(obj_msg->get_scene(0)->get_key());
   }
   return ret_val;
 }
@@ -281,20 +281,20 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
   bool is_started = false;
   ret_val = "";
 
-  if (obj_msg->get_scene(0).get_name().empty() && obj_msg->get_scene(0).get_latitude() == -9999.0 && obj_msg->get_scene(0).get_longitude() == -9999.0 && obj_msg->get_scene(0).get_key().empty()) {
+  if (obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0 && obj_msg->get_scene(0)->get_key().empty()) {
     processor_logging->error("No fields found in get message");
     ret_val = "-1";
   }
   else {
     //Set up the Cypher Query for scene retrieval
     std::string scene_query = "MATCH (scn:Scene";
-    if ( !(obj_msg->get_scene(0).get_name().empty()) ) {
+    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
 
       scene_query = scene_query + " {name: {inp_name}";
       is_started = true;
     }
 
-    if ( !(obj_msg->get_scene(0).get_key().empty()) ) {
+    if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
       if (is_started) {
         scene_query = scene_query + ", ";
       }
@@ -311,7 +311,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
     scene_query = scene_query + ")";
 
-    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0 || obj_msg->get_scene(0).get_longitude() == -9999.0 || obj_msg->get_scene(0).get_distance() < 0.0 ) ) {
+    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0 ) ) {
       //Query for distance
       //Assumes distance supplied is in meters
       //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
@@ -329,28 +329,28 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 
     //Set up the query parameters for scene retrieval
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    if ( !(obj_msg->get_scene(0).get_key().empty()) ) {
-      std::string qkey = obj_msg->get_scene(0).get_key();
+    if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
+      std::string qkey = obj_msg->get_scene(0)->get_key();
       key_param = neo_factory->get_neo4j_query_parameter(qkey);
       processor_logging->debug("Key:");
       processor_logging->debug(qkey);
       scene_params.emplace("inp_key", key_param);
     }
-    if ( !(obj_msg->get_scene(0).get_name().empty()) ) {
-      std::string qname = obj_msg->get_scene(0).get_name();
+    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
+      std::string qname = obj_msg->get_scene(0)->get_name();
       name_param = neo_factory->get_neo4j_query_parameter(qname);
       processor_logging->debug("Name:");
       processor_logging->debug(qname);
       scene_params.emplace("inp_name", name_param);
     }
-    if ( !(obj_msg->get_scene(0).get_latitude() == -9999.0 || obj_msg->get_scene(0).get_longitude() == -9999.0 || obj_msg->get_scene(0).get_distance() < 0.0) ) {
-      double qlat = obj_msg->get_scene(0).get_latitude();
+    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0) ) {
+      double qlat = obj_msg->get_scene(0)->get_latitude();
       lat_param = neo_factory->get_neo4j_query_parameter(qlat);
       scene_params.emplace("inp_lat", lat_param);
-      double qlong = obj_msg->get_scene(0).get_longitude();
+      double qlong = obj_msg->get_scene(0)->get_longitude();
       long_param = neo_factory->get_neo4j_query_parameter(qlong);
       scene_params.emplace("inp_long", long_param);
-      double qdist = obj_msg->get_scene(0).get_distance();
+      double qdist = obj_msg->get_scene(0)->get_distance();
       dist_param = neo_factory->get_neo4j_query_parameter(qdist);
       scene_params.emplace("inp_distance", dist_param);
     }
@@ -372,7 +372,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
         int num_results = 0;
         while (true) {
 
-          SceneData data;
+          SceneData *data = new SceneData;
 
           //Get the first DB Object (Node)
           DbObjectInterface* obj = tree->get(0);
@@ -387,16 +387,16 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           //Scene object
           DbMapInterface* map = obj->properties();
           if (map->element_exists("key")) {
-            data.set_key( map->get_string_element("key") );
+            data->set_key( map->get_string_element("key") );
           }
           if (map->element_exists("name")) {
-            data.set_name( map->get_string_element("name") );
+            data->set_name( map->get_string_element("name") );
           }
           if (map->element_exists("latitude")) {
-            data.set_latitude( map->get_float_element("latitude") );
+            data->set_latitude( map->get_float_element("latitude") );
           }
           if (map->element_exists("longitude")) {
-            data.set_longitude( map->get_float_element("longitude") );
+            data->set_longitude( map->get_float_element("longitude") );
           }
 
           sc.add_scene(data);
@@ -437,7 +437,7 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
   ResultsIteratorInterface *results = NULL;
   Neo4jQueryParameterInterface *key_param = NULL;
 
-  if ( obj_msg->get_scene(0).get_key().empty() ) {
+  if ( obj_msg->get_scene(0)->get_key().empty() ) {
     processor_logging->error("No fields found in delete message");
     return "-1";
   }
@@ -448,7 +448,7 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
 
     //Set up the query parameters for scene delete
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    std::string qkey = obj_msg->get_scene(0).get_key();
+    std::string qkey = obj_msg->get_scene(0)->get_key();
     key_param = neo_factory->get_neo4j_query_parameter(qkey);
     processor_logging->debug("Key:");
     processor_logging->debug(qkey);
@@ -492,40 +492,42 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
 
 //Build a protocol buffer serialized string
 std::string MessageProcessor::build_proto_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id) {
+  if (resp_scn) {delete resp_scn;resp_scn=NULL;}
+  resp_scn = new Scene;
   //Set up the scene list
-  Scene scn;
-  scn.set_msg_type(msg_type);
-  scn.set_err_code(err_code);
-  scn.set_err_msg(err_msg);
-  scn.set_transaction_id(tran_id);
+  resp_scn->set_msg_type(msg_type);
+  resp_scn->set_err_code(err_code);
+  resp_scn->set_err_msg(err_msg);
+  resp_scn->set_transaction_id(tran_id);
   //Set up the scene
-  SceneData data1;
-  data1.set_key(scene_id);
-  scn.add_scene(data1);
+  SceneData *data1 = new SceneData;
+  data1->set_key(scene_id);
+  resp_scn->add_scene(data1);
   //Return the serialized string
-  return scn.to_protobuf();
+  return resp_scn->to_protobuf();
 }
 
 //Build a protocol buffer serialized string
 std::string MessageProcessor::build_proto_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, std::string dev_id, Transform &t) {
   //Set up the scene list
-  Scene scn;
-  scn.set_msg_type(msg_type);
-  scn.set_err_code(err_code);
-  scn.set_err_msg(err_msg);
-  scn.set_transaction_id(tran_id);
+  if (resp_scn) {delete resp_scn;resp_scn=NULL;}
+  resp_scn = new Scene;
+  resp_scn->set_msg_type(msg_type);
+  resp_scn->set_err_code(err_code);
+  resp_scn->set_err_msg(err_msg);
+  resp_scn->set_transaction_id(tran_id);
   //Set up the scene
-  SceneData data1;
-  data1.set_key(scene_id);
+  SceneData *data1 = new SceneData;
+  data1->set_key(scene_id);
   //Set up the user device
-  UserDevice ud1;
-  ud1.set_key(dev_id);
+  UserDevice *ud1 = new UserDevice;
+  ud1->set_key(dev_id);
   //Add the transformation and key data to the user device
-  ud1.set_transform(&t);
-  data1.add_device(ud1);
-  scn.add_scene(data1);
+  ud1->set_transform(&t);
+  data1->add_device(ud1);
+  resp_scn->add_scene(data1);
   //Return the serialized string
-  return scn.to_protobuf();
+  return resp_scn->to_protobuf();
 }
 
 //----------------------------------------------------------------------------//
@@ -552,7 +554,7 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   processor_logging->debug("Getting mutex lock");
   if (config->get_atomictransactions()) {
     try {
-      get_mutex_lock(obj_msg->get_scene(0).get_key());
+      get_mutex_lock(obj_msg->get_scene(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error getting mutex lock");
@@ -565,7 +567,7 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   //Determine if the scene exists in the DB
   if (current_err_code == NO_ERROR) {
     try {
-      does_scene_exist = qh->scene_exists(obj_msg->get_scene(0).get_key());
+      does_scene_exist = qh->scene_exists(obj_msg->get_scene(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error checking for scene existence");
@@ -590,8 +592,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
     }
     else {
       try {
-        already_registered = qh->is_ud_registered(obj_msg->get_scene(0).get_key(),\
-          obj_msg->get_scene(0).get_device(0).get_key());
+        already_registered = qh->is_ud_registered(obj_msg->get_scene(0)->get_key(),\
+          obj_msg->get_scene(0)->get_device(0)->get_key());
       }
       catch (std::exception& e) {
         processor_logging->error("Error checking if User Device is already registered");
@@ -606,7 +608,7 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   Scene *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
     try {
-      registered_scenes = qh->get_registrations(obj_msg->get_scene(0).get_device(0).get_key());
+      registered_scenes = qh->get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error getting registrations");
@@ -637,7 +639,7 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
 
       try {
         SceneTransformResult st_result = qh->calculate_scene_scene_transform(\
-          registered_scenes->get_scene(i).get_key(), obj_msg->get_scene(0).get_key());
+          registered_scenes->get_scene(i)->get_key(), obj_msg->get_scene(0)->get_key());
         if (st_result.result_flag) {
           new_transform.add_transform(st_result.transform);
         }
@@ -655,8 +657,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
     //Create the registration link in the DB
     processor_logging->debug("Registering Device in the DB");
     try {
-      qh->register_device_to_scene(obj_msg->get_scene(0).get_device(0).get_key(),\
-        obj_msg->get_scene(0).get_key(), new_transform);
+      qh->register_device_to_scene(obj_msg->get_scene(0)->get_device(0)->get_key(),\
+        obj_msg->get_scene(0)->get_key(), new_transform);
     }
     catch (std::exception& e) {
       processor_logging->error("Error Registering Device");
@@ -676,14 +678,14 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   //Build a protocol buffer response
   processor_logging->debug("Creating Response message");
   proto_resp = build_proto_response(SCENE_ENTER, current_err_code,\
-    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0).get_key());
+    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key());
 
   if (registered_scenes) {
     delete registered_scenes;
   }
 
   if (config->get_atomictransactions()) {
-    release_mutex_lock(obj_msg->get_scene(0).get_key());
+    release_mutex_lock(obj_msg->get_scene(0)->get_key());
   }
   return proto_resp;
 }
@@ -701,7 +703,7 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
   //Start by getting a mutex lock against the scene
   processor_logging->debug("Getting mutex lock");
   try {
-    get_mutex_lock(obj_msg->get_scene(0).get_key());
+    get_mutex_lock(obj_msg->get_scene(0)->get_key());
   }
   catch (std::exception& e) {
     processor_logging->error("Error Getting Mutex Lock");
@@ -714,8 +716,8 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
   if (current_err_code == NO_ERROR) {
     processor_logging->debug("Removing Device from Scene");
     try {
-      qh->remove_device_from_scene(obj_msg->get_scene(0).get_device(0).get_key(),\
-        obj_msg->get_scene(0).get_key());
+      qh->remove_device_from_scene(obj_msg->get_scene(0)->get_device(0)->get_key(),\
+        obj_msg->get_scene(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error Removing Device From Scene");
@@ -727,9 +729,9 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
   //Build a protocol buffer response
   processor_logging->debug("Creating Response message");
   proto_resp = build_proto_response(SCENE_LEAVE, current_err_code,\
-    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0).get_key());
+    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key());
 
-  release_mutex_lock(obj_msg->get_scene(0).get_key());
+  release_mutex_lock(obj_msg->get_scene(0)->get_key());
   return proto_resp;
 }
 
@@ -749,7 +751,7 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   //Start by getting a mutex lock against the scene
   processor_logging->debug("Getting mutex lock");
   try {
-    get_mutex_lock(obj_msg->get_scene(0).get_key());
+    get_mutex_lock(obj_msg->get_scene(0)->get_key());
   }
   catch (std::exception& e) {
     processor_logging->error("Error Getting Mutex Lock");
@@ -761,8 +763,8 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   //Update the transformation between the scene and user device
   if (current_err_code == NO_ERROR) {
     try {
-      qh->update_device_registration( obj_msg->get_scene(0).get_device(0).get_key(),\
-        obj_msg->get_scene(0).get_key(), *(obj_msg->get_scene(0).get_device(0).get_transform()) );
+      qh->update_device_registration( obj_msg->get_scene(0)->get_device(0)->get_key(),\
+        obj_msg->get_scene(0)->get_key(), *(obj_msg->get_scene(0)->get_device(0)->get_transform()) );
     }
     catch (std::exception& e) {
       processor_logging->error("Error Updating Device Registration");
@@ -777,7 +779,7 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   if (current_err_code == NO_ERROR) {
     processor_logging->debug("Retrieving Scenes already registered to");
     try {
-      registered_scenes = qh->get_registrations(obj_msg->get_scene(0).get_device(0).get_key());
+      registered_scenes = qh->get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error Retrieving Device Registrations");
@@ -806,12 +808,12 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   //Build a protocol buffer response
   processor_logging->debug("Creating Response message");
   proto_resp = build_proto_response(DEVICE_ALIGN, current_err_code,\
-    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0).get_key());
+    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key());
 
   if (registered_scenes) {
     delete registered_scenes;
   }
 
-  release_mutex_lock(obj_msg->get_scene(0).get_key());
+  release_mutex_lock(obj_msg->get_scene(0)->get_key());
   return proto_resp;
 }

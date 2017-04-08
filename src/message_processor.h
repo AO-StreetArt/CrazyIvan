@@ -32,6 +32,7 @@ uuidInterface *ugen = NULL;
 QueryHelper *qh = NULL;
 std::string ret_val = "";
 std::string proto_resp = "";
+Scene *resp_scn = NULL;
 
 //---------------------------Internal Methods---------------------------------//
 
@@ -109,40 +110,39 @@ public:
     //Determine what type of message we have, and act accordingly
     int msg_type = obj_msg->get_msg_type();
     processor_logging->debug("Message Type: " + std::to_string(msg_type));
-    std::string process_return;
 
     if (msg_type == SCENE_CRT) {
-      process_return = process_create_message(obj_msg);
+      return process_create_message(obj_msg);
     }
     else if (msg_type == SCENE_UPD) {
-      process_return = process_update_message(obj_msg);
+      return process_update_message(obj_msg);
     }
     else if (msg_type == SCENE_GET) {
-      process_return = process_retrieve_message(obj_msg);
+      return process_retrieve_message(obj_msg);
     }
     else if (msg_type == SCENE_DEL) {
-      process_return = process_delete_message(obj_msg);
+      return process_delete_message(obj_msg);
     }
     else if (msg_type == SCENE_ENTER) {
-      process_return = process_registration_message(obj_msg);
+      return process_registration_message(obj_msg);
     }
     else if (msg_type == SCENE_LEAVE) {
-      process_return = process_deregistration_message(obj_msg);
+      return process_deregistration_message(obj_msg);
     }
     else if (msg_type == DEVICE_ALIGN) {
-      process_return = process_device_alignment_message(obj_msg);
+      return process_device_alignment_message(obj_msg);
     }
     else if (msg_type == KILL) {
-      process_return = process_kill_message(obj_msg);
+      return process_kill_message(obj_msg);
     }
     else if (msg_type == PING) {
-      process_return = process_ping_message(obj_msg);
+      return process_ping_message(obj_msg);
     }
     else {
-      process_return = "-1";
+      proto_resp = "-1";
     }
 
-    return process_return;
+    return proto_resp;
   }
 };
 

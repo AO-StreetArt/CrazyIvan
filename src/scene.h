@@ -66,7 +66,7 @@ public:
 class UserDevice {
 Transform *trans = NULL;
 std::string key;
-bool trns_flag;
+bool trns_flag = false;
 public:
   UserDevice(protoScene::SceneList_UserDevice scn_data);
   UserDevice() {trns_flag=false;}
@@ -94,13 +94,13 @@ double latitude = 0.0;
 double longitude = 0.0;
 double distance = 0.0;
 bool trns_flag = false;
-std::vector<UserDevice> devices;
+std::vector<UserDevice*> devices;
 Transform* scene_transform;
 public:
   SceneData() {}
   SceneData(protoScene::SceneList_Scene scn_data);
   SceneData(const SceneData& sd);
-  ~SceneData() {if (trns_flag) {delete scene_transform;} }
+  ~SceneData() {if (trns_flag) {delete scene_transform;} for (unsigned int i=0; i<devices.size();i++ ) {if (devices[i]) {delete devices[i];}}}
   //Setters
   void set_key(std::string new_key) {key=new_key;}
   void set_name(std::string new_name) {name=new_name;}
@@ -116,10 +116,10 @@ public:
   double get_distance() const {return distance;}
 
   //List
-  void add_device(UserDevice d) {devices.push_back(d);}
+  void add_device(UserDevice *d) {devices.push_back(d);}
   int num_devices() const {return devices.size();}
-  UserDevice get_device(int index) const {return devices[index];}
-  std::vector<UserDevice> get_devices() const {return devices;}
+  UserDevice* get_device(int index) const {return devices[index];}
+  std::vector<UserDevice*> get_devices() const {return devices;}
 
   //Transform
   Transform* get_scene_transform() const {return scene_transform;}
@@ -133,8 +133,9 @@ int msg_type;
 std::string err_msg;
 int err_code;
 std::string transaction_id;
-std::vector<SceneData> data;
+std::vector<SceneData*> data;
 int num_records;
+std::string protobuf_string;
 public:
   //Constructor
   Scene();
@@ -142,7 +143,7 @@ public:
   //Here we parse the string and populate the scene object with the information
   Scene(protoScene::SceneList buffer);
   //Destructor
-  ~Scene() {}
+  ~Scene() {for (unsigned int i=0; i<data.size();i++ ) {if (data[i]) {delete data[i];}}}
   //Convert the scene information into a Protocol Buffer serialized message
   std::string to_protobuf();
   //Setters
@@ -150,14 +151,14 @@ public:
   void set_err_msg(std::string new_err) {err_msg=new_err;}
   void set_transaction_id(std::string new_tran_id) {transaction_id=new_tran_id;}
   void set_err_code(int new_code) {err_code=new_code;}
-  void add_scene(SceneData scn) {data.push_back(scn);}
+  void add_scene(SceneData *scn) {data.push_back(scn);}
   void set_num_records(int new_num) {num_records = new_num;}
   //Getters
   int get_msg_type() {return msg_type;}
   std::string get_err() {return err_msg;}
   std::string get_transaction_id() {return transaction_id;}
   int get_err_code() {return err_code;}
-  SceneData get_scene(unsigned int i) {if (i<data.size()) {return data[i];} else {throw SceneException("Attempted to access invalid scene data");}}
+  SceneData* get_scene(unsigned int i) {if (i<data.size()) {return data[i];} else {throw SceneException("Attempted to access invalid scene data");}}
   int num_scenes() {return data.size();}
   int get_num_records() {return num_records;}
 
