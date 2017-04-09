@@ -21,6 +21,9 @@ Transform::Transform() {
 }
 
 Transform::Transform(protoScene::SceneList_Transformation data) {
+
+  obj_logging->debug("Converting Transform Data from Protocol Buffer");
+
   tran_flag=false;
   rot_flag=false;
   tran.push_back(0.0);
@@ -35,6 +38,7 @@ Transform::Transform(protoScene::SceneList_Transformation data) {
     tran[1] = ptrans.y();
     tran[2] = ptrans.z();
     tran_flag=true;
+    obj_logging->debug("Translation added");
   }
   if (data.has_rotation()) {
     protoScene::SceneList_Vertex3 prot = data.rotation();
@@ -42,6 +46,7 @@ Transform::Transform(protoScene::SceneList_Transformation data) {
     rot[1] = prot.y();
     rot[2] = prot.z();
     rot_flag=true;
+    obj_logging->debug("Rotation added");
   }
 }
 
@@ -76,12 +81,17 @@ void Transform::add_transform(Transform &t, bool inverted) {
 
 //Create a new user device object from a protocol buffer user device object
 UserDevice::UserDevice(protoScene::SceneList_UserDevice ud_data) {
+
+  obj_logging->debug("Converting User Device Data from Protocol Buffer");
+
   if (ud_data.has_key()) {
     key = ud_data.key();
+    obj_logging->debug(key);
   }
   if (ud_data.has_transform()) {
     trans = new Transform ( ud_data.transform() );
 		trns_flag=true;
+    obj_logging->debug("Device Transform added");
   }
 }
 
@@ -135,36 +145,45 @@ SceneData::SceneData(const SceneData& sd) {
 //Create a new scene data object from a protocol buffer scene object
 SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
 
+  obj_logging->debug("Converting Scene Data from Protocol Buffer");
+
   //New variables
   trns_flag=false;
 
   //Perform the translation
   if (scn_data.has_key()) {
     key = scn_data.key();
+    obj_logging->debug(key);
   }
   if (scn_data.has_latitude()) {
 		latitude = scn_data.latitude();
+    obj_logging->debug(latitude);
 	}
   else {latitude = -9999.0;}
   if (scn_data.has_longitude()) {
 		longitude = scn_data.longitude();
+    obj_logging->debug(longitude);
 	}
   else {longitude = -9999.0;}
   if (scn_data.has_distance()) {
 		distance = scn_data.distance();
+    obj_logging->debug(distance);
 	}
   else {distance = -1.0;}
   if (scn_data.has_name()) {
 		name = scn_data.name();
+    obj_logging->debug(name);
 	}
   if (scn_data.has_transform()) {
     scene_transform = new Transform ( scn_data.transform() );
 		trns_flag=true;
+    obj_logging->debug("Transform added");
   }
   if (scn_data.devices_size() > 0) {
     for (int k=0; k< scn_data.devices_size(); k++) {
       UserDevice *ud = new UserDevice (scn_data.devices(k));
       devices.push_back(ud);
+      obj_logging->debug("User Device added");
     }
   }
 }
@@ -172,30 +191,38 @@ SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
 //Constructor accepting Protocol Buffer
 Scene::Scene(protoScene::SceneList buffer) {
 
+  obj_logging->debug("Starting Conversion from Protocol Buffer");
+
   //Perform the conversion
   if (buffer.has_message_type()) {
 		msg_type = buffer.message_type();
+    obj_logging->debug(msg_type);
 	}
   else {msg_type=-1;}
   if (buffer.has_transaction_id()) {
     transaction_id = buffer.transaction_id();
+    obj_logging->debug(transaction_id);
   }
   else {transaction_id = "";}
   if (buffer.has_err_msg()) {
     err_msg = buffer.err_msg();
+    obj_logging->debug(err_msg);
   }
   else {err_msg = "";}
   if (buffer.has_err_code()) {
     err_code = buffer.err_code();
+    obj_logging->debug(err_code);
   }
   else {err_code=100;}
   if (buffer.has_num_records()) {
     num_records = buffer.num_records();
+    obj_logging->debug(num_records);
   }
   else {num_records=10;}
   for (int a = 0; a < buffer.scenes_size(); a++) {
     SceneData *sc_data = new SceneData (buffer.scenes(a));
     data.push_back(sc_data);
+    obj_logging->debug("Scene added");
   }
 }
 
