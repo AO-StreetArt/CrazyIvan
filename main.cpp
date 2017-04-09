@@ -273,20 +273,26 @@ void my_signal_handler(int s){
 
         // Turn the response from the processor into a response for the client
         resp = new Scene();
+        SceneData *resp_data = new SceneData;
         resp->set_err_msg(current_error_message);
         resp->set_err_code(current_error_code);
         resp->set_msg_type(msg_type);
 
-        if (translated_object->num_scenes() > 0) {
-          SceneData *resp_data = new SceneData;
+        //If we have a create request, we will get a key back from the processor
+        if (msg_type == SCENE_CRT) {
+          resp_data->set_key( process_result );
+        }
+        //Otherwise, set the response key from the translated object
+        else if (translated_object->num_scenes() > 0) {
           resp_data->set_key(translated_object->get_scene(0)->get_key());
-          resp->add_scene(resp_data);
         }
         else {
-          main_logging->error("No scene data detected in message, unable to stamp object key on response");
-          resp->set_err_msg("No scene data detected in input message");
+          main_logging->error("Unable to stamp key on response message");
+          resp->set_err_msg("Unable to stamp key on response message");
           resp->set_msg_type(PROCESSING_ERROR);
         }
+
+        resp->add_scene(resp_data);
 
         //  Send reply back to client
         //Ping message, send back "success"
@@ -329,16 +335,6 @@ void my_signal_handler(int s){
 
         //We have a standard message
         else {
-          //If we have a create request, we will get a key back from the processor
-          if (msg_type == SCENE_CRT) {
-            resp_data->set_key( process_result );
-          }
-          //Otherwise, set the response key from the translated object
-          else {
-            resp_data->set_key( translated_object->get_scene(0)->get_key() );
-          }
-
-          resp->add_scene(resp_data);
 
           //Send the Inbound response
           zmqi->send( resp->to_protobuf() );
