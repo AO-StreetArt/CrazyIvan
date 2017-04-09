@@ -59,13 +59,28 @@ public:
   bool has_rotation() const {return rot_flag;}
   void invert();
   void clear() {tran.clear();rot.clear();tran_flag=false;rot_flag=false;}
+  inline void print() {
+    obj_logging->debug("Transformation");
+    if (tran_flag) {
+      obj_logging->debug("Translation");
+      obj_logging->debug(tran[0]);
+      obj_logging->debug(tran[1]);
+      obj_logging->debug(tran[2]);
+    }
+    if (rot_flag) {
+      obj_logging->debug("Rotation");
+      obj_logging->debug(rot[0]);
+      obj_logging->debug(rot[1]);
+      obj_logging->debug(rot[2]);
+    }
+  }
 };
 
 //User Device
 //Stores a transform (relative to current scene) and key
 class UserDevice {
 Transform *trans = NULL;
-std::string key;
+std::string key = "";
 bool trns_flag = false;
 public:
   UserDevice(protoScene::SceneList_UserDevice scn_data);
@@ -84,6 +99,11 @@ public:
   bool has_transform() const {if ((!trans) || (!trns_flag)) {return false;} else {return true;}}
   void set_key(std::string new_key) {key = new_key;}
   std::string get_key() const {return key;}
+  inline void print() {
+    obj_logging->debug("User Device");
+    obj_logging->debug(key);
+    if (trns_flag) {trans->print();}
+  }
 };
 
 //Stores the data for a single scene
@@ -125,20 +145,32 @@ public:
   Transform* get_scene_transform() const {return scene_transform;}
   bool has_transform() const {return trns_flag;}
   void set_transform(Transform *trns) {scene_transform=trns;}
+
+  //Print
+  inline void print() {
+    obj_logging->debug("Scene Data");
+    obj_logging->debug(key);
+    obj_logging->debug(name);
+    obj_logging->debug(latitude);
+    obj_logging->debug(longitude);
+    obj_logging->debug(distance);
+    for (unsigned int i=0; i<devices.size(); i++) {devices[i]->print();}
+    if (trns_flag) {scene_transform->print();}
+  }
 };
 
 //A single scene message, may include data for multiple scene objects
 class Scene {
-int msg_type;
-std::string err_msg;
-int err_code;
-std::string transaction_id;
+int msg_type=-1;
+std::string err_msg="";
+int err_code=100;
+std::string transaction_id="";
 std::vector<SceneData*> data;
-int num_records;
-std::string protobuf_string;
+int num_records=10;
+std::string protobuf_string="";
 public:
   //Constructor
-  Scene();
+  Scene() {}
   //Constructor accepting Protocol Buffer serialized string
   //Here we parse the string and populate the scene object with the information
   Scene(protoScene::SceneList buffer);
@@ -161,7 +193,15 @@ public:
   SceneData* get_scene(unsigned int i) {if (i<data.size()) {return data[i];} else {throw SceneException("Attempted to access invalid scene data");}}
   int num_scenes() {return data.size();}
   int get_num_records() {return num_records;}
-
+  inline void print() {
+    obj_logging->debug("Scene List");
+    obj_logging->debug(msg_type);
+    obj_logging->debug(err_msg);
+    obj_logging->debug(err_code);
+    obj_logging->debug(transaction_id);
+    obj_logging->debug(num_records);
+    for (unsigned int i=0; i<data.size(); i++) {data[i]->print();}
+  }
 };
 
 #endif

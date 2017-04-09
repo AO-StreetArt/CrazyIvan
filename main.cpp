@@ -209,7 +209,6 @@ void my_signal_handler(int s){
         msg_type = -1;
         std::string resp_str = "";
 
-
         //Convert the OMQ message into a string to be passed on the event
         std::string req_string = zmqi->recv();
         req_string = ltrim(req_string);
@@ -222,6 +221,7 @@ void my_signal_handler(int s){
           new_proto.ParseFromString(req_string);
           translated_object = new Scene (new_proto);
           msg_type = new_proto.message_type();
+          translated_object->print();
         }
         //Catch a possible error and write to logs
         catch (std::exception& e) {

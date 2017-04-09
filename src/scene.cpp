@@ -169,15 +169,6 @@ SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
   }
 }
 
-//Constructor
-Scene::Scene() {
-  msg_type=-1;
-  err_code=100;
-  err_msg = "";
-  transaction_id = "";
-  num_records = 10;
-}
-
 //Constructor accepting Protocol Buffer
 Scene::Scene(protoScene::SceneList buffer) {
 

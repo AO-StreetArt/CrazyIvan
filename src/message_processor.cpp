@@ -47,6 +47,8 @@ std::string MessageProcessor::process_kill_message(Scene *obj_msg) {
 //Create a new scene
 std::string MessageProcessor::process_create_message(Scene *obj_msg) {
   processor_logging->info("Processing Scene Creation message");
+  processor_logging->debug("Number of Scene Data elements:");
+  processor_logging->debug(obj_msg->num_scenes());
   if (obj_msg->num_scenes() > 0) {
     ResultsIteratorInterface *results = NULL;
     Neo4jQueryParameterInterface *name_param = NULL;

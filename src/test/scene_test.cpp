@@ -74,6 +74,8 @@ int main() {
   assert( scene3.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
   assert( scene3.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
 
+  scene3.print();
+
   shutdown_logging_submodules();
 
   delete logging;
