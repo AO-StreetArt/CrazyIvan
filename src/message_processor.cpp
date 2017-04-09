@@ -46,6 +46,7 @@ std::string MessageProcessor::process_kill_message(Scene *obj_msg) {
 
 //Create a new scene
 std::string MessageProcessor::process_create_message(Scene *obj_msg) {
+  processor_logging->info("Processing Scene Creation message");
   if (obj_msg->num_scenes() > 0) {
     ResultsIteratorInterface *results = NULL;
     Neo4jQueryParameterInterface *name_param = NULL;
@@ -57,7 +58,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     ret_val = "";
     double qlat;
     double qlong;
-    processor_logging->info("Processing Scene Creation message");
+    processor_logging->info("Scenes Found in creation message");
 
     //Generate a new key
     UuidContainer id_container;

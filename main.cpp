@@ -239,7 +239,6 @@ void my_signal_handler(int s){
           //If no transaction ID is sent in, generate a new one
           if ( existing_trans_id.empty() ) {
             try {
-              UuidContainer id_container;
               id_container = ua->generate();
               if (!id_container.err.empty()) {
                 uuid_logging->error(id_container.err);
@@ -274,11 +273,20 @@ void my_signal_handler(int s){
 
         // Turn the response from the processor into a response for the client
         resp = new Scene();
-        SceneData *resp_data = new SceneData;
-        resp_data->set_key(translated_object->get_scene(0)->get_key());
         resp->set_err_msg(current_error_message);
         resp->set_err_code(current_error_code);
         resp->set_msg_type(msg_type);
+
+        if (translated_object->num_scenes() > 0) {
+          SceneData *resp_data = new SceneData;
+          resp_data->set_key(translated_object->get_scene(0)->get_key());
+          resp->add_scene(resp_data);
+        }
+        else {
+          main_logging->error("No scene data detected in message, unable to stamp object key on response");
+          resp->set_err_msg("No scene data detected in input message");
+          resp->set_msg_type(PROCESSING_ERROR);
+        }
 
         //  Send reply back to client
         //Ping message, send back "success"
