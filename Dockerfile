@@ -21,7 +21,7 @@ RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update
-RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5 build-essential libprotobuf-dev protobuf-compiler libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git liblog4cpp5-dev
+RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5 build-essential libprotobuf-dev protobuf-compiler libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git liblog4cpp5-dev libkrb5-dev
 RUN	apt-get clean
 
 #Build the dependencies and place them in the correct places
@@ -46,6 +46,7 @@ RUN git clone https://github.com/cleishm/libneo4j-client.git ./$PRE/neo
 RUN cd $PRE/neo && ./autogen.sh && ./configure --disable-tools && make clean check && sudo make install
 
 #Get the ZMQ Dependencies
+RUN cd /tmp && git clone git://github.com/jedisct1/libsodium.git && cd libsodium && git checkout e2a30a && ./autogen.sh && ./configure && make check && make install && ldconfig
 RUN wget https://github.com/zeromq/zeromq4-1/releases/download/v4.1.4/zeromq-4.1.4.tar.gz
 
 #Build & Install ZMQ
@@ -54,7 +55,7 @@ RUN wget https://github.com/zeromq/zeromq4-1/releases/download/v4.1.4/zeromq-4.1
 RUN tar -xvzf zeromq-4.1.4.tar.gz
 
 #Configure, make, & install
-RUN cd ./zeromq-4.1.4 && ./configure --without-libsodium && make && make install
+RUN cd ./zeromq-4.1.4 && ./configure && make && make install
 
 #Run ldconfig to ensure that ZMQ is on the linker path
 RUN ldconfig
