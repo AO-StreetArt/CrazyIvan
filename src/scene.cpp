@@ -21,6 +21,9 @@ Transform::Transform() {
 }
 
 Transform::Transform(protoScene::SceneList_Transformation data) {
+
+  obj_logging->debug("Converting Transform Data from Protocol Buffer");
+
   tran_flag=false;
   rot_flag=false;
   tran.push_back(0.0);
@@ -35,6 +38,7 @@ Transform::Transform(protoScene::SceneList_Transformation data) {
     tran[1] = ptrans.y();
     tran[2] = ptrans.z();
     tran_flag=true;
+    obj_logging->debug("Translation added");
   }
   if (data.has_rotation()) {
     protoScene::SceneList_Vertex3 prot = data.rotation();
@@ -42,6 +46,7 @@ Transform::Transform(protoScene::SceneList_Transformation data) {
     rot[1] = prot.y();
     rot[2] = prot.z();
     rot_flag=true;
+    obj_logging->debug("Rotation added");
   }
 }
 
@@ -76,16 +81,18 @@ void Transform::add_transform(Transform &t, bool inverted) {
 
 //Create a new user device object from a protocol buffer user device object
 UserDevice::UserDevice(protoScene::SceneList_UserDevice ud_data) {
-  std::string new_key = "";
+
+  obj_logging->debug("Converting User Device Data from Protocol Buffer");
+
   if (ud_data.has_key()) {
-    new_key = ud_data.key();
+    key = ud_data.key();
+    obj_logging->debug(key);
   }
   if (ud_data.has_transform()) {
-    protoScene::SceneList_Transformation trn = ud_data.transform();
-    trans = new Transform (trn);
+    trans = new Transform ( ud_data.transform() );
 		trns_flag=true;
+    obj_logging->debug("Device Transform added");
   }
-  key=new_key;
 }
 
 //Copy Constructor
@@ -125,12 +132,12 @@ SceneData::SceneData(const SceneData& sd) {
   for (int j=0;j<sd.num_devices();j++) {
     Transform *new_tran = new Transform;
     for (int k=0;k<3;k++) {
-      if ( sd.get_device(j).has_transform() ) {
-        new_tran->translate(k, sd.get_device(j).get_translation(k));
-        new_tran->rotate(k, sd.get_device(j).get_rotation(k));
+      if ( sd.get_device(j)->has_transform() ) {
+        new_tran->translate(k, sd.get_device(j)->get_translation(k));
+        new_tran->rotate(k, sd.get_device(j)->get_rotation(k));
       }
     }
-    UserDevice new_dev (sd.get_device(j).get_key(), new_tran);
+    UserDevice *new_dev = new UserDevice (sd.get_device(j)->get_key(), new_tran);
     devices.push_back(new_dev);
   }
 }
@@ -138,99 +145,85 @@ SceneData::SceneData(const SceneData& sd) {
 //Create a new scene data object from a protocol buffer scene object
 SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
 
-  //Clear the vector data stored in the Scene
-  devices.clear();
+  obj_logging->debug("Converting Scene Data from Protocol Buffer");
 
   //New variables
-  std::string new_key="";
-  std::string new_name="";
-  double new_latitude=-9999.0;
-  double new_longitude=-9999.0;
-  double new_distance=-1.0;
   trns_flag=false;
 
   //Perform the translation
   if (scn_data.has_key()) {
-    new_key = scn_data.key();
+    key = scn_data.key();
+    obj_logging->debug(key);
   }
   if (scn_data.has_latitude()) {
-		new_latitude = scn_data.latitude();
+		latitude = scn_data.latitude();
+    obj_logging->debug(latitude);
 	}
+  else {latitude = -9999.0;}
   if (scn_data.has_longitude()) {
-		new_longitude = scn_data.longitude();
+		longitude = scn_data.longitude();
+    obj_logging->debug(longitude);
 	}
+  else {longitude = -9999.0;}
   if (scn_data.has_distance()) {
-		new_distance = scn_data.distance();
+		distance = scn_data.distance();
+    obj_logging->debug(distance);
 	}
+  else {distance = -1.0;}
   if (scn_data.has_name()) {
-		new_name = scn_data.name();
+		name = scn_data.name();
+    obj_logging->debug(name);
 	}
   if (scn_data.has_transform()) {
-    protoScene::SceneList_Transformation trn = scn_data.transform();
-    scene_transform = new Transform (trn);
+    scene_transform = new Transform ( scn_data.transform() );
 		trns_flag=true;
+    obj_logging->debug("Transform added");
   }
   if (scn_data.devices_size() > 0) {
     for (int k=0; k< scn_data.devices_size(); k++) {
-      UserDevice ud (scn_data.devices(k));
+      UserDevice *ud = new UserDevice (scn_data.devices(k));
       devices.push_back(ud);
+      obj_logging->debug("User Device added");
     }
   }
-
-  //Assign the variables
-  key = new_key;
-  name = new_name;
-  latitude = new_latitude;
-  longitude = new_longitude;
-  distance=new_distance;
-}
-
-//Constructor
-Scene::Scene() {
-  msg_type=-1;
-  err_code=100;
-  err_msg = "";
-  transaction_id = "";
-  num_records = 10;
 }
 
 //Constructor accepting Protocol Buffer
 Scene::Scene(protoScene::SceneList buffer) {
 
-  //Fields to store the new variable values
-  int new_message_type = -1;
-  std::string new_err_msg = "";
-  int new_err_code = 100;
-  std::string new_transaction_id = "";
-  int new_num_records = 10;
+  obj_logging->debug("Starting Conversion from Protocol Buffer");
 
   //Perform the conversion
   if (buffer.has_message_type()) {
-		new_message_type = buffer.message_type();
+		msg_type = buffer.message_type();
+    obj_logging->debug(msg_type);
 	}
+  else {msg_type=-1;}
   if (buffer.has_transaction_id()) {
-    new_transaction_id = buffer.transaction_id();
+    transaction_id = buffer.transaction_id();
+    obj_logging->debug(transaction_id);
   }
+  else {transaction_id = "";}
   if (buffer.has_err_msg()) {
-    new_err_msg = buffer.err_msg();
+    err_msg = buffer.err_msg();
+    obj_logging->debug(err_msg);
   }
+  else {err_msg = "";}
   if (buffer.has_err_code()) {
-    new_err_code = buffer.err_code();
+    err_code = buffer.err_code();
+    obj_logging->debug(err_code);
   }
+  else {err_code=100;}
   if (buffer.has_num_records()) {
-    new_num_records = buffer.num_records();
+    num_records = buffer.num_records();
+    obj_logging->debug(num_records);
   }
+  else {num_records=10;}
   for (int a = 0; a < buffer.scenes_size(); a++) {
-    SceneData sc_data (buffer.scenes(a));
+    SceneData *sc_data = new SceneData (buffer.scenes(a));
     data.push_back(sc_data);
+    obj_logging->debug("Scene added");
   }
-
-  //Assign the new values
-  msg_type = new_message_type;
-  err_code = new_err_code;
-  err_msg = new_err_msg;
-  transaction_id = new_transaction_id;
-  num_records = new_num_records;
 }
 
 //Convert to Protocol Buffer message
@@ -263,68 +256,67 @@ std::string Scene::to_protobuf() {
     protoScene::SceneList_Scene *scn = new_proto->add_scenes();
 
     //Name & Key
-    std::string key = data[a].get_key();
+    std::string key = data[a]->get_key();
     obj_logging->info("Scene:To Proto message Called on object");
   	obj_logging->info(key);
     if ( !(key.empty()) ) {
   		scn->set_key(key);
   	}
-    std::string name = data[a].get_name();
+    std::string name = data[a]->get_name();
     if ( !(name.empty()) ) {
   		scn->set_name(name);
   	}
 
     //Lat/long
-    scn->set_latitude(data[a].get_latitude());
-  	scn->set_longitude(data[a].get_longitude());
+    scn->set_latitude(data[a]->get_latitude());
+  	scn->set_longitude(data[a]->get_longitude());
 
     //distance
-    if (data[a].get_distance() >= 0.0) {
-      scn->set_distance(data[a].get_distance());
+    if (data[a]->get_distance() >= 0.0) {
+      scn->set_distance(data[a]->get_distance());
     }
 
     //Convert transform
-    if (data[a].has_transform()) {
+    if (data[a]->has_transform()) {
       protoScene::SceneList_Transformation *trn = scn->mutable_transform();
       protoScene::SceneList_Vertex3 *proto_translation = trn->mutable_translation();
       protoScene::SceneList_Vertex3 *proto_rot = trn->mutable_rotation();
-      proto_translation->set_x(data[a].get_scene_transform()->translation(0));
-      proto_translation->set_y(data[a].get_scene_transform()->translation(1));
-      proto_translation->set_z(data[a].get_scene_transform()->translation(2));
-      proto_rot->set_x(data[a].get_scene_transform()->rotation(0));
-      proto_rot->set_y(data[a].get_scene_transform()->rotation(1));
-      proto_rot->set_z(data[a].get_scene_transform()->rotation(2));
+      proto_translation->set_x(data[a]->get_scene_transform()->translation(0));
+      proto_translation->set_y(data[a]->get_scene_transform()->translation(1));
+      proto_translation->set_z(data[a]->get_scene_transform()->translation(2));
+      proto_rot->set_x(data[a]->get_scene_transform()->rotation(0));
+      proto_rot->set_y(data[a]->get_scene_transform()->rotation(1));
+      proto_rot->set_z(data[a]->get_scene_transform()->rotation(2));
     }
 
     //Iterate through the device list for the scene and write those
-    for (int b = 0; b < data[a].num_devices(); b++) {
+    for (int b = 0; b < data[a]->num_devices(); b++) {
       protoScene::SceneList_UserDevice *ud = scn->add_devices();
-      std::string key = data[a].get_device(b).get_key();
+      std::string key = data[a]->get_device(b)->get_key();
       if ( !(key.empty()) ) {
     		ud->set_key(key);
     	}
 
-      if (data[a].get_device(b).has_transform()) {
+      if (data[a]->get_device(b)->has_transform()) {
         protoScene::SceneList_Transformation *trn = ud->mutable_transform();
         protoScene::SceneList_Vertex3 *proto_translation = trn->mutable_translation();
         protoScene::SceneList_Vertex3 *proto_rot = trn->mutable_rotation();
-        proto_translation->set_x(data[a].get_device(b).get_transform()->translation(0));
-        proto_translation->set_y(data[a].get_device(b).get_transform()->translation(1));
-        proto_translation->set_z(data[a].get_device(b).get_transform()->translation(2));
-        proto_rot->set_x(data[a].get_device(b).get_transform()->rotation(0));
-        proto_rot->set_y(data[a].get_device(b).get_transform()->rotation(1));
-        proto_rot->set_z(data[a].get_device(b).get_transform()->rotation(2));
+        proto_translation->set_x(data[a]->get_device(b)->get_transform()->translation(0));
+        proto_translation->set_y(data[a]->get_device(b)->get_transform()->translation(1));
+        proto_translation->set_z(data[a]->get_device(b)->get_transform()->translation(2));
+        proto_rot->set_x(data[a]->get_device(b)->get_transform()->rotation(0));
+        proto_rot->set_y(data[a]->get_device(b)->get_transform()->rotation(1));
+        proto_rot->set_z(data[a]->get_device(b)->get_transform()->rotation(2));
       }
     }
   }
 
   //Serialize into a std::string
-  std::string wstr;
-  new_proto->SerializeToString(&wstr);
+  new_proto->SerializeToString(&protobuf_string);
 	obj_logging->debug("Protocol Buffer Serialized to String");
-	obj_logging->debug(wstr);
+	obj_logging->debug(protobuf_string);
   if (new_proto) {
 	   delete new_proto;
   }
-	return wstr;
+	return protobuf_string;
 }

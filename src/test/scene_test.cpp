@@ -19,7 +19,7 @@ int main() {
 
   //Basic tests
   Scene scene1;
-  SceneData data1;
+  SceneData *data1 = new SceneData;
 
   //Basic properties
   scene1.set_msg_type(1);
@@ -27,16 +27,16 @@ int main() {
   scene1.set_err_msg("Testing");
   scene1.set_transaction_id("ghijklmno");
 
-  data1.set_name("TestName");
-  data1.set_key("abcdef");
-  data1.set_latitude(137.0034);
-  data1.set_longitude(89.443);
+  data1->set_name("TestName");
+  data1->set_key("abcdef");
+  data1->set_latitude(137.0034);
+  data1->set_longitude(89.443);
 
   //List properties
-  UserDevice ud1 ("xyzabcdef1");
-  UserDevice ud2 ("xyzabcdef2");
-  data1.add_device(ud1);
-  data1.add_device(ud2);
+  UserDevice *ud1 = new UserDevice ("xyzabcdef1");
+  UserDevice *ud2 = new UserDevice ("xyzabcdef2");
+  data1->add_device(ud1);
+  data1->add_device(ud2);
 
   scene1.add_scene(data1);
 
@@ -45,14 +45,14 @@ int main() {
   assert( scene1.get_err() == "Testing" );
   assert( scene1.get_transaction_id() == "ghijklmno" );
 
-  assert( scene1.get_scene(0).get_name() == "TestName" );
-  assert( scene1.get_scene(0).get_key() == "abcdef" );
-  assert( scene1.get_scene(0).get_latitude() == 137.0034 );
-  assert( scene1.get_scene(0).get_longitude() == 89.443 );
+  assert( scene1.get_scene(0)->get_name() == "TestName" );
+  assert( scene1.get_scene(0)->get_key() == "abcdef" );
+  assert( scene1.get_scene(0)->get_latitude() == 137.0034 );
+  assert( scene1.get_scene(0)->get_longitude() == 89.443 );
 
-  assert( scene1.get_scene(0).num_devices() == 2 );
-  assert( scene1.get_scene(0).get_device(0).get_key() == "xyzabcdef1" );
-  assert( scene1.get_scene(0).get_device(1).get_key() == "xyzabcdef2" );
+  assert( scene1.get_scene(0)->num_devices() == 2 );
+  assert( scene1.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
+  assert( scene1.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
 
   //Transform tests
 
@@ -67,12 +67,14 @@ int main() {
   assert( scene3.get_transaction_id() == "ghijklmno" );
   assert( scene3.get_err() == "Testing" );
 
-  assert( scene3.get_scene(0).get_key() == "abcdef" );
-  assert( scene3.get_scene(0).get_latitude() == 137.0034 );
-  assert( scene3.get_scene(0).get_longitude() == 89.443 );
-  assert( scene3.get_scene(0).num_devices() == 2 );
-  assert( scene3.get_scene(0).get_device(0).get_key() == "xyzabcdef1" );
-  assert( scene3.get_scene(0).get_device(1).get_key() == "xyzabcdef2" );
+  assert( scene3.get_scene(0)->get_key() == "abcdef" );
+  assert( scene3.get_scene(0)->get_latitude() == 137.0034 );
+  assert( scene3.get_scene(0)->get_longitude() == 89.443 );
+  assert( scene3.get_scene(0)->num_devices() == 2 );
+  assert( scene3.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
+  assert( scene3.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
+
+  scene3.print();
 
   shutdown_logging_submodules();
 

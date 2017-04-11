@@ -17,7 +17,6 @@
 #include "src/ivan_utils.h"
 #include "src/configuration_manager.h"
 #include "src/globals.h"
-#include "src/uuid.h"
 #include "src/scene.h"
 #include "src/Scene.pb.h"
 #include "src/message_processor.h"
@@ -111,8 +110,13 @@ void my_signal_handler(int s){
       ua = uuid_factory->get_uuid_interface();
 
       std::string service_instance_id = "Ivan-";
+      UuidContainer sid_container;
       try {
-        service_instance_id = service_instance_id + generate_uuid();
+        sid_container = ua->generate();
+        if (!sid_container.err.empty()) {
+          uuid_logging->error(sid_container.err);
+        }
+        service_instance_id = service_instance_id + sid_container.id;
       }
       catch (std::exception& e) {
         main_logging->error("Exception encountered during Service Instance ID Generation");
@@ -205,7 +209,6 @@ void my_signal_handler(int s){
         msg_type = -1;
         std::string resp_str = "";
 
-
         //Convert the OMQ message into a string to be passed on the event
         std::string req_string = zmqi->recv();
         req_string = ltrim(req_string);
@@ -218,6 +221,7 @@ void my_signal_handler(int s){
           new_proto.ParseFromString(req_string);
           translated_object = new Scene (new_proto);
           msg_type = new_proto.message_type();
+          translated_object->print();
         }
         //Catch a possible error and write to logs
         catch (std::exception& e) {
@@ -228,14 +232,18 @@ void my_signal_handler(int s){
         }
 
         //Determine the Transaction ID
-        std::string tran_id_str = "";
+        UuidContainer id_container;
+        id_container.id = "";
         if ( cm->get_transactionidsactive() ) {
           std::string existing_trans_id = translated_object->get_transaction_id();
           //If no transaction ID is sent in, generate a new one
           if ( existing_trans_id.empty() ) {
             try {
-              tran_id_str = generate_uuid();
-              main_logging->debug("Generated Transaction ID: " + tran_id_str);
+              id_container = ua->generate();
+              if (!id_container.err.empty()) {
+                uuid_logging->error(id_container.err);
+              }
+              main_logging->debug("Generated Transaction ID: " + id_container.id);
 
               //Assign Transaction ID
               if (!translated_object)
@@ -243,7 +251,7 @@ void my_signal_handler(int s){
                 main_logging->debug("No translated object to assign Transaction ID to");
               }
               else {
-                translated_object->set_transaction_id(tran_id_str);
+                translated_object->set_transaction_id(id_container.id);
               }
             }
             catch (std::exception& e) {
@@ -254,22 +262,37 @@ void my_signal_handler(int s){
           }
           //Otherwise, use the existing transaction ID
           else {
-            tran_id_str = existing_trans_id;
+            id_container.id = existing_trans_id;
           }
         }
         main_logging->debug("Transaction ID: ");
-        main_logging->debug(tran_id_str);
+        main_logging->debug(id_container.id);
 
         //Process the translated object
         std::string process_result = processor->process_message(translated_object);
 
         // Turn the response from the processor into a response for the client
         resp = new Scene();
-        SceneData resp_data;
-        resp_data.set_key(translated_object->get_scene(0).get_key());
+        SceneData *resp_data = new SceneData;
         resp->set_err_msg(current_error_message);
         resp->set_err_code(current_error_code);
         resp->set_msg_type(msg_type);
+
+        //If we have a create request, we will get a key back from the processor
+        if (msg_type == SCENE_CRT) {
+          resp_data->set_key( process_result );
+        }
+        //Otherwise, set the response key from the translated object
+        else if (translated_object->num_scenes() > 0) {
+          resp_data->set_key(translated_object->get_scene(0)->get_key());
+        }
+        else {
+          main_logging->error("Unable to stamp key on response message");
+          resp->set_err_msg("Unable to stamp key on response message");
+          resp->set_msg_type(PROCESSING_ERROR);
+        }
+
+        resp->add_scene(resp_data);
 
         //  Send reply back to client
         //Ping message, send back "success"
@@ -312,16 +335,6 @@ void my_signal_handler(int s){
 
         //We have a standard message
         else {
-          //If we have a create request, we will get a key back from the processor
-          if (msg_type == SCENE_CRT) {
-            resp_data.set_key( process_result );
-          }
-          //Otherwise, set the response key from the translated object
-          else {
-            resp_data.set_key( translated_object->get_scene(0).get_key() );
-          }
-
-          resp->add_scene(resp_data);
 
           //Send the Inbound response
           zmqi->send( resp->to_protobuf() );

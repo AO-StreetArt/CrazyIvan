@@ -71,7 +71,7 @@ src/query_helper.o: src/query_helper.h src/query_helper.cpp
 src/message_processor.o: src/message_processor.h src/message_processor.cpp
 	$(CC) $(CFLAGS) -o $@ -c src/message_processor.cpp $(STD)
 
-main.o: main.cpp src/ivan_utils.h src/uuid.h src/redis_locking.h src/message_processor.h
+main.o: main.cpp src/ivan_utils.h src/redis_locking.h src/message_processor.h
 	$(CC) $(CFLAGS) -o $@ -c main.cpp $(STD)
 
 # --------------------------- Clean Project ---------------------------------- #

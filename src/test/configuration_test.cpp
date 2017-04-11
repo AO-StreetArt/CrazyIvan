@@ -86,5 +86,8 @@ int main( int argc, char** argv )
   delete cli;
   delete ua;
   delete logging;
+  delete id_factory;
+  delete cli_factory;
+  delete logging_factory;
   return 0;
 }

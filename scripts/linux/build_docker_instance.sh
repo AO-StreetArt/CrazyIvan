@@ -9,4 +9,4 @@ if [ $BRANCH_NAME != "master" ]; then
   TAG_NAME=$BRANCH_NAME
 fi
 
-cd $DIR && sudo docker build -t "aostreetart/crazyivan:$TAG_NAME" .
+cd $DIR && sudo docker build --build-arg TAG_NAME=$BRANCH_NAME -t "aostreetart/crazyivan:$TAG_NAME" .

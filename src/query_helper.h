@@ -16,23 +16,24 @@ struct QueryException: public std::exception
 {
   //! An error message passed on initialization
   std::string int_msg;
+  const char * int_msg_cstr;
 
   //! Create a Neo4j Exception, and store the given error message
-  QueryException (std::string msg) {int_msg = msg;}
+  QueryException (std::string msg) {int_msg = "Error in Query Helper: " + msg;int_msg_cstr=int_msg.c_str();}
 
   QueryException () {}
   ~QueryException() throw () {}
   //! Show the error message in readable format
   const char * what() const throw ()
   {
-  std::string what_str = "Error in Query Helper: " + int_msg;
-  return what_str.c_str();
+    return int_msg_cstr;
   }
 };
 
 struct SceneTransformResult {
   Transform transform;
   bool result_flag;
+  void clear() {result_flag=false;transform.clear();}
 };
 
 //The class contains helper methods for working with
@@ -40,6 +41,7 @@ struct SceneTransformResult {
 class QueryHelper {
 Neo4jInterface *n = NULL;
 Neo4jComponentFactory *neo_factory = NULL;
+SceneTransformResult str;
 public:
   QueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf) {n=neo;neo_factory=nf;}
   ~QueryHelper() {}
