@@ -47,7 +47,7 @@ RUN cd $PRE/neo && ./autogen.sh && ./configure --disable-tools && make clean che
 
 #Get the ZMQ Dependencies
 RUN cd /tmp && git clone git://github.com/jedisct1/libsodium.git && cd libsodium && git checkout e2a30a && ./autogen.sh && ./configure && make check && make install && ldconfig
-RUN wget https://github.com/zeromq/zeromq4-1/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
+RUN wget https://github.com/zeromq/zeromq4-1/releases/download/v4.1.4/zeromq-4.1.4.tar.gz
 
 #Build & Install ZMQ
 
