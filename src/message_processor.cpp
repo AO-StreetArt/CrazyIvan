@@ -68,7 +68,7 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
 
     //Set up the query parameters for scene creation
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    if (obj_msg->get_scene(0)->has_key()) {
+    if (!(obj_msg->get_scene(0)->get_key().empty())) {
       //Use an existing key from the input message
       key_param = neo_factory->get_neo4j_query_parameter(obj_msg->get_scene(0)->get_key());
     }
