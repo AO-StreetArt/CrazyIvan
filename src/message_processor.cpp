@@ -157,341 +157,354 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
 //Update the details of a scene entry
 std::string MessageProcessor::process_update_message(Scene *obj_msg) {
 
-  //Retrieve a Redis Mutex Lock on the scene
-  if (config->get_atomictransactions()) {
-    get_mutex_lock(obj_msg->get_scene(0)->get_key());
-  }
+  if (obj_msg->num_scenes() > 0) {
 
-  //Declare base variables
-  ret_val = "";
-  bool is_started = false;
-  ResultsIteratorInterface *results = NULL;
-  Neo4jQueryParameterInterface *name_param = NULL;
-  Neo4jQueryParameterInterface *lat_param = NULL;
-  Neo4jQueryParameterInterface *long_param = NULL;
-  Neo4jQueryParameterInterface *key_param = NULL;
-  processor_logging->debug("Processing Scene Update message");
-
-  //Ensure that we have fields in the query
-  if ((obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0) || obj_msg->get_scene(0)->get_key().empty()) {
-    processor_logging->error("No fields found in update message");
-    ret_val = "-1";
-  }
-  else {
-    //Set up the Cypher Query for scene update
-    std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) SET ";
-    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
-      scene_query = scene_query + "scn.name = {inp_name}";
-      is_started = true;
+    //Retrieve a Redis Mutex Lock on the scene
+    if (config->get_atomictransactions()) {
+      get_mutex_lock(obj_msg->get_scene(0)->get_key());
     }
 
-    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
-      if (is_started) {
-        scene_query = scene_query + ", ";
-      }
-      scene_query = scene_query + "scn.latitude = {inp_lat}";
-      is_started = true;
-    }
+    //Declare base variables
+    ret_val = "";
+    bool is_started = false;
+    ResultsIteratorInterface *results = NULL;
+    Neo4jQueryParameterInterface *name_param = NULL;
+    Neo4jQueryParameterInterface *lat_param = NULL;
+    Neo4jQueryParameterInterface *long_param = NULL;
+    Neo4jQueryParameterInterface *key_param = NULL;
+    processor_logging->debug("Processing Scene Update message");
 
-    if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
-      if (is_started) {
-        scene_query = scene_query + ", ";
-      }
-      scene_query = scene_query + "scn.longitude = {inp_long}";
-      is_started = true;
-    }
-
-    scene_query = scene_query + " RETURN scn";
-
-    processor_logging->debug("Executing Query:");
-    processor_logging->debug(scene_query);
-
-    //Set up the query parameters for scene update
-    std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    std::string qkey = obj_msg->get_scene(0)->get_key();
-    key_param = neo_factory->get_neo4j_query_parameter(qkey);
-    processor_logging->debug("Key:");
-    processor_logging->debug(qkey);
-    scene_params.emplace("inp_key", key_param);
-    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
-      std::string qname = obj_msg->get_scene(0)->get_name();
-      name_param = neo_factory->get_neo4j_query_parameter(qname);
-      processor_logging->debug("Name:");
-      processor_logging->debug(qname);
-      scene_params.emplace("inp_name", name_param);
-    }
-    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
-      double qlat = obj_msg->get_scene(0)->get_latitude();
-      lat_param = neo_factory->get_neo4j_query_parameter(qlat);
-      scene_params.emplace("inp_lat", lat_param);
-    }
-    if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
-      double qlong = obj_msg->get_scene(0)->get_longitude();
-      long_param = neo_factory->get_neo4j_query_parameter(qlong);
-      scene_params.emplace("inp_long", long_param);
-    }
-
-    //Execute the query
-    ResultTreeInterface *tree = NULL;
-    DbObjectInterface* obj = NULL;
-    try {
-      results = n->execute(scene_query, scene_params);
-    }
-    catch (std::exception& e) {
-      if (obj) delete obj;
-      if (tree) delete tree;
-      processor_logging->error("Error running Query:");
-      processor_logging->error(e.what());
-      ret_val = "-1";
-    }
-
-    if (!results) {
-      processor_logging->error("No results returned from update query");
+    //Ensure that we have fields in the query
+    if ((obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0) || obj_msg->get_scene(0)->get_key().empty()) {
+      processor_logging->error("No fields found in update message");
       ret_val = "-1";
     }
     else {
-      ret_val = qkey;
-      tree = results->next();
-      if (tree) {
-        obj = tree->get(0);
-        if (obj) {
-          if ( !(obj->is_node()) ) ret_val = "-2";
-          delete obj;
+      //Set up the Cypher Query for scene update
+      std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) SET ";
+      if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
+        scene_query = scene_query + "scn.name = {inp_name}";
+        is_started = true;
+      }
+
+      if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
+        if (is_started) {
+          scene_query = scene_query + ", ";
         }
-        delete tree;
+        scene_query = scene_query + "scn.latitude = {inp_lat}";
+        is_started = true;
       }
-    }
-  }
 
-  //Cleanup
-  if (results) delete results;
-  if (name_param) delete name_param;
-  if (lat_param) delete lat_param;
-  if (long_param) delete long_param;
-  if (key_param) delete key_param;
-
-  //Release the Redis Mutex Lock
-  if (config->get_atomictransactions()) {
-    release_mutex_lock(obj_msg->get_scene(0)->get_key());
-  }
-  return ret_val;
-}
-
-//Query for scene data
-std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
-  ResultsIteratorInterface *results = NULL;
-  Neo4jQueryParameterInterface *name_param = NULL;
-  Neo4jQueryParameterInterface *lat_param = NULL;
-  Neo4jQueryParameterInterface *long_param = NULL;
-  Neo4jQueryParameterInterface *key_param = NULL;
-  Neo4jQueryParameterInterface *dist_param = NULL;
-  processor_logging->debug("Processing Scene Retrieve message");
-  bool is_started = false;
-  ret_val = "";
-
-  if (obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0 && obj_msg->get_scene(0)->get_key().empty()) {
-    processor_logging->error("No fields found in get message");
-    ret_val = "-1";
-  }
-  else {
-    //Set up the Cypher Query for scene retrieval
-    std::string scene_query = "MATCH (scn:Scene";
-    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
-
-      scene_query = scene_query + " {name: {inp_name}";
-      is_started = true;
-    }
-
-    if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
-      if (is_started) {
-        scene_query = scene_query + ", ";
+      if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
+        if (is_started) {
+          scene_query = scene_query + ", ";
+        }
+        scene_query = scene_query + "scn.longitude = {inp_long}";
+        is_started = true;
       }
-      else {
-        scene_query = scene_query + " {";
-      }
-      scene_query = scene_query + "key: {inp_key}";
-      is_started = true;
-    }
 
-    if (is_started) {
-      scene_query = scene_query + "}";
-    }
+      scene_query = scene_query + " RETURN scn";
 
-    scene_query = scene_query + ")";
+      processor_logging->debug("Executing Query:");
+      processor_logging->debug(scene_query);
 
-    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0 ) ) {
-      //Query for distance
-      //Assumes distance supplied is in meters
-      //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
-      std::string where_clause = "WHERE ( 12742000 * asin((((sin((scn.longitude -"
-                                  " {inp_long}) / 2) ^ 2) + (cos({inp_long}) * "
-                                  "cos(scn.longitude) * (sin((scn.latitude - "
-                                  "{inp_lat}) / 2) ^ 2))) ^ (1/2)))) < {inp_distance}";
-      scene_query = scene_query + where_clause;
-    }
-
-    scene_query = scene_query + " RETURN scn";
-
-    processor_logging->debug("Executing Query:");
-    processor_logging->debug(scene_query);
-
-    //Set up the query parameters for scene retrieval
-    std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
+      //Set up the query parameters for scene update
+      std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
       std::string qkey = obj_msg->get_scene(0)->get_key();
       key_param = neo_factory->get_neo4j_query_parameter(qkey);
       processor_logging->debug("Key:");
       processor_logging->debug(qkey);
       scene_params.emplace("inp_key", key_param);
-    }
-    if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
-      std::string qname = obj_msg->get_scene(0)->get_name();
-      name_param = neo_factory->get_neo4j_query_parameter(qname);
-      processor_logging->debug("Name:");
-      processor_logging->debug(qname);
-      scene_params.emplace("inp_name", name_param);
-    }
-    if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0) ) {
-      double qlat = obj_msg->get_scene(0)->get_latitude();
-      lat_param = neo_factory->get_neo4j_query_parameter(qlat);
-      scene_params.emplace("inp_lat", lat_param);
-      double qlong = obj_msg->get_scene(0)->get_longitude();
-      long_param = neo_factory->get_neo4j_query_parameter(qlong);
-      scene_params.emplace("inp_long", long_param);
-      double qdist = obj_msg->get_scene(0)->get_distance();
-      dist_param = neo_factory->get_neo4j_query_parameter(qdist);
-      scene_params.emplace("inp_distance", dist_param);
-    }
+      if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
+        std::string qname = obj_msg->get_scene(0)->get_name();
+        name_param = neo_factory->get_neo4j_query_parameter(qname);
+        processor_logging->debug("Name:");
+        processor_logging->debug(qname);
+        scene_params.emplace("inp_name", name_param);
+      }
+      if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0) ) {
+        double qlat = obj_msg->get_scene(0)->get_latitude();
+        lat_param = neo_factory->get_neo4j_query_parameter(qlat);
+        scene_params.emplace("inp_lat", lat_param);
+      }
+      if ( !(obj_msg->get_scene(0)->get_longitude() == -9999.0) ) {
+        double qlong = obj_msg->get_scene(0)->get_longitude();
+        long_param = neo_factory->get_neo4j_query_parameter(qlong);
+        scene_params.emplace("inp_long", long_param);
+      }
 
-    //Execute the query
-    try {
-      results = n->execute(scene_query, scene_params);
+      //Execute the query
+      ResultTreeInterface *tree = NULL;
+      DbObjectInterface* obj = NULL;
+      try {
+        results = n->execute(scene_query, scene_params);
+      }
+      catch (std::exception& e) {
+        if (obj) delete obj;
+        if (tree) delete tree;
+        processor_logging->error("Error running Query:");
+        processor_logging->error(e.what());
+        ret_val = "-1";
+      }
+
       if (!results) {
         processor_logging->error("No results returned from update query");
         ret_val = "-1";
       }
       else {
-        //Pull results and return
-        Scene sc;
-        sc.set_err_code(NO_ERROR);
-        sc.set_msg_type(SCENE_GET);
-        sc.set_transaction_id(obj_msg->get_transaction_id());
-        ResultTreeInterface *tree = results->next();
-        int num_results = 0;
-        while (true) {
-
-          SceneData *data = new SceneData;
-
-          //Get the first DB Object (Node)
-          DbObjectInterface* obj = tree->get(0);
-          processor_logging->debug("Query Result:");
-          processor_logging->debug(obj->to_string());
-
-          //Leave the loop if we don't have anything in this result tree
-          if ( !(obj->is_node()) && !(obj->is_edge()) ) break;
-          num_results=num_results+1;
-
-          //Pull the node properties and assign them to the new
-          //Scene object
-          DbMapInterface* map = obj->properties();
-          if (map->element_exists("key")) {
-            data->set_key( map->get_string_element("key") );
+        ret_val = qkey;
+        tree = results->next();
+        if (tree) {
+          obj = tree->get(0);
+          if (obj) {
+            if ( !(obj->is_node()) ) ret_val = "-2";
+            delete obj;
           }
-          if (map->element_exists("name")) {
-            data->set_name( map->get_string_element("name") );
-          }
-          if (map->element_exists("latitude")) {
-            data->set_latitude( map->get_float_element("latitude") );
-          }
-          if (map->element_exists("longitude")) {
-            data->set_longitude( map->get_float_element("longitude") );
-          }
-
-          sc.add_scene(data);
-
-          //Iterate to the next result
-          if (tree) delete tree;
-          if (obj) delete obj;
-          if (map) delete map;
-          tree = results->next();
-        }
-        if (num_results>0) {
-          ret_val = sc.to_protobuf();
-        }
-        else {
-          ret_val = "-2";
+          delete tree;
         }
       }
     }
-    catch (std::exception& e) {
-      processor_logging->error("Error running Query:");
-      processor_logging->error(e.what());
+
+    //Cleanup
+    if (results) delete results;
+    if (name_param) delete name_param;
+    if (lat_param) delete lat_param;
+    if (long_param) delete long_param;
+    if (key_param) delete key_param;
+
+    //Release the Redis Mutex Lock
+    if (config->get_atomictransactions()) {
+      release_mutex_lock(obj_msg->get_scene(0)->get_key());
+    }
+    return ret_val;
+  }
+  ret_val = "-1";
+  return ret_val;
+}
+
+//Query for scene data
+std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
+  if (obj_msg->num_scenes() > 0) {
+    ResultsIteratorInterface *results = NULL;
+    Neo4jQueryParameterInterface *name_param = NULL;
+    Neo4jQueryParameterInterface *lat_param = NULL;
+    Neo4jQueryParameterInterface *long_param = NULL;
+    Neo4jQueryParameterInterface *key_param = NULL;
+    Neo4jQueryParameterInterface *dist_param = NULL;
+    processor_logging->debug("Processing Scene Retrieve message");
+    bool is_started = false;
+    ret_val = "";
+
+    if (obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0 && obj_msg->get_scene(0)->get_key().empty()) {
+      processor_logging->error("No fields found in get message");
       ret_val = "-1";
     }
+    else {
+      //Set up the Cypher Query for scene retrieval
+      std::string scene_query = "MATCH (scn:Scene";
+      if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
+
+        scene_query = scene_query + " {name: {inp_name}";
+        is_started = true;
+      }
+
+      if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
+        if (is_started) {
+          scene_query = scene_query + ", ";
+        }
+        else {
+          scene_query = scene_query + " {";
+        }
+        scene_query = scene_query + "key: {inp_key}";
+        is_started = true;
+      }
+
+      if (is_started) {
+        scene_query = scene_query + "}";
+      }
+
+      scene_query = scene_query + ")";
+
+      if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0 ) ) {
+        //Query for distance
+        //Assumes distance supplied is in meters
+        //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
+        std::string where_clause = "WHERE ( 12742000 * asin((((sin((scn.longitude -"
+                                    " {inp_long}) / 2) ^ 2) + (cos({inp_long}) * "
+                                    "cos(scn.longitude) * (sin((scn.latitude - "
+                                    "{inp_lat}) / 2) ^ 2))) ^ (1/2)))) < {inp_distance}";
+        scene_query = scene_query + where_clause;
+      }
+
+      scene_query = scene_query + " RETURN scn";
+
+      processor_logging->debug("Executing Query:");
+      processor_logging->debug(scene_query);
+
+      //Set up the query parameters for scene retrieval
+      std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
+      if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
+        std::string qkey = obj_msg->get_scene(0)->get_key();
+        key_param = neo_factory->get_neo4j_query_parameter(qkey);
+        processor_logging->debug("Key:");
+        processor_logging->debug(qkey);
+        scene_params.emplace("inp_key", key_param);
+      }
+      if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
+        std::string qname = obj_msg->get_scene(0)->get_name();
+        name_param = neo_factory->get_neo4j_query_parameter(qname);
+        processor_logging->debug("Name:");
+        processor_logging->debug(qname);
+        scene_params.emplace("inp_name", name_param);
+      }
+      if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0) ) {
+        double qlat = obj_msg->get_scene(0)->get_latitude();
+        lat_param = neo_factory->get_neo4j_query_parameter(qlat);
+        scene_params.emplace("inp_lat", lat_param);
+        double qlong = obj_msg->get_scene(0)->get_longitude();
+        long_param = neo_factory->get_neo4j_query_parameter(qlong);
+        scene_params.emplace("inp_long", long_param);
+        double qdist = obj_msg->get_scene(0)->get_distance();
+        dist_param = neo_factory->get_neo4j_query_parameter(qdist);
+        scene_params.emplace("inp_distance", dist_param);
+      }
+
+      //Execute the query
+      try {
+        results = n->execute(scene_query, scene_params);
+        if (!results) {
+          processor_logging->error("No results returned from update query");
+          ret_val = "-1";
+        }
+        else {
+          //Pull results and return
+          Scene sc;
+          sc.set_err_code(NO_ERROR);
+          sc.set_msg_type(SCENE_GET);
+          sc.set_transaction_id(obj_msg->get_transaction_id());
+          ResultTreeInterface *tree = results->next();
+          int num_results = 0;
+          while (true) {
+
+            SceneData *data = new SceneData;
+
+            //Get the first DB Object (Node)
+            DbObjectInterface* obj = tree->get(0);
+            processor_logging->debug("Query Result:");
+            processor_logging->debug(obj->to_string());
+
+            //Leave the loop if we don't have anything in this result tree
+            if ( !(obj->is_node()) && !(obj->is_edge()) ) break;
+            num_results=num_results+1;
+
+            //Pull the node properties and assign them to the new
+            //Scene object
+            DbMapInterface* map = obj->properties();
+            if (map->element_exists("key")) {
+              data->set_key( map->get_string_element("key") );
+            }
+            if (map->element_exists("name")) {
+              data->set_name( map->get_string_element("name") );
+            }
+            if (map->element_exists("latitude")) {
+              data->set_latitude( map->get_float_element("latitude") );
+            }
+            if (map->element_exists("longitude")) {
+              data->set_longitude( map->get_float_element("longitude") );
+            }
+
+            sc.add_scene(data);
+
+            //Iterate to the next result
+            if (tree) delete tree;
+            if (obj) delete obj;
+            if (map) delete map;
+            tree = results->next();
+          }
+          if (num_results>0) {
+            ret_val = sc.to_protobuf();
+          }
+          else {
+            ret_val = "-2";
+          }
+        }
+      }
+      catch (std::exception& e) {
+        processor_logging->error("Error running Query:");
+        processor_logging->error(e.what());
+        ret_val = "-1";
+      }
+    }
+    if (results) delete results;
+    if (name_param) delete name_param;
+    if (lat_param) delete lat_param;
+    if (long_param) delete long_param;
+    if (key_param) delete key_param;
+    if (dist_param) delete dist_param;
+    return ret_val;
   }
-  if (results) delete results;
-  if (name_param) delete name_param;
-  if (lat_param) delete lat_param;
-  if (long_param) delete long_param;
-  if (key_param) delete key_param;
-  if (dist_param) delete dist_param;
+  ret_val = "-1";
   return ret_val;
 }
 
 //Delete a scene
 std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
-  ret_val = "";
-  processor_logging->debug("Processing Scene Delete message");
-  ResultsIteratorInterface *results = NULL;
-  Neo4jQueryParameterInterface *key_param = NULL;
+  if (obj_msg->num_scenes() > 0) {
+    ret_val = "";
+    processor_logging->debug("Processing Scene Delete message");
+    ResultsIteratorInterface *results = NULL;
+    Neo4jQueryParameterInterface *key_param = NULL;
 
-  if ( obj_msg->get_scene(0)->get_key().empty() ) {
-    processor_logging->error("No fields found in delete message");
-    return "-1";
-  }
-  else {
-    //Set up the Cypher Query for scene delete
-    std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn";
-    processor_logging->debug("Executing Delete Query");
-
-    //Set up the query parameters for scene delete
-    std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    std::string qkey = obj_msg->get_scene(0)->get_key();
-    key_param = neo_factory->get_neo4j_query_parameter(qkey);
-    processor_logging->debug("Key:");
-    processor_logging->debug(qkey);
-    scene_params.emplace("inp_key", key_param);
-
-    //Execute the query
-    ResultTreeInterface *tree = NULL;
-    DbObjectInterface* obj = NULL;
-    try {
-      results = n->execute(scene_query, scene_params);
-    }
-    catch (std::exception& e) {
-      processor_logging->error("Error running Query:");
-      processor_logging->error(e.what());
-      ret_val = "-1";
-    }
-    if (!results) {
-      processor_logging->error("No results returned from delete query");
-      ret_val = "-1";
+    if ( obj_msg->get_scene(0)->get_key().empty() ) {
+      processor_logging->error("No fields found in delete message");
+      return "-1";
     }
     else {
-      ret_val = qkey;
-      tree = results->next();
-      if (tree) {
-        obj = tree->get(0);
-        if (obj) {
-          if ( !(obj->is_node()) ) ret_val = "-2";
-          delete obj;
+      //Set up the Cypher Query for scene delete
+      std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn";
+      processor_logging->debug("Executing Delete Query");
+
+      //Set up the query parameters for scene delete
+      std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
+      std::string qkey = obj_msg->get_scene(0)->get_key();
+      key_param = neo_factory->get_neo4j_query_parameter(qkey);
+      processor_logging->debug("Key:");
+      processor_logging->debug(qkey);
+      scene_params.emplace("inp_key", key_param);
+
+      //Execute the query
+      ResultTreeInterface *tree = NULL;
+      DbObjectInterface* obj = NULL;
+      try {
+        results = n->execute(scene_query, scene_params);
+      }
+      catch (std::exception& e) {
+        processor_logging->error("Error running Query:");
+        processor_logging->error(e.what());
+        ret_val = "-1";
+      }
+      if (!results) {
+        processor_logging->error("No results returned from delete query");
+        ret_val = "-1";
+      }
+      else {
+        ret_val = qkey;
+        tree = results->next();
+        if (tree) {
+          obj = tree->get(0);
+          if (obj) {
+            if ( !(obj->is_node()) ) ret_val = "-2";
+            delete obj;
+          }
+          delete tree;
         }
-        delete tree;
       }
     }
+    if (results) delete results;
+    if (key_param) delete key_param;
+    return ret_val;
   }
-  if (results) delete results;
-  if (key_param) delete key_param;
+  ret_val = "-1";
   return ret_val;
 }
 
