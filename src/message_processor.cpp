@@ -61,24 +61,29 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     double qlat;
     double qlong;
     processor_logging->info("Scenes Found in creation message");
-
-    //Generate a new key
     UuidContainer id_container;
-    id_container = ugen->generate();
-    if (!id_container.err.empty()) {
-      uuid_logging->error(id_container.err);
-    }
-    if (id_container.id.empty()) {
-      processor_logging->error("Unknown error generating new key for scene");
-      return "-1";
-    }
 
     //Set up the Cypher Query for scene creation
     std::string scene_query = "CREATE (scn:Scene {key: {inp_key}";
 
     //Set up the query parameters for scene creation
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
-    key_param = neo_factory->get_neo4j_query_parameter(id_container.id);
+    if (obj_msg->get_scene(0)->has_key()) {
+      //Use an existing key from the input message
+      key_param = neo_factory->get_neo4j_query_parameter(obj_msg->get_scene(0)->get_key());
+    }
+    else {
+      //Generate a new key
+      id_container = ugen->generate();
+      if (!id_container.err.empty()) {
+        uuid_logging->error(id_container.err);
+      }
+      if (id_container.id.empty()) {
+        processor_logging->error("Unknown error generating new key for scene");
+        return "-1";
+      }
+      key_param = neo_factory->get_neo4j_query_parameter(id_container.id);
+    }
     processor_logging->info("Key:");
     processor_logging->info(id_container.id);
     scene_params.emplace("inp_key", key_param);
