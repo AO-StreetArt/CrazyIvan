@@ -210,15 +210,15 @@ void my_signal_handler(int s){
         std::string resp_str = "";
 
         //Convert the OMQ message into a string to be passed on the event
-        std::string req_string = zmqi->recv();
-        req_string = ltrim(req_string);
-        const char * req_ptr = req_string.c_str();
+        //std::string req_string = zmqi->recv();
+        //req_string = ltrim(req_string);
+        char * req_ptr = zmqi->crecv();
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
 
         try {
           new_proto.Clear();
-          new_proto.ParseFromString(req_string);
+          new_proto.ParseFromString(req_ptr);
           translated_object = new Scene (new_proto);
           msg_type = new_proto.message_type();
           translated_object->print();
