@@ -7,6 +7,9 @@
 #ifndef CONFIG_MANAGER
 #define CONFIG_MANAGER
 
+const int PROTO_FORMAT = 0;
+const int JSON_FORMAT = 1;
+
 #include <string>
 #include <fstream>
 #include <cstdlib>
@@ -54,6 +57,7 @@ ServiceInterface *s = NULL;
 std::string DB_ConnStr;
 std::string OMQ_IBConnStr;
 std::vector<RedisConnChain> RedisConnectionList;
+int format_type;
 bool StampTransactionId;
 bool AtomicTransactions;
 
@@ -82,7 +86,7 @@ public:
     DB_ConnStr="neo4j://neo4j:neo4j@localhost:7687"; OMQ_IBConnStr="tcp://*:5555";\
       isConsulActive=false;StampTransactionId=false;AtomicTransactions=false;\
         node_id=instance_id;consul_factory=new ConsulComponentFactory;\
-          props_factory = new PropertyReaderFactory;}
+          props_factory = new PropertyReaderFactory;format_type=-1;}
   ~ConfigurationManager();
 
   //Populate the configuration variables
@@ -94,6 +98,7 @@ public:
   std::vector<RedisConnChain> get_redisconnlist() {return RedisConnectionList;}
   bool get_transactionidsactive() {return StampTransactionId;}
   bool get_atomictransactions() {return AtomicTransactions;}
+  int get_formattype() {return format_type;}
 
   //Get the Current Node ID
   std::string get_nodeid() {return node_id;}

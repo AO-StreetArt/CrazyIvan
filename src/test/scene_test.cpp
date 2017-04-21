@@ -56,6 +56,29 @@ int main() {
 
   //Transform tests
 
+  //JSON tests
+  rapidjson::Document d;
+
+  std::string json_string = scene1.to_json();
+  const char * json_cstr = json_string.c_str();
+  std::cout << json_cstr << std::endl;
+
+  d.Parse(json_cstr);
+  Scene jsonScene (d);
+  jsonScene.print();
+
+  assert( jsonScene.get_msg_type() == 1 );
+  assert( jsonScene.get_err_code() == 10 );
+  assert( jsonScene.get_transaction_id() == "ghijklmno" );
+  assert( jsonScene.get_err() == "Testing" );
+
+  assert( jsonScene.get_scene(0)->get_key() == "abcdef" );
+  assert( jsonScene.get_scene(0)->get_latitude() == 137.0034 );
+  assert( jsonScene.get_scene(0)->get_longitude() == 89.443 );
+  assert( jsonScene.get_scene(0)->num_devices() == 2 );
+  assert( jsonScene.get_scene(0)->get_device(0)->get_key() == "xyzabcdef1" );
+  assert( jsonScene.get_scene(0)->get_device(1)->get_key() == "xyzabcdef2" );
+
   //Protocol Buffer tests
   std::string proto_string = scene1.to_protobuf();
   protoScene::SceneList new_proto;
