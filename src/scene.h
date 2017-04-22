@@ -54,7 +54,6 @@ const rapidjson::Value *rotation_val;
 public:
   Transform();
   Transform(protoScene::SceneList_Transformation data);
-  Transform(const rapidjson::Value *val);
   ~Transform() {}
   double translation(int index) const {return tran[index];}
   void translate(int index, double amt) {tran[index] = tran[index] + amt;tran_flag=true;}
@@ -88,15 +87,16 @@ public:
 class UserDevice {
 Transform *trans = NULL;
 std::string key = "";
+const char * my_key;
 bool trns_flag = false;
 const rapidjson::Value *key_val;
 const rapidjson::Value *transform_val;
 public:
   UserDevice(protoScene::SceneList_UserDevice scn_data);
-  UserDevice(const rapidjson::Value& val);
   UserDevice() {trns_flag=false;}
   UserDevice(Transform *transform) {trans = transform;trns_flag=true;}
   UserDevice(std::string new_key) {key = new_key;trns_flag=false;}
+  UserDevice(const char * new_key) {my_key=new_key;key.assign(my_key);}
   UserDevice(std::string new_key, Transform *transform) {key = new_key;trans = transform;trns_flag=true;}
   UserDevice(const UserDevice &ud);
   ~UserDevice() {if (trns_flag) {delete trans;}}
@@ -127,6 +127,7 @@ bool trns_flag = false;
 std::vector<UserDevice*> devices;
 Transform* scene_transform;
 const rapidjson::Value *key_val;
+const rapidjson::Value *scene_val;
 const rapidjson::Value *name_val;
 const rapidjson::Value *lat_val;
 const rapidjson::Value *long_val;
@@ -136,7 +137,6 @@ const rapidjson::Value *devices_val;
 public:
   SceneData() {}
   SceneData(protoScene::SceneList_Scene scn_data);
-  SceneData(const rapidjson::Value& val);
   SceneData(const SceneData& sd);
   ~SceneData() {if (trns_flag) {delete scene_transform;} for (unsigned int i=0; i<devices.size();i++ ) {if (devices[i]) {delete devices[i];}}}
   //Setters
@@ -162,7 +162,7 @@ public:
   //Transform
   Transform* get_scene_transform() const {return scene_transform;}
   bool has_transform() const {return trns_flag;}
-  void set_transform(Transform *trns) {scene_transform=trns;}
+  void set_transform(Transform *trns) {scene_transform=trns;trns_flag=true;}
 
   //Print
   inline void print() {
@@ -190,7 +190,6 @@ const rapidjson::Value *ms_type_val;
 const rapidjson::Value *err_code_val;
 const rapidjson::Value *err_str_val;
 const rapidjson::Value *tran_id_val;
-const rapidjson::Value *scenes_val;
 const rapidjson::Value *records_val;
 std::string ret_string = "";
 const char* ret_val;

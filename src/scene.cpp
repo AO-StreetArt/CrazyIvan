@@ -50,48 +50,6 @@ Transform::Transform(protoScene::SceneList_Transformation data) {
   }
 }
 
-Transform::Transform(const rapidjson::Value *val) {
-  obj_logging->debug("Converting Transform Data from Rapidjson Value");
-
-  tran_flag=false;
-  rot_flag=false;
-  tran.push_back(0.0);
-  tran.push_back(0.0);
-  tran.push_back(0.0);
-  rot.push_back(0.0);
-  rot.push_back(0.0);
-  rot.push_back(0.0);
-
-  if (val->HasMember("translation")) {
-    translation_val = &((*val)["translation"]);
-    if (translation_val->IsArray()) {
-      if (translation_val->Size() == 3) {
-        obj_logging->debug("Translation List found");
-        tran[0] = translation_val[0].GetDouble();
-        tran[1] = translation_val[1].GetDouble();
-        tran[2] = translation_val[2].GetDouble();
-        tran_flag=true;
-      }
-      else {obj_logging->error("Translation array does not have 3 elements");}
-    }
-    else {obj_logging->error("Translation element is not an array");}
-  }
-  if (val->HasMember("rotation")) {
-    rotation_val = &((*val)["rotation"]);
-    if (rotation_val->IsArray()) {
-      if (rotation_val->Size() == 3) {
-        obj_logging->debug("Rotation List found");
-        rot[0] = rotation_val[0].GetDouble();
-        rot[1] = rotation_val[1].GetDouble();
-        rot[2] = rotation_val[2].GetDouble();
-        rot_flag=true;
-      }
-      else {obj_logging->error("Rotation array does not have 3 elements");}
-    }
-    else {obj_logging->error("Rotation element is not an array");}
-  }
-}
-
 void Transform::add_transform(Transform &t, bool inverted) {
   if (t.has_translation()) {
     if (inverted) {
@@ -134,23 +92,6 @@ UserDevice::UserDevice(protoScene::SceneList_UserDevice ud_data) {
     trans = new Transform ( ud_data.transform() );
 		trns_flag=true;
     obj_logging->debug("Device Transform added");
-  }
-}
-
-UserDevice::UserDevice(const rapidjson::Value& val) {
-  if (val.IsObject()) {
-    obj_logging->info("Creating User Device from Rapidjson Value");
-    if (val.HasMember("key")) {
-      obj_logging->debug("Key found");
-      key_val = &val["key"];
-      key = key_val->GetString();
-      obj_logging->debug(key);
-    }
-    if (val.HasMember("transform")) {
-      obj_logging->debug("Transform found");
-      transform_val = &val["transform"];
-      trans = new Transform(transform_val);
-    }
   }
 }
 
@@ -245,60 +186,6 @@ SceneData::SceneData(protoScene::SceneList_Scene scn_data) {
       obj_logging->debug("User Device added");
     }
   }
-}
-
-SceneData::SceneData(const rapidjson::Value& val) {
-  obj_logging->info("Creating Scene Data from Rapidjson Value");
-  if (val.IsObject()) {
-    if (val.HasMember("key")) {
-      obj_logging->debug("Key found");
-      key_val = &val["key"];
-      key = key_val->GetString();
-      obj_logging->debug(key);
-    }
-    if (val.HasMember("name")) {
-      obj_logging->debug("Name found");
-      name_val = &val["name"];
-      name = name_val->GetString();
-      obj_logging->debug(name);
-		}
-    if (val.HasMember("latitude")) {
-      obj_logging->debug("Latitude found");
-      lat_val = &val["latitude"];
-      latitude = lat_val->GetDouble();
-      obj_logging->debug(latitude);
-		}
-    else {latitude = -9999.0;}
-    if (val.HasMember("longitude")) {
-      obj_logging->debug("Longitude found");
-      long_val = &val["longitude"];
-      longitude = long_val->GetDouble();
-      obj_logging->debug(latitude);
-		}
-    else {longitude = -9999.0;}
-    if (val.HasMember("distance")) {
-      obj_logging->debug("Distance found");
-      dist_val = &val["distance"];
-      distance = dist_val->GetDouble();
-      obj_logging->debug(distance);
-		}
-    else {distance = -9999.0;}
-    if (val.HasMember("transform")) {
-      obj_logging->debug("Transform found");
-      transform_val = &val["transform"];
-      scene_transform = new Transform(transform_val);
-    }
-    if (val.HasMember("devices")) {
-      devices_val = &val["devices"];
-      if (devices_val->IsArray()) {
-        obj_logging->debug("Device List found");
-        for (rapidjson::SizeType i = 0; i < devices_val->Size();i++) {
-          devices.push_back(new UserDevice(devices_val[i]));
-        }
-      }
-    }
-  }
-
 }
 
 //Constructor accepting Protocol Buffer
@@ -437,37 +324,144 @@ std::string Scene::to_protobuf() {
 Scene::Scene(const rapidjson::Document& d) {
   obj_logging->info("Creating Scene from Rapidjson Document");
   if (d.IsObject()) {
-    if (d.HasMember("msg_type")) {
+    rapidjson::Value::ConstMemberIterator msgtype_iter = d.FindMember("msg_type");
+    if (msgtype_iter != d.MemberEnd()) {
       obj_logging->debug("Message Type found");
-      ms_type_val = &d["msg_type"];
-      msg_type = ms_type_val->GetInt();
+      msg_type = msgtype_iter->value.GetInt();
     }
-    if (d.HasMember("transaction_id")) {
+    rapidjson::Value::ConstMemberIterator tranid_iter = d.FindMember("transaction_id");
+    if (tranid_iter != d.MemberEnd()) {
       obj_logging->debug("Transaction ID found");
-      tran_id_val = &d["transaction_id"];
-      transaction_id = tran_id_val->GetString();
-		}
-    if (d.HasMember("err_code")) {
-      obj_logging->debug("Error Code found");
-      err_code_val = &d["err_code"];
-      err_code = err_code_val->GetInt();
+      transaction_id = tranid_iter->value.GetString();
     }
-    if (d.HasMember("err_msg")) {
+    rapidjson::Value::ConstMemberIterator errcode_iter = d.FindMember("err_code");
+    if (errcode_iter != d.MemberEnd()) {
+      obj_logging->debug("Error Code found");
+      err_code = errcode_iter->value.GetInt();
+    }
+    rapidjson::Value::ConstMemberIterator errmsg_iter = d.FindMember("err_msg");
+    if (errmsg_iter != d.MemberEnd()) {
       obj_logging->debug("Error Message found");
-      err_str_val = &d["err_msg"];
-      err_msg = err_str_val->GetString();
-		}
-    if (d.HasMember("num_records")) {
+      err_msg = errmsg_iter->value.GetString();
+    }
+    rapidjson::Value::ConstMemberIterator maxrcrd_iter = d.FindMember("num_records");
+    if (maxrcrd_iter != d.MemberEnd()) {
       obj_logging->debug("Max Records found");
-      records_val = &d["num_records"];
-      num_records = records_val->GetInt();
+      num_records = maxrcrd_iter->value.GetInt();
     }
     if (d.HasMember("scenes")) {
       obj_logging->debug("Scene List found");
-      scenes_val = &d["scenes"];
-      if (scenes_val->IsArray()) {
-        for (rapidjson::SizeType i = 0; i < scenes_val->Size();i++) {
-          data.push_back(new SceneData(scenes_val[i]));
+      const rapidjson::Value& scenes_val = d["scenes"];
+      if (scenes_val.IsArray()) {
+        for (auto& itr : scenes_val.GetArray()) {
+          SceneData *scd = new SceneData;
+          rapidjson::Value::ConstMemberIterator key_iter = itr.FindMember("key");
+          if (key_iter != itr.MemberEnd()) {
+            obj_logging->debug("Key found");
+            scd->set_key( key_iter->value.GetString() );
+          }
+          else {obj_logging->debug("Key not found");}
+          rapidjson::Value::ConstMemberIterator name_iter = itr.FindMember("name");
+          if (name_iter != itr.MemberEnd()) {
+            obj_logging->debug("Name found");
+            scd->set_name( name_iter->value.GetString() );
+          }
+          rapidjson::Value::ConstMemberIterator lat_iter = itr.FindMember("latitude");
+          if (lat_iter != itr.MemberEnd()) {
+            obj_logging->debug("Latitude found");
+            scd->set_latitude( lat_iter->value.GetDouble() );
+          }
+          rapidjson::Value::ConstMemberIterator long_iter = itr.FindMember("longitude");
+          if (long_iter != itr.MemberEnd()) {
+            obj_logging->debug("Longitude found");
+            scd->set_longitude( long_iter->value.GetDouble() );
+          }
+          rapidjson::Value::ConstMemberIterator dist_iter = itr.FindMember("distance");
+          if (dist_iter != itr.MemberEnd()) {
+            obj_logging->debug("Distance found");
+            scd->set_distance( dist_iter->value.GetDouble() );
+          }
+
+          //Process Scene Transform
+          if (itr.HasMember("transform")) {
+            obj_logging->debug("Transform found");
+            Transform *new_scene_transform = new Transform;
+            const rapidjson::Value& scene_trn_val = itr["transform"];
+            for (rapidjson::Value::ConstMemberIterator scn_trns_itr = scene_trn_val.MemberBegin(); scn_trns_itr != scene_trn_val.MemberEnd(); ++scn_trns_itr) {
+              const char * name_cstring = scn_trns_itr->name.GetString();
+              obj_logging->debug("Processing Transform Member:");
+              obj_logging->debug(name_cstring);
+              if ( strcmp(name_cstring, "translation") == 0 ) {
+                obj_logging->debug("Translation found");
+                const rapidjson::Value& translation_val = scn_trns_itr->value;
+                int i = 0;
+                for (auto& translation_itr : translation_val.GetArray()) {
+                  new_scene_transform->translate(i, translation_itr.GetDouble());
+                  ++i;
+                }
+              }
+              else if ( strcmp(name_cstring, "rotation") == 0 ) {
+                obj_logging->debug("Rotation found");
+                const rapidjson::Value& rotation_val = scn_trns_itr->value;
+                int i = 0;
+                for (auto& rotation_itr : rotation_val.GetArray()) {
+                  new_scene_transform->rotate(i, rotation_itr.GetDouble());
+                  ++i;
+                }
+              }
+            }
+            scd->set_transform(new_scene_transform);
+          }
+
+          //Process User Device List, including transforms
+          if (itr.HasMember("devices")) {
+            obj_logging->debug("Device List found");
+            const rapidjson::Value& device_list_val = itr["devices"];
+            for (auto& device_itr : device_list_val.GetArray()) {
+
+              //Process the device key
+              rapidjson::Value::ConstMemberIterator ud_key_iter = device_itr.FindMember("key");
+              if (ud_key_iter != device_itr.MemberEnd()) {
+                obj_logging->debug("UD Key found");
+                UserDevice *new_device = new UserDevice(ud_key_iter->value.GetString());
+
+                //Process the device transform
+                if (device_itr.HasMember("transform")) {
+                  obj_logging->debug("UD Transform found");
+                  Transform *new_ud_transform = new Transform;
+                  const rapidjson::Value& ud_trn_val = device_itr["transform"];
+                  for (rapidjson::Value::ConstMemberIterator ud_trns_itr = ud_trn_val.MemberBegin(); ud_trns_itr != ud_trn_val.MemberEnd(); ++ud_trns_itr) {
+                    const char * udname_cstring = ud_trns_itr->name.GetString();
+                    obj_logging->debug("Processing Transform Member:");
+                    obj_logging->debug(udname_cstring);
+                    if ( strcmp(udname_cstring, "translation") == 0 ) {
+                      obj_logging->debug("Translation found");
+                      const rapidjson::Value& udtranslation_val = ud_trns_itr->value;
+                      int i = 0;
+                      for (auto& translation_itr : udtranslation_val.GetArray()) {
+                        new_ud_transform->translate(i, translation_itr.GetDouble());
+                        ++i;
+                      }
+                    }
+                    else if ( strcmp(udname_cstring, "rotation") == 0 ) {
+                      obj_logging->debug("Rotation found");
+                      const rapidjson::Value& udrotation_val = ud_trns_itr->value;
+                      int i = 0;
+                      for (auto& rotation_itr : udrotation_val.GetArray()) {
+                        new_ud_transform->rotate(i, rotation_itr.GetDouble());
+                        ++i;
+                      }
+                    }
+                  }
+                  new_device->set_transform(new_ud_transform);
+                }
+                scd->add_device(new_device);
+
+              }
+            }
+          }
+
+          add_scene(scd);
         }
       }
     }
