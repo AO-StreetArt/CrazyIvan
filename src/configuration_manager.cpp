@@ -43,6 +43,17 @@ bool ConfigurationManager::configure_from_file (std::string file_path)
     config_logging->info("Inbound 0MQ Connection:");
     config_logging->info(OMQ_IBConnStr);
   }
+  if (props->opt_exist("Data_Format_Type")) {
+    std::string param_value = props->get_opt("Data_Format_Type");
+    if (param_value == "1" || param_value == "JSON" || param_value == "json") {
+      format_type = JSON_FORMAT;
+    }
+    else if (param_value == "0" || param_value == "Protobuf" || param_value == "protobuf") {
+      format_type = PROTO_FORMAT;
+    }
+    config_logging->info("Inbound 0MQ Connection:");
+    config_logging->info(OMQ_IBConnStr);
+  }
   if (props->opt_exist("StampTransactionId")) {
     if (props->get_opt("StampTransactionId") == "True") {
       StampTransactionId = true;
@@ -254,6 +265,16 @@ bool ConfigurationManager::configure_from_consul (std::string consul_path, std::
   }
   else {
     AtomicTransactions = false;
+  }
+
+  std::string format_type_str = get_consul_config_value("Data_Format_Type");
+  config_logging->debug("Data Format:");
+  config_logging->debug(format_type_str);
+  if (format_type_str == "JSON" || format_type_str == "Json" || format_type_str == "json" || format_type_str == "1") {
+    format_type = JSON_FORMAT;
+  }
+  else if (format_type_str == "ProtoBuf" || format_type_str == "Protobuf" || format_type_str == "protobuf" || format_type_str == "PROTOBUF" || format_type_str == "0") {
+    format_type = PROTO_FORMAT;
   }
 
   //Read from a set of global config values in consul

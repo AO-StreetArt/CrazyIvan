@@ -124,4 +124,4 @@ EXPOSE 12345
 EXPOSE 5000-5999
 
 #Build & Start up Crazy Ivan with script as entry point
-CMD ["/bin/bash"]
+CMD tail -f /dev/null

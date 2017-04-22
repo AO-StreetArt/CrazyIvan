@@ -422,7 +422,12 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             tree = results->next();
           }
           if (num_results>0) {
-            ret_val = sc.to_protobuf();
+            if (config->get_formattype() == PROTO_FORMAT) {
+              ret_val = sc.to_protobuf();
+            }
+            else if (config->get_formattype() == JSON_FORMAT) {
+              ret_val = sc.to_json();
+            }
           }
           else {
             ret_val = "-2";
@@ -511,8 +516,7 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
 //----------------------------------------------------------------------------//
 //-----------------------Strings & Serialization------------------------------//
 
-//Build a protocol buffer serialized string
-std::string MessageProcessor::build_proto_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id) {
+void MessageProcessor::build_response_scene(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id) {
   if (resp_scn) {delete resp_scn;resp_scn=NULL;}
   resp_scn = new Scene;
   //Set up the scene list
@@ -524,31 +528,37 @@ std::string MessageProcessor::build_proto_response(int msg_type, int err_code, s
   SceneData *data1 = new SceneData;
   data1->set_key(scene_id);
   resp_scn->add_scene(data1);
-  //Return the serialized string
-  return resp_scn->to_protobuf();
 }
 
 //Build a protocol buffer serialized string
-std::string MessageProcessor::build_proto_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, std::string dev_id, Transform &t) {
-  //Set up the scene list
-  if (resp_scn) {delete resp_scn;resp_scn=NULL;}
-  resp_scn = new Scene;
-  resp_scn->set_msg_type(msg_type);
-  resp_scn->set_err_code(err_code);
-  resp_scn->set_err_msg(err_msg);
-  resp_scn->set_transaction_id(tran_id);
-  //Set up the scene
-  SceneData *data1 = new SceneData;
-  data1->set_key(scene_id);
+void MessageProcessor::build_string_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, int msg_format_type) {
+  build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
+  //store the serialized string
+  if (msg_format_type == PROTO_FORMAT) {
+    proto_resp = resp_scn->to_protobuf();
+  }
+  else if (msg_format_type == JSON_FORMAT) {
+    proto_resp = resp_scn->to_json();
+  }
+}
+
+//Build a protocol buffer serialized string
+void MessageProcessor::build_string_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, std::string dev_id, Transform &t, int msg_format_type) {
+  build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
   //Set up the user device
   UserDevice *ud1 = new UserDevice;
-  ud1->set_key(dev_id);
   //Add the transformation and key data to the user device
+  ud1->set_key(dev_id);
   ud1->set_transform(&t);
-  data1->add_device(ud1);
-  resp_scn->add_scene(data1);
-  //Return the serialized string
-  return resp_scn->to_protobuf();
+  //Add the user device to the scene data
+  resp_scn->get_scene(0)->add_device(ud1);
+  //store the serialized string
+  if (msg_format_type == PROTO_FORMAT) {
+    proto_resp = resp_scn->to_protobuf();
+  }
+  else if (msg_format_type == JSON_FORMAT) {
+    proto_resp = resp_scn->to_json();
+  }
 }
 
 //----------------------------------------------------------------------------//
@@ -698,8 +708,8 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
 
   //Build a protocol buffer response
   processor_logging->debug("Creating Response message");
-  proto_resp = build_proto_response(SCENE_ENTER, current_err_code,\
-    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key());
+  build_string_response(SCENE_ENTER, current_err_code,\
+    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key(), config->get_formattype());
 
   if (registered_scenes) {
     delete registered_scenes;
@@ -749,8 +759,8 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
   }
   //Build a protocol buffer response
   processor_logging->debug("Creating Response message");
-  proto_resp = build_proto_response(SCENE_LEAVE, current_err_code,\
-    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key());
+  build_string_response(SCENE_LEAVE, current_err_code,\
+    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key(), config->get_formattype());
 
   release_mutex_lock(obj_msg->get_scene(0)->get_key());
   return proto_resp;
@@ -828,8 +838,8 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
 
   //Build a protocol buffer response
   processor_logging->debug("Creating Response message");
-  proto_resp = build_proto_response(DEVICE_ALIGN, current_err_code,\
-    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key());
+  build_string_response(DEVICE_ALIGN, current_err_code,\
+    current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key(), config->get_formattype());
 
   if (registered_scenes) {
     delete registered_scenes;

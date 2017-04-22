@@ -39,6 +39,9 @@ before_install:
   - git clone https://github.com/AO-StreetArt/DvsInterface.git
   - cd DvsInterface && sudo make install
   - sudo docker network create dvs
+  # Clone the repository for the python tests
+  - cd $TRAVIS_BUILD_DIR
+  - git clone https://github.com/AO-StreetArt/0-Meter.git
 install:
   - cd $TRAVIS_BUILD_DIR
   # Setup Consul
@@ -55,11 +58,7 @@ install:
   - sudo docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
   - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
   - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
-  # Clone the repository for the python tests
-  - cd $TRAVIS_BUILD_DIR
-  - git clone https://github.com/AO-StreetArt/CrazyIvan_ProtoBufferTests.git
-  # Compile the protocol buffer class for use with the Python tests
-  - protoc -I=/usr/local/include/dvs_interface --python_out=CrazyIvan_ProtoBufferTests/src/ /usr/local/include/dvs_interface/Scene.proto
+  - sudo docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type
 script:
   # Wait for some time to allow the docker instance to finish building
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
@@ -68,6 +67,6 @@ script:
   # Show the logs from the crazy ivan docker container
   - sudo docker logs crazyivan
   # Execute the Python Tests
-  - cd $TRAVIS_BUILD_DIR/CrazyIvan_ProtoBufferTests && ./run_tests.sh
+  - cd $TRAVIS_BUILD_DIR/0-Meter && python 0-meter.py scene_crt_schedule.xml
   # TO-DO: Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR

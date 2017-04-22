@@ -39,8 +39,9 @@ Scene *resp_scn = NULL;
 std::string create_uuid();
 void get_mutex_lock(std::string obj_key);
 void release_mutex_lock(std::string obj_key);
-std::string build_proto_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id);
-std::string build_proto_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, std::string dev_id, Transform &t);
+void build_response_scene(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id);
+void build_string_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, int msg_format_type);
+void build_string_response(int msg_type, int err_code, std::string err_msg, std::string tran_id, std::string scene_id, std::string dev_id, Transform &t, int msg_format_type);
 
 //------------------------------Ping & Kill-----------------------------------//
 
@@ -101,6 +102,10 @@ public:
   //Destructor
   ~MessageProcessor() {delete redis_locks;delete qh;}
 
+  //TO-DO: If we wrap this in a method that accepts a const char *
+  //TO-DO: and make this threadsafe, then we can turn this into an
+  //TO-DO: asynchronous HTTP Service
+
   //Process a message in the form of an Scene
   //In the case of a get message, return the retrieved document back to the main method
   //In the case of a create message, return the key of the created object back to the main method
@@ -144,6 +149,7 @@ public:
 
     return proto_resp;
   }
+
 };
 
 #endif

@@ -65,6 +65,12 @@ void my_signal_handler(int s){
     int main( int argc, char** argv )
     {
 
+      //Set up internal variables
+      int current_error_code;
+      std::string current_error_message;
+      int msg_type = -1;
+      protoScene::SceneList new_proto;
+
       //Set up a handler for any signal events so that we always shutdown gracefully
       struct sigaction sigIntHandler;
       sigIntHandler.sa_handler = my_signal_handler;
@@ -145,13 +151,6 @@ void my_signal_handler(int s){
         main_logging->error("Configuration Failed, defaults kept");
       }
 
-      //Set up internal variables
-      int current_error_code;
-      std::string current_error_message;
-      int msg_type = -1;
-      rapidjson::Document d;
-      protoScene::SceneList new_proto;
-
       //Set up our Redis Connection List, which is passed to the Redis Admin to connect
       std::vector<RedisConnChain> RedisConnectionList = cm->get_redisconnlist();
       //Set up Redis Connection
@@ -208,155 +207,206 @@ void my_signal_handler(int s){
         current_error_message = "";
         msg_type = -1;
         std::string resp_str = "";
+        rapidjson::Document d;
+        rapidjson::Value *val;
 
         //Convert the OMQ message into a string to be passed on the event
-        std::string req_string = zmqi->recv();
-        req_string = ltrim(req_string);
-        const char * req_ptr = req_string.c_str();
+        //std::string req_string = zmqi->recv();
+        //req_string = ltrim(req_string);
+        char * req_ptr = zmqi->crecv();
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
 
-        try {
-          new_proto.Clear();
-          new_proto.ParseFromString(req_string);
-          translated_object = new Scene (new_proto);
-          msg_type = new_proto.message_type();
-          translated_object->print();
-        }
-        //Catch a possible error and write to logs
-        catch (std::exception& e) {
-          main_logging->error("Exception occurred while parsing inbound document:");
-          main_logging->error(e.what());
-          current_error_code = TRANSLATION_ERROR;
-          current_error_message = e.what();
+        //Protocol Buffer Format Type
+        if (cm->get_formattype() == PROTO_FORMAT) {
+
+          try {
+            new_proto.Clear();
+            new_proto.ParseFromString(req_ptr);
+            translated_object = new Scene (new_proto);
+            msg_type = new_proto.message_type();
+            translated_object->print();
+          }
+          //Catch a possible error and write to logs
+          catch (std::exception& e) {
+            main_logging->error("Exception occurred while parsing inbound document:");
+            main_logging->error(e.what());
+            current_error_code = TRANSLATION_ERROR;
+            current_error_message = e.what();
+          }
+
         }
 
-        //Determine the Transaction ID
-        UuidContainer id_container;
-        id_container.id = "";
-        if ( cm->get_transactionidsactive() ) {
-          std::string existing_trans_id = translated_object->get_transaction_id();
-          //If no transaction ID is sent in, generate a new one
-          if ( existing_trans_id.empty() ) {
-            try {
-              id_container = ua->generate();
-              if (!id_container.err.empty()) {
-                uuid_logging->error(id_container.err);
-              }
-              main_logging->debug("Generated Transaction ID: " + id_container.id);
-
-              //Assign Transaction ID
-              if (!translated_object)
-              {
-                main_logging->debug("No translated object to assign Transaction ID to");
-              }
-              else {
-                translated_object->set_transaction_id(id_container.id);
-              }
+        //JSON Format Type
+        else if (cm->get_formattype() == JSON_FORMAT) {
+          try {
+            d.Parse(req_ptr);
+            if (d.HasParseError()) {
+              main_logging->error("Parsing Error: ");
+              main_logging->error(d.GetParseError());
             }
-            catch (std::exception& e) {
-              main_logging->error("Exception encountered during UUID Generation");
-              shutdown();
-              exit(1);
+            else {
+              translated_object = new Scene (d);
+              val = &d["message_type"];
+              msg_type = val->GetInt();
+              translated_object->print();
             }
           }
-          //Otherwise, use the existing transaction ID
+          //Catch a possible error and write to logs
+          catch (std::exception& e) {
+            main_logging->error("Exception occurred while parsing inbound document:");
+            main_logging->error(e.what());
+            current_error_code = TRANSLATION_ERROR;
+            current_error_message = e.what();
+          }
+        }
+
+        if (translated_object) {
+
+          //Determine the Transaction ID
+          UuidContainer id_container;
+          id_container.id = "";
+          if ( cm->get_transactionidsactive() ) {
+            std::string existing_trans_id = translated_object->get_transaction_id();
+            //If no transaction ID is sent in, generate a new one
+            if ( existing_trans_id.empty() ) {
+              try {
+                id_container = ua->generate();
+                if (!id_container.err.empty()) {
+                  uuid_logging->error(id_container.err);
+                }
+                main_logging->debug("Generated Transaction ID: " + id_container.id);
+
+                //Assign Transaction ID
+                if (!translated_object)
+                {
+                  main_logging->debug("No translated object to assign Transaction ID to");
+                }
+                else {
+                  translated_object->set_transaction_id(id_container.id);
+                }
+              }
+              catch (std::exception& e) {
+                main_logging->error("Exception encountered during UUID Generation");
+                shutdown();
+                exit(1);
+              }
+            }
+            //Otherwise, use the existing transaction ID
+            else {
+              id_container.id = existing_trans_id;
+            }
+          }
+          main_logging->debug("Transaction ID: ");
+          main_logging->debug(id_container.id);
+
+          //Process the translated object
+          std::string process_result = processor->process_message(translated_object);
+
+          // Turn the response from the processor into a response for the client
+          resp = new Scene();
+          SceneData *resp_data = new SceneData;
+          resp->set_err_msg(current_error_message);
+          resp->set_err_code(current_error_code);
+          resp->set_msg_type(msg_type);
+
+          //If we have a create request, we will get a key back from the processor
+          if (msg_type == SCENE_CRT) {
+            resp_data->set_key( process_result );
+          }
+          //Otherwise, set the response key from the translated object
+          else if (translated_object->num_scenes() > 0) {
+            resp_data->set_key(translated_object->get_scene(0)->get_key());
+          }
           else {
-            id_container.id = existing_trans_id;
+            main_logging->error("Unable to stamp key on response message");
+            resp->set_err_msg("Unable to stamp key on response message");
+            resp->set_msg_type(PROCESSING_ERROR);
           }
-        }
-        main_logging->debug("Transaction ID: ");
-        main_logging->debug(id_container.id);
 
-        //Process the translated object
-        std::string process_result = processor->process_message(translated_object);
+          resp->add_scene(resp_data);
 
-        // Turn the response from the processor into a response for the client
-        resp = new Scene();
-        SceneData *resp_data = new SceneData;
-        resp->set_err_msg(current_error_message);
-        resp->set_err_code(current_error_code);
-        resp->set_msg_type(msg_type);
+          //  Send reply back to client
+          //Ping message, send back "success"
+          if (msg_type == PING) {
+            zmqi->send( "success" );
+          }
 
-        //If we have a create request, we will get a key back from the processor
-        if (msg_type == SCENE_CRT) {
-          resp_data->set_key( process_result );
-        }
-        //Otherwise, set the response key from the translated object
-        else if (translated_object->num_scenes() > 0) {
-          resp_data->set_key(translated_object->get_scene(0)->get_key());
-        }
-        else {
-          main_logging->error("Unable to stamp key on response message");
-          resp->set_err_msg("Unable to stamp key on response message");
-          resp->set_msg_type(PROCESSING_ERROR);
-        }
+          //Kill message, shut down
+          else if (msg_type == KILL) {
+            zmqi->send( "success" );
+            shutdown();
+            exit(1);
+          }
 
-        resp->add_scene(resp_data);
+          //We have a get message, so we have a serialized object in the processor response
+          //"-1", we have a processing error result
+          else if (process_result == "-1") {
+            resp->set_msg_type(PROCESSING_ERROR);
+            resp->set_err_msg("Error encountered in document processing");
+            //Send the Inbound response
+            if (cm->get_formattype() == PROTO_FORMAT) {
+              zmqi->send( resp->to_protobuf() );
+            }
+            else if (cm->get_formattype() == JSON_FORMAT) {
+              zmqi->send( resp->to_json() );
+            }
+            main_logging->debug("Response Sent");
+          }
 
-        //  Send reply back to client
-        //Ping message, send back "success"
-        if (msg_type == PING) {
-          zmqi->send( "success" );
-        }
+          else if (process_result == "-2") {
+            resp->set_msg_type(NOT_FOUND);
+            resp->set_err_msg("Document not found");
+            //Send the Inbound response
+            if (cm->get_formattype() == PROTO_FORMAT) {
+              zmqi->send( resp->to_protobuf() );
+            }
+            else if (cm->get_formattype() == JSON_FORMAT) {
+              zmqi->send( resp->to_json() );
+            }
+            main_logging->debug("Response Sent");
+          }
 
-        //Kill message, shut down
-        else if (msg_type == KILL) {
-          zmqi->send( "success" );
-          shutdown();
-          exit(1);
-        }
+          //If we have a load request or a registration/deregistration/alignment,
+          //we will have a proto buffer string
+          //in the response from the processor
+          else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
+            msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
+            zmqi->send( process_result );
+          }
 
-        //We have a get message, so we have a serialized object in the processor response
-        //"-1", we have a processing error result
-        else if (process_result == "-1") {
-          resp->set_msg_type(PROCESSING_ERROR);
-          resp->set_err_msg("Error encountered in document processing");
-          //Send the Inbound response
-          zmqi->send( resp->to_protobuf() );
-          main_logging->debug("Response Sent");
-        }
+          //We have a standard message
+          else {
 
-        else if (process_result == "-2") {
-          resp->set_msg_type(NOT_FOUND);
-          resp->set_err_msg("Document not found");
-          //Send the Inbound response
-          zmqi->send( resp->to_protobuf() );
-          main_logging->debug("Response Sent");
-        }
+            //Send the Inbound response
+            if (cm->get_formattype() == PROTO_FORMAT) {
+              zmqi->send( resp->to_protobuf() );
+            }
+            else if (cm->get_formattype() == JSON_FORMAT) {
+              zmqi->send( resp->to_json() );
+            }
+            main_logging->debug("Response Sent");
+          }
 
-        //If we have a load request or a registration/deregistration/alignment,
-        //we will have a proto buffer string
-        //in the response from the processor
-        else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
-          msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
-          zmqi->send( process_result );
-        }
+          //Clear the response
+          if (!resp) {
+            main_logging->debug("Response Object not found for deletion");
+          }
+          else {
+            delete resp;
+            resp = NULL;
+          }
 
-        //We have a standard message
-        else {
+          //Clear the translated object
+          if (!translated_object) {
+            main_logging->debug("Translated Object not found for deletion");
+          }
+          else {
+            delete translated_object;
+            translated_object = NULL;
+          }
 
-          //Send the Inbound response
-          zmqi->send( resp->to_protobuf() );
-          main_logging->debug("Response Sent");
-        }
-
-        //Clear the response
-        if (!resp) {
-          main_logging->debug("Response Object not found for deletion");
-        }
-        else {
-          delete resp;
-          resp = NULL;
-        }
-
-        //Clear the translated object
-        if (!translated_object) {
-          main_logging->debug("Translated Object not found for deletion");
-        }
-        else {
-          delete translated_object;
-          translated_object = NULL;
+          //If translated object
         }
       }
       return 0;

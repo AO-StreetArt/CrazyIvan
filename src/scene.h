@@ -13,6 +13,10 @@
 #include "configuration_manager.h"
 #include "Scene.pb.h"
 
+#include "rapidjson/document.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
+
 #ifndef SCENE
 #define SCENE
 
@@ -45,6 +49,8 @@ std::vector<double> tran;
 std::vector<double> rot;
 bool tran_flag;
 bool rot_flag;
+const rapidjson::Value *translation_val;
+const rapidjson::Value *rotation_val;
 public:
   Transform();
   Transform(protoScene::SceneList_Transformation data);
@@ -81,12 +87,16 @@ public:
 class UserDevice {
 Transform *trans = NULL;
 std::string key = "";
+const char * my_key;
 bool trns_flag = false;
+const rapidjson::Value *key_val;
+const rapidjson::Value *transform_val;
 public:
   UserDevice(protoScene::SceneList_UserDevice scn_data);
   UserDevice() {trns_flag=false;}
   UserDevice(Transform *transform) {trans = transform;trns_flag=true;}
   UserDevice(std::string new_key) {key = new_key;trns_flag=false;}
+  UserDevice(const char * new_key) {my_key=new_key;key.assign(my_key);}
   UserDevice(std::string new_key, Transform *transform) {key = new_key;trans = transform;trns_flag=true;}
   UserDevice(const UserDevice &ud);
   ~UserDevice() {if (trns_flag) {delete trans;}}
@@ -116,6 +126,14 @@ double distance = 0.0;
 bool trns_flag = false;
 std::vector<UserDevice*> devices;
 Transform* scene_transform;
+const rapidjson::Value *key_val;
+const rapidjson::Value *scene_val;
+const rapidjson::Value *name_val;
+const rapidjson::Value *lat_val;
+const rapidjson::Value *long_val;
+const rapidjson::Value *dist_val;
+const rapidjson::Value *transform_val;
+const rapidjson::Value *devices_val;
 public:
   SceneData() {}
   SceneData(protoScene::SceneList_Scene scn_data);
@@ -144,7 +162,7 @@ public:
   //Transform
   Transform* get_scene_transform() const {return scene_transform;}
   bool has_transform() const {return trns_flag;}
-  void set_transform(Transform *trns) {scene_transform=trns;}
+  void set_transform(Transform *trns) {scene_transform=trns;trns_flag=true;}
 
   //Print
   inline void print() {
@@ -168,16 +186,28 @@ std::string transaction_id="";
 std::vector<SceneData*> data;
 int num_records=10;
 std::string protobuf_string="";
+const rapidjson::Value *ms_type_val;
+const rapidjson::Value *err_code_val;
+const rapidjson::Value *err_str_val;
+const rapidjson::Value *tran_id_val;
+const rapidjson::Value *records_val;
+std::string ret_string = "";
+const char* ret_val;
 public:
   //Constructor
   Scene() {}
   //Constructor accepting Protocol Buffer serialized string
   //Here we parse the string and populate the scene object with the information
   Scene(protoScene::SceneList buffer);
+  //Constructor accepting Rapidjson Document as input
+  //Parse the string and populate the scene object with the information
+  Scene(const rapidjson::Document& d);
   //Destructor
   ~Scene() {for (unsigned int i=0; i<data.size();i++ ) {if (data[i]) {delete data[i];}}}
   //Convert the scene information into a Protocol Buffer serialized message
   std::string to_protobuf();
+  //Convert the scene information into a JSON Message
+  std::string to_json();
   //Setters
   void set_msg_type(int new_msg_type) {msg_type=new_msg_type;}
   void set_err_msg(std::string new_err) {err_msg=new_err;}
