@@ -53,25 +53,25 @@ src/configuration_test.o: src/test/configuration_test.cpp src/configuration_mana
 src/ivan_log.o: src/ivan_log.cpp src/ivan_log.h
 	$(CC) $(CFLAGS) -o $@ -c src/ivan_log.cpp $(STD)
 
-src/configuration_manager.o: src/configuration_manager.cpp src/configuration_manager.h
+src/configuration_manager.o: src/configuration_manager.cpp src/configuration_manager.h src/ivan_log.h
 	$(CC) $(CFLAGS) -o $@ -c src/configuration_manager.cpp $(STD)
 
 src/Scene.pb.cc: /usr/local/include/dvs_interface/Scene.proto
 	$(PROTOC) $(PROTO_OPTS) --cpp_out=src /usr/local/include/dvs_interface/Scene.proto
 
-src/scene.o: src/scene.cpp src/scene.h src/Scene.pb.cc
+src/scene.o: src/scene.cpp src/scene.h src/Scene.pb.cc src/ivan_utils.h src/ivan_log.h src/configuration_manager.h
 	$(CC) $(CFLAGS) -o $@ -c src/scene.cpp $(STD)
 
-src/globals.o: src/globals.cpp src/globals.h
+src/globals.o: src/globals.cpp src/globals.h src/ivan_log.h src/ivan_log.h src/configuration_manager.h src/scene.h
 	$(CC) $(CFLAGS) -o $@ -c src/globals.cpp $(STD)
 
-src/query_helper.o: src/query_helper.h src/query_helper.cpp
+src/query_helper.o: src/query_helper.h src/query_helper.cpp src/ivan_log.h src/scene.h src/ivan_utils.h
 	$(CC) $(CFLAGS) -o $@ -c src/query_helper.cpp $(STD)
 
-src/message_processor.o: src/message_processor.h src/message_processor.cpp
+src/message_processor.o: src/message_processor.h src/message_processor.cpp src/redis_locking.h src/ivan_utils.h src/ivan_log.h src/query_helper.h
 	$(CC) $(CFLAGS) -o $@ -c src/message_processor.cpp $(STD)
 
-main.o: main.cpp src/ivan_utils.h src/redis_locking.h src/message_processor.h
+main.o: main.cpp src/message_processor.h src/ivan_utils.h src/ivan_log.h src/scene.h src/configuration_manager.h src/globals.h src/query_helper.h
 	$(CC) $(CFLAGS) -o $@ -c main.cpp $(STD)
 
 # --------------------------- Clean Project ---------------------------------- #

@@ -9,7 +9,6 @@
 
 #include "ivan_log.h"
 #include "ivan_utils.h"
-#include "redis_locking.h"
 #include "configuration_manager.h"
 #include "Scene.pb.h"
 

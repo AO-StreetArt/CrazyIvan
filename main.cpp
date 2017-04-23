@@ -217,6 +217,14 @@ void my_signal_handler(int s){
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
 
+        //Trim the string recieved
+        std::string recvd_msg (req_ptr);
+        recvd_msg = trim(recvd_msg);
+        std::string clean_string = recvd_msg.substr(0, recvd_msg.find_last_of("}")+1);
+
+        main_logging->debug("Input String Cleaned");
+        main_logging->debug(clean_string);
+
         //Protocol Buffer Format Type
         if (cm->get_formattype() == PROTO_FORMAT) {
 
@@ -240,7 +248,7 @@ void my_signal_handler(int s){
         //JSON Format Type
         else if (cm->get_formattype() == JSON_FORMAT) {
           try {
-            d.Parse(req_ptr);
+            d.Parse(clean_string.c_str());
             if (d.HasParseError()) {
               main_logging->error("Parsing Error: ");
               main_logging->error(d.GetParseError());
