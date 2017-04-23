@@ -208,7 +208,6 @@ void my_signal_handler(int s){
         msg_type = -1;
         std::string resp_str = "";
         rapidjson::Document d;
-        rapidjson::Value *val;
 
         //Convert the OMQ message into a string to be passed on the event
         //std::string req_string = zmqi->recv();
@@ -255,8 +254,7 @@ void my_signal_handler(int s){
             }
             else {
               translated_object = new Scene (d);
-              val = &d["message_type"];
-              msg_type = val->GetInt();
+              msg_type = translated_object->get_msg_type();
               translated_object->print();
             }
           }

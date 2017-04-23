@@ -5,6 +5,9 @@ DIR=$2
 
 TAG_NAME="latest"
 
+echo $BRANCH_NAME
+echo $DIR
+
 if [ $BRANCH_NAME != "master" ]; then
   cd $DIR && sudo docker build --file DevelDockerfile -t "aostreetart/crazyivan:$BRANCH_NAME" .
   TAG_NAME=$BRANCH_NAME
