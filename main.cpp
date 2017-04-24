@@ -326,8 +326,6 @@ void my_signal_handler(int s){
           }
           else {
             main_logging->error("Unable to stamp key on response message");
-            resp->set_err_msg("Unable to stamp key on response message");
-            resp->set_msg_type(PROCESSING_ERROR);
           }
 
           resp->add_scene(resp_data);

@@ -40,8 +40,9 @@ RUN git clone https://github.com/mongodb/mongo-c-driver.git
 RUN cd mongo-c-driver && ./autogen.sh --with-libbson=bundled && make && sudo make install
 
 #Get the Neo4j Dependencies
-RUN git clone https://github.com/cleishm/libneo4j-client.git ./$PRE/neo
-RUN cd $PRE/neo && ./autogen.sh && ./configure --disable-tools && make clean check && sudo make install
+RUN add-apt-repository ppa:cleishm/neo4j
+RUN apt-get update
+RUN apt-get install neo4j-client
 
 #Get the ZMQ Dependencies
 RUN cd /tmp && git clone git://github.com/jedisct1/libsodium.git && cd libsodium && git checkout e2a30a && ./autogen.sh && ./configure && make check && make install && ldconfig
