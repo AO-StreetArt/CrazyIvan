@@ -68,5 +68,7 @@ script:
   - sudo docker logs crazyivan
   # Execute the Python Tests
   - cd $TRAVIS_BUILD_DIR/0-Meter && python 0-meter.py scene_crt_schedule.xml
+  - cat $TRAVIS_BUILD_DIR/0-Meter/scene_sched.log
+  - sudo docker logs crazyivan
   # TO-DO: Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
