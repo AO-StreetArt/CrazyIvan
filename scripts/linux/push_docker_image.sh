@@ -6,5 +6,13 @@ DOCKER_PASS=$3
 BRANCH_NAME=$4
 DIR=$5
 
+TAG_NAME="latest"
+
+echo $BRANCH_NAME
+
+if [ $BRANCH_NAME != "master" ]; then
+  TAG_NAME=$BRANCH_NAME
+fi
+
 cd $DIR && sudo docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-cd $DIR && sudo docker push aostreetart/crazyivan:$BRANCH_NAME
+cd $DIR && sudo docker push aostreetart/crazyivan:$TAG_NAME
