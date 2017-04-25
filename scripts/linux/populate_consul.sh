@@ -9,3 +9,5 @@ curl -X PUT -d '127.0.0.1--6379----2--5--0' http://localhost:8500/v1/kv/ivan/Red
 curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
 
 curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
+
+curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type

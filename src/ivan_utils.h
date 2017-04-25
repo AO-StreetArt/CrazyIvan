@@ -7,6 +7,7 @@
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <string.h>
 
 #ifndef IVAN_UTILS
 #define IVAN_UTILS

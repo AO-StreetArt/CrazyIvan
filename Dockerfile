@@ -8,8 +8,6 @@
 #Based on Ubuntu 14.04
 FROM ubuntu:14.04
 
-ARG TAG_NAME=latest
-
 #Set the Maintainer
 MAINTAINER Alex Barry
 
@@ -42,8 +40,10 @@ RUN git clone https://github.com/mongodb/mongo-c-driver.git
 RUN cd mongo-c-driver && ./autogen.sh --with-libbson=bundled && make && sudo make install
 
 #Get the Neo4j Dependencies
-RUN git clone https://github.com/cleishm/libneo4j-client.git ./$PRE/neo
-RUN cd $PRE/neo && ./autogen.sh && ./configure --disable-tools && make clean check && sudo make install
+RUN mkdir $PRE/neo
+RUN wget https://github.com/cleishm/libneo4j-client/releases/download/v1.2.1/libneo4j-client-1.2.1.tar.gz -P ./$PRE
+RUN tar -zxvf ./$PRE/libneo4j-client-1.2.1.tar.gz -C $PRE/neo
+RUN cd $PRE/neo/libneo4j-client-1.2.1 && sudo ./configure --disable-tools && sudo make clean check && sudo make install
 
 #Get the ZMQ Dependencies
 RUN cd /tmp && git clone git://github.com/jedisct1/libsodium.git && cd libsodium && git checkout e2a30a && ./autogen.sh && ./configure && make check && make install && ldconfig
@@ -104,7 +104,7 @@ RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
 #Install the shared service library
 RUN cd AOSharedServiceLibrary && make && make install
 
-RUN git clone --branch=$TAG_NAME https://github.com/AO-StreetArt/CrazyIvan.git
+RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
 
 # Build the Project & Unit Tests
 RUN cd CrazyIvan && make && make test

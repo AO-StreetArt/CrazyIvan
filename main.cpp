@@ -208,7 +208,6 @@ void my_signal_handler(int s){
         msg_type = -1;
         std::string resp_str = "";
         rapidjson::Document d;
-        rapidjson::Value *val;
 
         //Convert the OMQ message into a string to be passed on the event
         //std::string req_string = zmqi->recv();
@@ -216,6 +215,14 @@ void my_signal_handler(int s){
         char * req_ptr = zmqi->crecv();
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
+
+        //Trim the string recieved
+        std::string recvd_msg (req_ptr);
+        recvd_msg = trim(recvd_msg);
+        std::string clean_string = recvd_msg.substr(0, recvd_msg.find_last_of("}")+1);
+
+        main_logging->debug("Input String Cleaned");
+        main_logging->debug(clean_string);
 
         //Protocol Buffer Format Type
         if (cm->get_formattype() == PROTO_FORMAT) {
@@ -240,15 +247,14 @@ void my_signal_handler(int s){
         //JSON Format Type
         else if (cm->get_formattype() == JSON_FORMAT) {
           try {
-            d.Parse(req_ptr);
+            d.Parse(clean_string.c_str());
             if (d.HasParseError()) {
               main_logging->error("Parsing Error: ");
               main_logging->error(d.GetParseError());
             }
             else {
               translated_object = new Scene (d);
-              val = &d["message_type"];
-              msg_type = val->GetInt();
+              msg_type = translated_object->get_msg_type();
               translated_object->print();
             }
           }
@@ -320,8 +326,6 @@ void my_signal_handler(int s){
           }
           else {
             main_logging->error("Unable to stamp key on response message");
-            resp->set_err_msg("Unable to stamp key on response message");
-            resp->set_msg_type(PROCESSING_ERROR);
           }
 
           resp->add_scene(resp_data);
