@@ -1,0 +1,25 @@
+<Configuration>
+  <Behavior>
+    <Single_Message>True</Single_Message>
+    <Multi_Message>False</Multi_Message>
+    <Include_CSV>False</Include_CSV>
+    <Span_Over_Interval>False</Span_Over_Interval>
+  </Behavior>
+  <Message>
+    <Message_Location>ci/json/kill.json</Message_Location>
+    <Message_Folder_Location>messages</Message_Folder_Location>
+    <Message_Extension>txt</Message_Extension>
+    <Interval>30.0</Interval>
+    <CSV_Location>test.csv</CSV_Location>
+    <Variable_Start_Character>$</Variable_Start_Character>
+    <Variable_End_Character>@</Variable_End_Character>
+  </Message>
+  <ZeroMQ>
+    <Outbound_Connection>tcp://localhost:5555</Outbound_Connection>
+    <Outbound_Connection_Type>REQ</Outbound_Connection_Type>
+  </ZeroMQ>
+  <Logging>
+    <Log_File>kill.log</Log_File>
+    <Log_Level>Info</Log_Level>
+  </Logging>
+</Configuration>

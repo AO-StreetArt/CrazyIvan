@@ -1,0 +1,11 @@
+{
+  "msg_type":$MSG_TYPE@,
+  "transaction_id":"$TRANSACTION_ID@",
+  "scenes":[
+    {
+      "latitude":$LATITUDE@,
+      "longitude":$LONGITUDE@,
+      "distance":$DISTANCE@,
+    }
+  ]
+}

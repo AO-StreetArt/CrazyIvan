@@ -1,0 +1,19 @@
+{
+  "msg_type":$MSG_TYPE@,
+  "transaction_id":"$TRANSACTION_ID@",
+  "scenes":[
+    {
+      "key":"$SCN_KEY@",
+      "name":"$SCN_NAME@",
+      "devices":[
+        {
+          "key":"$UD_KEY@",
+          "transform":{
+            "translation":[$UD_TRN_X@,$UD_TRN_Y@,$UD_TRN_Z@],
+            "rotation":[$UD_ROT_X@,$UD_ROT_Y@,$UD_ROT_Z@]
+          }
+        }
+      ]
+    }
+  ]
+}

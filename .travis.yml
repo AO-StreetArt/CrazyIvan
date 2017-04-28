@@ -67,8 +67,32 @@ script:
   # Show the logs from the crazy ivan docker container
   - sudo docker logs crazyivan
   # Execute the Python Tests
-  - cd $TRAVIS_BUILD_DIR/0-Meter && python 0-meter.py scene_crt_schedule.xml
-  - cat $TRAVIS_BUILD_DIR/0-Meter/scene_sched.log
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
+  - cat $TRAVIS_BUILD_DIR/scene_crt.log
   - sudo docker logs crazyivan
-  # TO-DO: Push the built image to docker hub
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
+  - cat $TRAVIS_BUILD_DIR/scene_get.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_update.xml
+  - cat $TRAVIS_BUILD_DIR/scene_update.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
+  - cat $TRAVIS_BUILD_DIR/scene_get.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query.xml
+  - cat $TRAVIS_BUILD_DIR/scene_query.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
+  - cat $TRAVIS_BUILD_DIR/device_register.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
+  - cat $TRAVIS_BUILD_DIR/device_align.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
+  - cat $TRAVIS_BUILD_DIR/device_deregister.log
+  - sudo docker logs crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
+  - cat $TRAVIS_BUILD_DIR/scene_del.log
+  - sudo docker logs crazyivan
+  # Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
