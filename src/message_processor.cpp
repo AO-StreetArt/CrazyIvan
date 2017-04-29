@@ -306,7 +306,7 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
       std::string scene_query = "MATCH (scn:Scene";
 
       if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
-        scene_query = scene_query + "{key: {inp_key}})";
+        scene_query = scene_query + " {key: {inp_key}})";
       }
       else {
         if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
@@ -414,6 +414,8 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             tree = results->next();
           }
           if (num_results>0) {
+            processor_logging->debug("Response Scene List:");
+            sc.print();
             if (config->get_formattype() == PROTO_FORMAT) {
               response->set_return_string(sc.to_protobuf());
             }

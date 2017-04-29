@@ -232,6 +232,7 @@ void my_signal_handler(int s){
             new_proto.ParseFromString(req_ptr);
             translated_object = new Scene (new_proto);
             msg_type = new_proto.message_type();
+            main_logging->debug("Translated Scene List:");
             translated_object->print();
           }
           //Catch a possible error and write to logs
@@ -331,14 +332,16 @@ void my_signal_handler(int s){
           resp->add_scene(resp_data);
 
           //  Send reply back to client
+          std::string application_response = "";
+
           //Ping message, send back "success"
           if (msg_type == PING) {
-            zmqi->send( "success" );
+            application_response = "{\"err_code\":100}";
           }
 
           //Kill message, shut down
           else if (msg_type == KILL) {
-            zmqi->send( "success" );
+            application_response = "{\"err_code\":100}";
             shutdown();
             exit(1);
           }
@@ -350,12 +353,11 @@ void my_signal_handler(int s){
             resp->set_err_msg( response->get_error_description() );
             //Send the Inbound response
             if (cm->get_formattype() == PROTO_FORMAT) {
-              zmqi->send( resp->to_protobuf() );
+              application_response = resp->to_protobuf();
             }
             else if (cm->get_formattype() == JSON_FORMAT) {
-              zmqi->send( resp->to_json() );
+              application_response = resp->to_json();
             }
-            main_logging->debug("Response Sent");
           }
 
           //If we have a load request or a registration/deregistration/alignment,
@@ -363,7 +365,7 @@ void my_signal_handler(int s){
           //in the response from the processor
           else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
             msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
-            zmqi->send( response->get_return_string() );
+              application_response = response->get_return_string();
           }
 
           //We have a standard message
@@ -371,13 +373,16 @@ void my_signal_handler(int s){
 
             //Send the Inbound response
             if (cm->get_formattype() == PROTO_FORMAT) {
-              zmqi->send( resp->to_protobuf() );
+              application_response = resp->to_protobuf();
             }
             else if (cm->get_formattype() == JSON_FORMAT) {
-              zmqi->send( resp->to_json() );
+              application_response = resp->to_json();
             }
-            main_logging->debug("Response Sent");
           }
+
+          main_logging->info("Sending Response");
+          main_logging->info( application_response );
+          zmqi->send( application_response );
 
           //Clear the response
           if (!resp) {
