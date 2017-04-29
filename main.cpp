@@ -349,7 +349,7 @@ void my_signal_handler(int s){
           //We have a get message, so we have a serialized object in the processor response
           //"-1", we have a processing error result
           else if ( !(response->successful()) ) {
-            resp->set_msg_type( response->get_error_code() );
+            resp->set_err_code( response->get_error_code() );
             resp->set_err_msg( response->get_error_description() );
             //Send the Inbound response
             if (cm->get_formattype() == PROTO_FORMAT) {
