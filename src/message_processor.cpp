@@ -30,14 +30,14 @@ void MessageProcessor::release_mutex_lock(std::string obj_key) {
 //----------------------------------------------------------------------------//
 
 //Ping the Crazy Ivan Instance
-std::string MessageProcessor::process_ping_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_ping_message(Scene *obj_msg) {
   processor_logging->debug("Ping Pong");
-  return "";
+  return new ProcessResult;
 }
 
 //Kill the Crazy Ivan Instance
-std::string MessageProcessor::process_kill_message(Scene *obj_msg) {
-  return "";
+ProcessResult* MessageProcessor::process_kill_message(Scene *obj_msg) {
+  return new ProcessResult;
 }
 
 //----------------------------------------------------------------------------//
@@ -45,10 +45,11 @@ std::string MessageProcessor::process_kill_message(Scene *obj_msg) {
 //----------------------------------------------------------------------------//
 
 //Create a new scene
-std::string MessageProcessor::process_create_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_create_message(Scene *obj_msg) {
   processor_logging->info("Processing Scene Creation message");
   processor_logging->debug("Number of Scene Data elements:");
   processor_logging->debug(obj_msg->num_scenes());
+  ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     ResultsIteratorInterface *results = NULL;
     Neo4jQueryParameterInterface *name_param = NULL;
@@ -57,7 +58,6 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     Neo4jQueryParameterInterface *key_param = NULL;
     ResultTreeInterface *tree = NULL;
     DbObjectInterface* obj = NULL;
-    ret_val = "";
     double qlat;
     double qlong;
     processor_logging->info("Scenes Found in creation message");
@@ -80,7 +80,8 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
       }
       if (id_container.id.empty()) {
         processor_logging->error("Unknown error generating new key for scene");
-        return "-1";
+        response->set_error(PROCESSING_ERROR, "Unknown error generating new key for scene");
+        return response;
       }
       key_param = neo_factory->get_neo4j_query_parameter(id_container.id);
     }
@@ -122,21 +123,21 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
       processor_logging->error(e.what());
-      ret_val = "-1";
+      response->set_error(PROCESSING_ERROR, e.what());
     }
 
     if (!results) {
       processor_logging->error("No results returned from create query");
-      ret_val = "-1";
+      response->set_error(PROCESSING_ERROR, "Unknown Error processing Scene Update");
     }
     else {
       processor_logging->info("Scene Successfully added");
-      ret_val = id_container.id;
+      response->set_return_string(id_container.id);
       tree = results->next();
       if (tree) {
         obj = tree->get(0);
         if (obj) {
-          if ( !(obj->is_node()) ) ret_val = "-2";
+          if ( !(obj->is_node()) ) response->set_error(NOT_FOUND, "Document not found");
           delete obj;
         }
         delete tree;
@@ -148,14 +149,16 @@ std::string MessageProcessor::process_create_message(Scene *obj_msg) {
     if (lat_param) delete lat_param;
     if (long_param) delete long_param;
     if (key_param) delete key_param;
-    return ret_val;
+    return response;
   }
-  ret_val = "-1";
-  return ret_val;
+  response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
+  return response;
 }
 
 //Update the details of a scene entry
-std::string MessageProcessor::process_update_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_update_message(Scene *obj_msg) {
+
+  ProcessResult *response = new ProcessResult;
 
   if (obj_msg->num_scenes() > 0) {
 
@@ -165,7 +168,6 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
     }
 
     //Declare base variables
-    ret_val = "";
     bool is_started = false;
     ResultsIteratorInterface *results = NULL;
     Neo4jQueryParameterInterface *name_param = NULL;
@@ -177,7 +179,7 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
     //Ensure that we have fields in the query
     if ((obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0) || obj_msg->get_scene(0)->get_key().empty()) {
       processor_logging->error("No fields found in update message");
-      ret_val = "-1";
+      response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message to make update");
     }
     else {
       //Set up the Cypher Query for scene update
@@ -244,20 +246,20 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
         if (tree) delete tree;
         processor_logging->error("Error running Query:");
         processor_logging->error(e.what());
-        ret_val = "-1";
+        response->set_error(PROCESSING_ERROR, e.what());
       }
 
       if (!results) {
         processor_logging->error("No results returned from update query");
-        ret_val = "-1";
+        response->set_error(PROCESSING_ERROR, "Unknown Error processing Scene Retrieval");
       }
       else {
-        ret_val = qkey;
+        response->set_return_string(qkey);
         tree = results->next();
         if (tree) {
           obj = tree->get(0);
           if (obj) {
-            if ( !(obj->is_node()) ) ret_val = "-2";
+            if ( !(obj->is_node()) ) response->set_error(NOT_FOUND, "Document not found");
             delete obj;
           }
           delete tree;
@@ -276,14 +278,16 @@ std::string MessageProcessor::process_update_message(Scene *obj_msg) {
     if (config->get_atomictransactions()) {
       release_mutex_lock(obj_msg->get_scene(0)->get_key());
     }
-    return ret_val;
+    return response;
   }
-  ret_val = "-1";
-  return ret_val;
+
+  response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
+  return response;
 }
 
 //Query for scene data
-std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
+  ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     ResultsIteratorInterface *results = NULL;
     Neo4jQueryParameterInterface *name_param = NULL;
@@ -292,48 +296,36 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
     Neo4jQueryParameterInterface *key_param = NULL;
     Neo4jQueryParameterInterface *dist_param = NULL;
     processor_logging->debug("Processing Scene Retrieve message");
-    bool is_started = false;
-    ret_val = "";
 
     if (obj_msg->get_scene(0)->get_name().empty() && obj_msg->get_scene(0)->get_latitude() == -9999.0 && obj_msg->get_scene(0)->get_longitude() == -9999.0 && obj_msg->get_scene(0)->get_key().empty()) {
       processor_logging->error("No fields found in get message");
-      ret_val = "-1";
+      response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message to make update");
     }
     else {
       //Set up the Cypher Query for scene retrieval
       std::string scene_query = "MATCH (scn:Scene";
-      if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
-
-        scene_query = scene_query + " {name: {inp_name}";
-        is_started = true;
-      }
 
       if ( !(obj_msg->get_scene(0)->get_key().empty()) ) {
-        if (is_started) {
-          scene_query = scene_query + ", ";
-        }
-        else {
-          scene_query = scene_query + " {";
-        }
-        scene_query = scene_query + "key: {inp_key}";
-        is_started = true;
+        scene_query = scene_query + "{key: {inp_key}})";
       }
+      else {
+        if ( !(obj_msg->get_scene(0)->get_name().empty()) ) {
 
-      if (is_started) {
-        scene_query = scene_query + "}";
-      }
+          scene_query = scene_query + " {name: {inp_name}}";
+        }
 
-      scene_query = scene_query + ")";
+        scene_query = scene_query + ")";
 
-      if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0 ) ) {
-        //Query for distance
-        //Assumes distance supplied is in meters
-        //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
-        std::string where_clause = "WHERE ( 12742000 * asin((((sin((scn.longitude -"
-                                    " {inp_long}) / 2) ^ 2) + (cos({inp_long}) * "
-                                    "cos(scn.longitude) * (sin((scn.latitude - "
-                                    "{inp_lat}) / 2) ^ 2))) ^ (1/2)))) < {inp_distance}";
-        scene_query = scene_query + where_clause;
+        if ( !(obj_msg->get_scene(0)->get_latitude() == -9999.0 || obj_msg->get_scene(0)->get_longitude() == -9999.0 || obj_msg->get_scene(0)->get_distance() < 0.0 ) ) {
+          //Query for distance
+          //Assumes distance supplied is in meters
+          //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
+          std::string where_clause = " WHERE ( 12742000 * asin((((sin((scn.longitude -"
+                                      " {inp_long}) / 2) ^ 2) + (cos({inp_long}) * "
+                                      "cos(scn.longitude) * (sin((scn.latitude - "
+                                      "{inp_lat}) / 2) ^ 2))) ^ (1/2)))) < {inp_distance}";
+          scene_query = scene_query + where_clause;
+        }
       }
 
       scene_query = scene_query + " RETURN scn";
@@ -374,7 +366,7 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
         results = n->execute(scene_query, scene_params);
         if (!results) {
           processor_logging->error("No results returned from update query");
-          ret_val = "-1";
+          response->set_error(PROCESSING_ERROR, "Unknown Error processing Scene Retrieval");
         }
         else {
           //Pull results and return
@@ -423,21 +415,21 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           }
           if (num_results>0) {
             if (config->get_formattype() == PROTO_FORMAT) {
-              ret_val = sc.to_protobuf();
+              response->set_return_string(sc.to_protobuf());
             }
             else if (config->get_formattype() == JSON_FORMAT) {
-              ret_val = sc.to_json();
+              response->set_return_string(sc.to_json());
             }
           }
           else {
-            ret_val = "-2";
+            response->set_error(NOT_FOUND, "Document not found");
           }
         }
       }
       catch (std::exception& e) {
         processor_logging->error("Error running Query:");
         processor_logging->error(e.what());
-        ret_val = "-1";
+        response->set_error(PROCESSING_ERROR, e.what());
       }
     }
     if (results) delete results;
@@ -446,23 +438,23 @@ std::string MessageProcessor::process_retrieve_message(Scene *obj_msg) {
     if (long_param) delete long_param;
     if (key_param) delete key_param;
     if (dist_param) delete dist_param;
-    return ret_val;
+    return response;
   }
-  ret_val = "-1";
-  return ret_val;
+  response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
+  return response;
 }
 
 //Delete a scene
-std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_delete_message(Scene *obj_msg) {
+  ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
-    ret_val = "";
     processor_logging->debug("Processing Scene Delete message");
     ResultsIteratorInterface *results = NULL;
     Neo4jQueryParameterInterface *key_param = NULL;
 
     if ( obj_msg->get_scene(0)->get_key().empty() ) {
       processor_logging->error("No fields found in delete message");
-      return "-1";
+      response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message to make update");
     }
     else {
       //Set up the Cypher Query for scene delete
@@ -486,19 +478,19 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
       catch (std::exception& e) {
         processor_logging->error("Error running Query:");
         processor_logging->error(e.what());
-        ret_val = "-1";
+        response->set_error(PROCESSING_ERROR, e.what());
       }
       if (!results) {
         processor_logging->error("No results returned from delete query");
-        ret_val = "-1";
+        response->set_error(PROCESSING_ERROR, "Unknown Error processing Scene Retrieval");
       }
       else {
-        ret_val = qkey;
+        response->set_return_string(qkey);
         tree = results->next();
         if (tree) {
           obj = tree->get(0);
           if (obj) {
-            if ( !(obj->is_node()) ) ret_val = "-2";
+            if ( !(obj->is_node()) ) response->set_error(NOT_FOUND, "Document not found");
             delete obj;
           }
           delete tree;
@@ -507,10 +499,10 @@ std::string MessageProcessor::process_delete_message(Scene *obj_msg) {
     }
     if (results) delete results;
     if (key_param) delete key_param;
-    return ret_val;
+    return response;
   }
-  ret_val = "-1";
-  return ret_val;
+  response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
+  return response;
 }
 
 //----------------------------------------------------------------------------//
@@ -566,7 +558,7 @@ void MessageProcessor::build_string_response(int msg_type, int err_code, std::st
 //Register a device to a scene
 //Predict a coordinate transform for the device
 //and pass it back in the response
-std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_registration_message(Scene *obj_msg) {
 
   processor_logging->debug("Processing Registration Message");
   //Is this the first device being registered to the scene
@@ -614,12 +606,13 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
       is_first_device = true;
       //Create the scene
       processor_logging->debug("Creating Scene in database");
-      std::string create_resp = process_create_message(obj_msg);
-      if (create_resp == "-1") {
+      ProcessResult *response = process_create_message(obj_msg);
+      if ( !(response->successful()) ) {
         processor_logging->error("Scene not found and creation failed");
         current_err_code = PROCESSING_ERROR;
         current_err_msg = "Scene not found and creation failed";
       }
+      delete response;
     }
     else {
       try {
@@ -718,13 +711,13 @@ std::string MessageProcessor::process_registration_message(Scene *obj_msg) {
   if (config->get_atomictransactions()) {
     release_mutex_lock(obj_msg->get_scene(0)->get_key());
   }
-  return proto_resp;
+  return new ProcessResult(proto_resp);
 }
 
 //Remove a device from a scene
 //If we are removing the last user device from a scene,
 //then remove the scene and try to move any paths that pass through the scene
-std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_deregistration_message(Scene *obj_msg) {
 
   processor_logging->debug("Processing Deregistration Message");
   //Current error information
@@ -763,7 +756,7 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
     current_err_msg, obj_msg->get_transaction_id(), obj_msg->get_scene(0)->get_key(), config->get_formattype());
 
   release_mutex_lock(obj_msg->get_scene(0)->get_key());
-  return proto_resp;
+  return new ProcessResult(proto_resp);
 }
 
 //----------------------------------------------------------------------------//
@@ -773,7 +766,7 @@ std::string MessageProcessor::process_deregistration_message(Scene *obj_msg) {
 //If the object is a member of other scenes:
 //  -If a coordinate system transformation doesn't exist, then create one
 //  -If a coordinate system transformation exists, then update it with a correction
-std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   processor_logging->debug("Processing Alignment Message");
   //Current error information
   int current_err_code = NO_ERROR;
@@ -846,5 +839,5 @@ std::string MessageProcessor::process_device_alignment_message(Scene *obj_msg) {
   }
 
   release_mutex_lock(obj_msg->get_scene(0)->get_key());
-  return proto_resp;
+  return new ProcessResult(proto_resp);
 }

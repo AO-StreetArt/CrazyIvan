@@ -307,7 +307,7 @@ void my_signal_handler(int s){
           main_logging->debug(id_container.id);
 
           //Process the translated object
-          std::string process_result = processor->process_message(translated_object);
+          ProcessResult *response = processor->process_message(translated_object);
 
           // Turn the response from the processor into a response for the client
           resp = new Scene();
@@ -318,7 +318,7 @@ void my_signal_handler(int s){
 
           //If we have a create request, we will get a key back from the processor
           if (msg_type == SCENE_CRT) {
-            resp_data->set_key( process_result );
+            resp_data->set_key( response->get_return_string() );
           }
           //Otherwise, set the response key from the translated object
           else if (translated_object->num_scenes() > 0) {
@@ -345,22 +345,9 @@ void my_signal_handler(int s){
 
           //We have a get message, so we have a serialized object in the processor response
           //"-1", we have a processing error result
-          else if (process_result == "-1") {
-            resp->set_msg_type(PROCESSING_ERROR);
-            resp->set_err_msg("Error encountered in document processing");
-            //Send the Inbound response
-            if (cm->get_formattype() == PROTO_FORMAT) {
-              zmqi->send( resp->to_protobuf() );
-            }
-            else if (cm->get_formattype() == JSON_FORMAT) {
-              zmqi->send( resp->to_json() );
-            }
-            main_logging->debug("Response Sent");
-          }
-
-          else if (process_result == "-2") {
-            resp->set_msg_type(NOT_FOUND);
-            resp->set_err_msg("Document not found");
+          else if ( !(response->successful()) ) {
+            resp->set_msg_type( response->get_error_code() );
+            resp->set_err_msg( response->get_error_description() );
             //Send the Inbound response
             if (cm->get_formattype() == PROTO_FORMAT) {
               zmqi->send( resp->to_protobuf() );
@@ -376,7 +363,7 @@ void my_signal_handler(int s){
           //in the response from the processor
           else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
             msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
-            zmqi->send( process_result );
+            zmqi->send( response->get_return_string() );
           }
 
           //We have a standard message
@@ -409,6 +396,8 @@ void my_signal_handler(int s){
             delete translated_object;
             translated_object = NULL;
           }
+
+          delete response;
 
           //If translated object
         }

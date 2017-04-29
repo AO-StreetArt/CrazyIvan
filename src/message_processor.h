@@ -15,6 +15,26 @@
 #ifndef MSG_PROCESSOR
 #define MSG_PROCESSOR
 
+class ProcessResult {
+int err_code;
+std::string err_desc;
+const char * err_cdesc;
+std::string return_str;
+bool success;
+public:
+  //Default construct returns a successful process result
+  ProcessResult() {err_code=100;err_desc="";success=true;return_str="";}
+  ProcessResult(int ecode, std::string edesc) {err_code=ecode;err_desc=edesc;success=false;return_str="";}
+  ProcessResult(std::string data) {return_str=data;err_code=100;err_desc="";success=true;}
+  void set_error(int ecode, std::string edesc) {err_code=ecode;err_desc=edesc;success=false;return_str="";}
+  void set_error(int ecode, const char * edesc) {err_code=ecode;err_cdesc=edesc;err_desc.assign(err_cdesc);success=false;return_str="";}
+  int get_error_code() {return err_code;}
+  std::string get_error_description() {return err_desc;}
+  void set_return_string(std::string key) {return_str=key;}
+  std::string get_return_string() {return return_str;}
+  bool successful() {return success;}
+};
+
 //The class containing core logic for CrazyIvan
 //Accepts an Scene (assuming it is an inbound message)
 //And performs any and all processing on it,
@@ -30,7 +50,6 @@ ConfigurationManager *config = NULL;
 RedisLocker *redis_locks = NULL;
 uuidInterface *ugen = NULL;
 QueryHelper *qh = NULL;
-std::string ret_val = "";
 std::string proto_resp = "";
 Scene *resp_scn = NULL;
 
@@ -46,42 +65,42 @@ void build_string_response(int msg_type, int err_code, std::string err_msg, std:
 //------------------------------Ping & Kill-----------------------------------//
 
 //Ping the Crazy Ivan Instance
-std::string process_ping_message(Scene *obj_msg);
+ProcessResult* process_ping_message(Scene *obj_msg);
 
 //Kill the Crazy Ivan Instance
-std::string process_kill_message(Scene *obj_msg);
+ProcessResult* process_kill_message(Scene *obj_msg);
 
 //-----------------------------CRUD Support-----------------------------------//
 
 //Create a new scene
-std::string process_create_message(Scene *obj_msg);
+ProcessResult* process_create_message(Scene *obj_msg);
 
 //Update the details of a scene entry
-std::string process_update_message(Scene *obj_msg);
+ProcessResult* process_update_message(Scene *obj_msg);
 
 //Query for scene data
-std::string process_retrieve_message(Scene *obj_msg);
+ProcessResult* process_retrieve_message(Scene *obj_msg);
 
 //Delete a scene
-std::string process_delete_message(Scene *obj_msg);
+ProcessResult* process_delete_message(Scene *obj_msg);
 
 //----------------------------------------------------------------------------//
 //--------------------------Device Registration-------------------------------//
 //Register a device to a scene
 //Predict a coordinate transform for the device
 //and pass it back in the response
-std::string process_registration_message(Scene *obj_msg);
+ProcessResult* process_registration_message(Scene *obj_msg);
 
 //Remove a device from a scene
 //If we are removing the last user device from a scene,
 //then remove the scene and try to move any paths that pass through the scene
-std::string process_deregistration_message(Scene *obj_msg);
+ProcessResult* process_deregistration_message(Scene *obj_msg);
 
 //Align an objects transformation with a scene
 //If the object is a member of other scenes:
 //  -If a coordinate system transformation doesn't exist, then create one
 //  -If a coordinate system transformation exists, then update it with a correction
-std::string process_device_alignment_message(Scene *obj_msg);
+ProcessResult* process_device_alignment_message(Scene *obj_msg);
 
 //----------------------------------------------------------------------------//
 //-----------------------------Public Methods---------------------------------//
@@ -110,7 +129,7 @@ public:
   //In the case of a get message, return the retrieved document back to the main method
   //In the case of a create message, return the key of the created object back to the main method
   //Otherwise, return a blank string in the case of success, and "-1" in the case of failure
-  inline std::string process_message(Scene *obj_msg) {
+  inline ProcessResult* process_message(Scene *obj_msg) {
 
     //Determine what type of message we have, and act accordingly
     int msg_type = obj_msg->get_msg_type();
@@ -144,10 +163,8 @@ public:
       return process_ping_message(obj_msg);
     }
     else {
-      proto_resp = "-1";
+      return new ProcessResult(BAD_MSG_TYPE_ERROR, "Unrecognized Message Type");
     }
-
-    return proto_resp;
   }
 
 };
