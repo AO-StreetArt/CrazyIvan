@@ -513,7 +513,7 @@ std::string Scene::to_json() {
     if (!(data[a]->get_key().empty())) {
       obj_logging->debug("Writing key to JSON");
       obj_logging->debug(data[a]->get_key());
-      obj_logging->debug(data[a]->get_key().length());
+      obj_logging->debug( static_cast<int>(data[a]->get_key().length()) );
       writer.Key("key");
       writer.String( data[a]->get_key().c_str(), (rapidjson::SizeType)data[a]->get_key().length() );
     }
