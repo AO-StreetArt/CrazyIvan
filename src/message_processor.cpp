@@ -393,7 +393,10 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             //Scene object
             DbMapInterface* map = obj->properties();
             if (map->element_exists("key")) {
-              data->set_key( map->get_string_element("key") );
+              std::string new_key = map->get_string_element("key");
+              processor_logging->debug("Key retrieved from query:")
+              processor_logging->debug(new_key);
+              data->set_key( new_key );
             }
             if (map->element_exists("name")) {
               data->set_name( map->get_string_element("name") );
