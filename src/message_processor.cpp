@@ -394,7 +394,7 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             DbMapInterface* map = obj->properties();
             if (map->element_exists("key")) {
               std::string new_key = map->get_string_element("key");
-              processor_logging->debug("Key retrieved from query:")
+              processor_logging->debug("Key retrieved from query:");
               processor_logging->debug(new_key);
               data->set_key( new_key );
             }
