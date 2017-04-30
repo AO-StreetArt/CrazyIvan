@@ -191,7 +191,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     //Iterate through the results
     //Build the scene list
     tree = results->next();
-    while (tree && tree->exists()) {
+    while (tree) {
 
       processor_logging->debug("Record returned from results iterator");
 
