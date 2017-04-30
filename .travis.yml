@@ -84,13 +84,13 @@ script:
   - sudo docker logs --tail 75 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
   - cat $TRAVIS_BUILD_DIR/device_register.log
-  - sudo docker logs --tail 75 crazyivan
+  - sudo docker logs --tail 150 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
   - cat $TRAVIS_BUILD_DIR/device_align.log
-  - sudo docker logs --tail 75 crazyivan
+  - sudo docker logs --tail 150 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
   - cat $TRAVIS_BUILD_DIR/device_deregister.log
-  - sudo docker logs --tail 75 crazyivan
+  - sudo docker logs --tail 150 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
   - cat $TRAVIS_BUILD_DIR/scene_del.log
   - sudo docker logs --tail 75 crazyivan
