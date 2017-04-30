@@ -246,7 +246,6 @@ void my_signal_handler(int s){
         }
 
         //JSON Format Type
-        bool parse_success = true;
         else if (cm->get_formattype() == JSON_FORMAT) {
           try {
             d.Parse(clean_string.c_str());
@@ -255,7 +254,6 @@ void my_signal_handler(int s){
               main_logging->error(d.GetParseError());
               current_error_code = TRANSLATION_ERROR;
               current_error_message = d.GetParseError
-              parse_success = false;
             }
           }
           //Catch a possible error and write to logs
@@ -264,22 +262,21 @@ void my_signal_handler(int s){
             main_logging->error(e.what());
             current_error_code = TRANSLATION_ERROR;
             current_error_message = e.what();
-            parse_success = false;
           }
         }
 
         if (current_error_code == TRANSLATION_ERROR) {
-          parse_error_response = new Scene();
-          parse_error_response->set_err_msg(current_error_message);
-          parse_error_response->set_err_code(current_error_code);
-          parse_error_response->set_msg_type(msg_type);
+          resp = new Scene();
+          resp->set_err_msg(current_error_message);
+          resp->set_err_code(current_error_code);
+          resp->set_msg_type(msg_type);
           if (cm->get_formattype() == PROTO_FORMAT) {
-            zmqi->send( parse_error_response->to_protobuf() );
+            zmqi->send( resp->to_protobuf() );
           }
           else if (cm->get_formattype() == JSON_FORMAT) {
-            zmqi->send( parse_error_response->to_json() );
+            zmqi->send( resp->to_json() );
           }
-          delete parse_error_response;
+          delete resp;
         } else {
 
           //Build the translated object from the document
