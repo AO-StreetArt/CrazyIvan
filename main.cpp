@@ -249,7 +249,7 @@ void my_signal_handler(int s){
         else if (cm->get_formattype() == JSON_FORMAT) {
 
           try {
-            d.Parse(clean_string.c_str());
+            d.Parse<rapidjson::kParseStopWhenDoneFlag>(clean_string.c_str());
             if (d.HasParseError()) {
               main_logging->error("Parsing Error: ");
               main_logging->error(GetParseError_En(d.GetParseError()));
@@ -264,7 +264,7 @@ void my_signal_handler(int s){
             current_error_code = TRANSLATION_ERROR;
             current_error_message = e.what();
           }
-          
+
         }
 
         if (current_error_code == TRANSLATION_ERROR) {
