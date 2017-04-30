@@ -24,6 +24,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/error/en.h"
 
 #include "aossl/commandline/include/commandline_interface.h"
 #include "aossl/commandline/include/factory_cli.h"
@@ -244,16 +245,16 @@ void my_signal_handler(int s){
           }
 
         }
-
         //JSON Format Type
         else if (cm->get_formattype() == JSON_FORMAT) {
+
           try {
             d.Parse(clean_string.c_str());
             if (d.HasParseError()) {
               main_logging->error("Parsing Error: ");
-              main_logging->error(d.GetParseError());
+              main_logging->error(GetParseError_En(d.GetParseError()));
               current_error_code = TRANSLATION_ERROR;
-              current_error_message = d.GetParseError
+              current_error_message.assign(GetParseError_En(d.GetParseError()));
             }
           }
           //Catch a possible error and write to logs
@@ -263,6 +264,7 @@ void my_signal_handler(int s){
             current_error_code = TRANSLATION_ERROR;
             current_error_message = e.what();
           }
+          
         }
 
         if (current_error_code == TRANSLATION_ERROR) {
