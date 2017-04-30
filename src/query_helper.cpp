@@ -103,7 +103,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
     //Check if the registering user device is already registered
     processor_logging->debug("User Devices detected, starting iterative checking to see if the current registration has already been processed");
     tree = results->next();
-    while (tree) {
+    while (tree && tree->exists()) {
 
       //Get the first DB Object (Node)
       obj = tree->get(0);
@@ -191,7 +191,7 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
     //Iterate through the results
     //Build the scene list
     tree = results->next();
-    while (tree) {
+    while (tree && tree->exists()) {
 
       processor_logging->debug("Record returned from results iterator");
 
