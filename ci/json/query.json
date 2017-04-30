@@ -5,7 +5,7 @@
     {
       "latitude":$LATITUDE@,
       "longitude":$LONGITUDE@,
-      "distance":$DISTANCE@,
+      "distance":$DISTANCE@
     }
   ]
 }
