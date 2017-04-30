@@ -24,6 +24,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/error/en.h"
 
 #include "aossl/commandline/include/commandline_interface.h"
 #include "aossl/commandline/include/factory_cli.h"
@@ -232,6 +233,7 @@ void my_signal_handler(int s){
             new_proto.ParseFromString(req_ptr);
             translated_object = new Scene (new_proto);
             msg_type = new_proto.message_type();
+            main_logging->debug("Translated Scene List:");
             translated_object->print();
           }
           //Catch a possible error and write to logs
@@ -243,19 +245,16 @@ void my_signal_handler(int s){
           }
 
         }
-
         //JSON Format Type
         else if (cm->get_formattype() == JSON_FORMAT) {
+
           try {
-            d.Parse(clean_string.c_str());
+            d.Parse<rapidjson::kParseStopWhenDoneFlag>(clean_string.c_str());
             if (d.HasParseError()) {
               main_logging->error("Parsing Error: ");
-              main_logging->error(d.GetParseError());
-            }
-            else {
-              translated_object = new Scene (d);
-              msg_type = translated_object->get_msg_type();
-              translated_object->print();
+              main_logging->error(GetParseError_En(d.GetParseError()));
+              current_error_code = TRANSLATION_ERROR;
+              current_error_message.assign(GetParseError_En(d.GetParseError()));
             }
           }
           //Catch a possible error and write to logs
@@ -265,9 +264,27 @@ void my_signal_handler(int s){
             current_error_code = TRANSLATION_ERROR;
             current_error_message = e.what();
           }
+
         }
 
-        if (translated_object) {
+        if (current_error_code == TRANSLATION_ERROR) {
+          resp = new Scene();
+          resp->set_err_msg(current_error_message);
+          resp->set_err_code(current_error_code);
+          resp->set_msg_type(msg_type);
+          if (cm->get_formattype() == PROTO_FORMAT) {
+            zmqi->send( resp->to_protobuf() );
+          }
+          else if (cm->get_formattype() == JSON_FORMAT) {
+            zmqi->send( resp->to_json() );
+          }
+          delete resp;
+        } else {
+
+          //Build the translated object from the document
+          translated_object = new Scene (d);
+          msg_type = translated_object->get_msg_type();
+          translated_object->print();
 
           //Determine the Transaction ID
           UuidContainer id_container;
@@ -307,7 +324,7 @@ void my_signal_handler(int s){
           main_logging->debug(id_container.id);
 
           //Process the translated object
-          std::string process_result = processor->process_message(translated_object);
+          ProcessResult *response = processor->process_message(translated_object);
 
           // Turn the response from the processor into a response for the client
           resp = new Scene();
@@ -318,7 +335,7 @@ void my_signal_handler(int s){
 
           //If we have a create request, we will get a key back from the processor
           if (msg_type == SCENE_CRT) {
-            resp_data->set_key( process_result );
+            resp_data->set_key( response->get_return_string() );
           }
           //Otherwise, set the response key from the translated object
           else if (translated_object->num_scenes() > 0) {
@@ -331,44 +348,32 @@ void my_signal_handler(int s){
           resp->add_scene(resp_data);
 
           //  Send reply back to client
+          std::string application_response = "";
+
           //Ping message, send back "success"
           if (msg_type == PING) {
-            zmqi->send( "success" );
+            application_response = "{\"err_code\":100}";
           }
 
           //Kill message, shut down
           else if (msg_type == KILL) {
-            zmqi->send( "success" );
+            application_response = "{\"err_code\":100}";
             shutdown();
             exit(1);
           }
 
           //We have a get message, so we have a serialized object in the processor response
           //"-1", we have a processing error result
-          else if (process_result == "-1") {
-            resp->set_msg_type(PROCESSING_ERROR);
-            resp->set_err_msg("Error encountered in document processing");
+          else if ( !(response->successful()) ) {
+            resp->set_err_code( response->get_error_code() );
+            resp->set_err_msg( response->get_error_description() );
             //Send the Inbound response
             if (cm->get_formattype() == PROTO_FORMAT) {
-              zmqi->send( resp->to_protobuf() );
+              application_response = resp->to_protobuf();
             }
             else if (cm->get_formattype() == JSON_FORMAT) {
-              zmqi->send( resp->to_json() );
+              application_response = resp->to_json();
             }
-            main_logging->debug("Response Sent");
-          }
-
-          else if (process_result == "-2") {
-            resp->set_msg_type(NOT_FOUND);
-            resp->set_err_msg("Document not found");
-            //Send the Inbound response
-            if (cm->get_formattype() == PROTO_FORMAT) {
-              zmqi->send( resp->to_protobuf() );
-            }
-            else if (cm->get_formattype() == JSON_FORMAT) {
-              zmqi->send( resp->to_json() );
-            }
-            main_logging->debug("Response Sent");
           }
 
           //If we have a load request or a registration/deregistration/alignment,
@@ -376,7 +381,7 @@ void my_signal_handler(int s){
           //in the response from the processor
           else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
             msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
-            zmqi->send( process_result );
+              application_response = response->get_return_string();
           }
 
           //We have a standard message
@@ -384,13 +389,16 @@ void my_signal_handler(int s){
 
             //Send the Inbound response
             if (cm->get_formattype() == PROTO_FORMAT) {
-              zmqi->send( resp->to_protobuf() );
+              application_response = resp->to_protobuf();
             }
             else if (cm->get_formattype() == JSON_FORMAT) {
-              zmqi->send( resp->to_json() );
+              application_response = resp->to_json();
             }
-            main_logging->debug("Response Sent");
           }
+
+          main_logging->info("Sending Response");
+          main_logging->info( application_response );
+          zmqi->send( application_response );
 
           //Clear the response
           if (!resp) {
@@ -409,6 +417,8 @@ void my_signal_handler(int s){
             delete translated_object;
             translated_object = NULL;
           }
+
+          delete response;
 
           //If translated object
         }

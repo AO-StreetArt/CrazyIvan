@@ -1,0 +1,11 @@
+MSG_TYPE,TRANSACTION_ID,SCN_KEY
+3,123456,abcdefg
+3,123457,bcdefgh
+3,123458,cdefghi
+3,123459,defghij
+3,123460,efghijk
+3,123461,fghijkl
+3,123462,ghijklm
+3,123463,hijklmn
+3,123464,ijklmno
+3,123465,jklmnop

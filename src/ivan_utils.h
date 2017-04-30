@@ -29,6 +29,8 @@ const int ERROR = 101;
 const int NOT_FOUND = 102;
 const int TRANSLATION_ERROR = 110;
 const int PROCESSING_ERROR = 120;
+const int BAD_MSG_TYPE_ERROR = 121;
+const int INSUFF_DATA_ERROR = 122;
 const int DEVICE_LOCK = 130;
 
 //Trim Strings
