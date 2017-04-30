@@ -393,13 +393,13 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             //Scene object
             DbMapInterface* map = obj->properties();
             if (map->element_exists("key")) {
-              std::string new_key = map->get_string_element("key");
+              std::string new_key = map->get_string_element("key", 512);
               processor_logging->debug("Key retrieved from query:");
               processor_logging->debug(new_key);
               data->set_key( new_key );
             }
             if (map->element_exists("name")) {
-              data->set_name( map->get_string_element("name") );
+              data->set_name( map->get_string_element("name", 512) );
             }
             if (map->element_exists("latitude")) {
               data->set_latitude( map->get_float_element("latitude") );
@@ -411,6 +411,10 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             sc.add_scene(data);
 
             //Iterate to the next result
+            //TO-FIX - I think we are inadvertantly deleting data here
+            //TO-FIX - we need to delete these after sending our response message
+            //TO-FIX - Could we store in the Scene object and delete when this is cleaned?
+            //TO-FIX - Accept tree, object, map as params (or fewer, and derive others) for constructor
             if (tree) delete tree;
             if (obj) delete obj;
             if (map) delete map;
