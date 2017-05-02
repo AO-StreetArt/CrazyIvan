@@ -103,7 +103,7 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
     //Check if the registering user device is already registered
     processor_logging->debug("User Devices detected, starting iterative checking to see if the current registration has already been processed");
     tree = results->next();
-    while (tree && tree->exists()) {
+    while (tree) {
 
       //Get the first DB Object (Node)
       obj = tree->get(0);
