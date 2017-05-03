@@ -126,20 +126,17 @@ bool QueryHelper::is_ud_registered(std::string inp_string, std::string inp_devic
       }
 
       //Cleanup
-      if (map) delete map;
-      if (obj) delete obj;
-      if (tree) delete tree;
+      if (map) {delete map;map=NULL;}
+      if (obj) {delete obj;obj=NULL;}
+      if (tree) {delete tree;tree=NULL;}
 
       //Iterate to the next result
       tree = results->next();
     }
   }
-  if (map) delete map;
-  if (obj) delete obj;
-  if (tree) delete tree;
   if (results) delete results;
-  if (key_param) {delete key_param;}
-  if (has_exception) {throw QueryException(exc_string);}
+  if (key_param) delete key_param;
+  if (has_exception) throw QueryException(exc_string);
   return ret_val;
 }
 
@@ -195,13 +192,15 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
 
       processor_logging->debug("Record returned from results iterator");
 
-      SceneData *new_data = new SceneData;
-
       //Get the first DB Object (Node)
       obj = tree->get(0);
+      if ( !(obj->is_node()) && !(obj->is_edge()) ) break;
       edge = tree->get(1);
+      if ( !(edge->is_node()) && !(edge->is_edge()) ) break;
       device = tree->get(2);
-      if ( !(obj->is_node()) ) break;
+      if ( !(device->is_node()) && !(device->is_edge()) ) break;
+
+      SceneData *new_data = new SceneData;
       num_records = num_records + 1;
       processor_logging->debug("Query Result:");
       processor_logging->debug(obj->to_string());
@@ -286,21 +285,18 @@ Scene* QueryHelper::get_registrations(std::string inp_device) {
       sc->add_scene(new_data);
 
       processor_logging->debug("Cleanup");
-      if (map) delete map;
-      if (obj) delete obj;
-      if (tree) delete tree;
+      if (edge_props) {delete edge_props;edge_props=NULL;}
+      if (dev_props) {delete dev_props;dev_props=NULL;}
+      if (map) {delete map;map=NULL;}
+      if (obj) {delete obj;obj=NULL;}
+      if (edge) {delete edge;edge=NULL;}
+      if (device) {delete device;device=NULL;}
+      if (tree) {delete tree;tree=NULL;}
 
       processor_logging->debug("Getting next result");
       tree = results->next();
     }
   }
-  if (edge_props) delete edge_props;
-  if (dev_props) delete dev_props;
-  if (map) delete map;
-  if (obj) delete obj;
-  if (edge) delete edge;
-  if (device) delete device;
-  if (tree) delete tree;
   if (results) delete results;
   if (udkey_param) delete udkey_param;
   if (num_records == 0) {
@@ -377,14 +373,14 @@ void QueryHelper::register_device_to_scene(std::string device_id, std::string sc
   else {
     delete results;
   }
-  if (skey_param) {delete skey_param;}
-  if (udkey_param) {delete udkey_param;}
-  if (locx_param) {delete locx_param;}
-  if (locy_param) {delete locy_param;}
-  if (locz_param) {delete locz_param;}
-  if (rotx_param) {delete rotx_param;}
-  if (roty_param) {delete roty_param;}
-  if (rotz_param) {delete rotz_param;}
+  if (skey_param) delete skey_param;
+  if (udkey_param) delete udkey_param;
+  if (locx_param) delete locx_param;
+  if (locy_param) delete locy_param;
+  if (locz_param) delete locz_param;
+  if (rotx_param) delete rotx_param;
+  if (roty_param) delete roty_param;
+  if (rotz_param) delete rotz_param;
 }
 
 //Remove a registration link in the DB between the specified device and scene
@@ -689,21 +685,19 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
       exc_string = exc_str + udq_string;
       has_exception = true;
     }
-    delete results;
   }
-  if (tree) {delete tree;}
-  if (obj) {delete obj;}
-  if (s1key_param) {delete s1key_param;}
-  if (s2key_param) {delete s2key_param;}
-  if (locx_param) {delete locx_param;}
-  if (locy_param) {delete locy_param;}
-  if (locz_param) {delete locz_param;}
-  if (rotx_param) {delete rotx_param;}
-  if (roty_param) {delete roty_param;}
-  if (rotz_param) {delete rotz_param;}
-  if (has_exception) {
-    throw QueryException(exc_string);
-  }
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
+  if (s1key_param) delete s1key_param;
+  if (s2key_param) delete s2key_param;
+  if (locx_param) delete locx_param;
+  if (locy_param) delete locy_param;
+  if (locz_param) delete locz_param;
+  if (rotx_param) delete rotx_param;
+  if (roty_param) delete roty_param;
+  if (rotz_param) delete rotz_param;
+  if (has_exception) throw QueryException(exc_string);
 }
 
 //Update the scene-scene link
@@ -788,21 +782,19 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
       std::string exc_str = "Query Returned no values: ";
       exc_string = exc_str + udq_string;
     }
-    delete results;
   }
-  if (tree) {delete tree;}
-  if (obj) {delete obj;}
-  if (s1key_param) {delete s1key_param;}
-  if (s2key_param) {delete s2key_param;}
-  if (locx_param) {delete locx_param;}
-  if (locy_param) {delete locy_param;}
-  if (locz_param) {delete locz_param;}
-  if (rotx_param) {delete rotx_param;}
-  if (roty_param) {delete roty_param;}
-  if (rotz_param) {delete rotz_param;}
-  if (has_exception) {
-    throw QueryException(exc_string);
-  }
+  if (obj) delete obj;
+  if (tree) delete tree;
+  if (results) delete results;
+  if (s1key_param) delete s1key_param;
+  if (s2key_param) delete s2key_param;
+  if (locx_param) delete locx_param;
+  if (locy_param) delete locy_param;
+  if (locz_param) delete locz_param;
+  if (rotx_param) delete rotx_param;
+  if (roty_param) delete roty_param;
+  if (rotz_param) delete rotz_param;
+  if (has_exception) throw QueryException(exc_string);
 }
 
 //----------------------------------------------------------------------------//
@@ -885,8 +877,6 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
   DbObjectInterface* obj = NULL;
   DbObjectInterface* path_obj = NULL;
   DbMapInterface *map = NULL;
-  DbListInterface *tran_list = NULL;
-  DbListInterface *rot_list = NULL;
   Neo4jQueryParameterInterface* pkey1_param = NULL;
   Neo4jQueryParameterInterface* pkey2_param = NULL;
 
@@ -991,13 +981,11 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
           new_tran.rotate(2, rotz);
 
         }
+        if (path_obj) {delete path_obj;path_obj=NULL;}
+        if (map) {delete map;map=NULL;}
       }
     }
   }
-  if (map) delete map;
-  if (tran_list) delete tran_list;
-  if (rot_list) delete rot_list;
-  if (path_obj) delete path_obj;
   if (obj) delete obj;
   if (tree) delete tree;
   if (results) delete results;
