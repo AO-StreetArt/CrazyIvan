@@ -75,7 +75,7 @@ if [ ! -d /usr/local/include/aossl ]; then
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
-  cp $PRE/aossl/scripts/deb/build_deps.sh $PRE/aossl_deps/
+  cp $PRE/aossl/scripts/rhel/build_deps.sh $PRE/aossl_deps/
   cd $PRE/aossl_deps && sudo ./build_deps.sh
   cd ../$RETURN
 
