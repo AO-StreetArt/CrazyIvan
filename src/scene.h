@@ -5,8 +5,6 @@
 #include <vector>
 #include <algorithm>
 
-#include <Eigen/Dense>
-
 #include "ivan_log.h"
 #include "ivan_utils.h"
 #include "configuration_manager.h"
