@@ -209,6 +209,7 @@ void my_signal_handler(int s){
         msg_type = -1;
         std::string resp_str = "";
         rapidjson::Document d;
+        std::string clean_string;
 
         //Convert the OMQ message into a string to be passed on the event
         //std::string req_string = zmqi->recv();
@@ -220,7 +221,6 @@ void my_signal_handler(int s){
         //Trim the string recieved
         std::string recvd_msg (req_ptr);
         recvd_msg = trim(recvd_msg);
-        std::string clean_string = recvd_msg.substr(0, recvd_msg.find_last_of("}")+1);
 
         main_logging->debug("Input String Cleaned");
         main_logging->debug(clean_string);
@@ -247,6 +247,9 @@ void my_signal_handler(int s){
         }
         //JSON Format Type
         else if (cm->get_formattype() == JSON_FORMAT) {
+
+          //Cleaning methods that only work on JSON
+          clean_string = recvd_msg.substr(0, recvd_msg.find_last_of("}")+1);
 
           try {
             d.Parse<rapidjson::kParseStopWhenDoneFlag>(clean_string.c_str());
