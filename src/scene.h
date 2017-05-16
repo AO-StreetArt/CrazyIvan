@@ -28,7 +28,7 @@ struct SceneException: public std::exception
   const char * int_msg_cstr;
 
   //! Create a Neo4j Exception, and store the given error message
-  SceneException (std::string msg) {int_msg = "Error in Neo4j Request: " + msg;int_msg_cstr = int_msg.c_str();}
+  SceneException (std::string msg) {int_msg = "Error in Scene: " + msg;int_msg_cstr = int_msg.c_str();}
 
   SceneException () {}
   ~SceneException() throw () {}
