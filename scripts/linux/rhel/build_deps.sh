@@ -20,27 +20,6 @@ sudo yum -y update
 
 #Build the dependencies and place them in the correct places
 
-#Determine if we Need Eigen
-if [ ! -d /usr/local/include/Eigen ]; then
-
-  printf "Downloading Eigen"
-
-  mkdir $PRE/eigen
-
-  #Get the Eigen Dependencies
-  wget http://bitbucket.org/eigen/eigen/get/3.2.8.tar.bz2
-
-  #Move the Eigen Header files to the include path
-
-  #Unzip the Eigen directories
-  tar -vxjf 3.2.8.tar.bz2
-  mv ./eigen-eigen* $PRE/eigen
-
-  #Move the files
-  sudo cp -r $PRE/eigen/eigen*/Eigen /usr/local/include
-
-fi
-
 #Determine if we Need RapidJSON
 if [ ! -d /usr/local/include/rapidjson ]; then
 
@@ -75,7 +54,7 @@ if [ ! -d /usr/local/include/aossl ]; then
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
-  cp $PRE/aossl/scripts/deb/build_deps.sh $PRE/aossl_deps/
+  cp $PRE/aossl/scripts/rhel/build_deps.sh $PRE/aossl_deps/
   cd $PRE/aossl_deps && sudo ./build_deps.sh
   cd ../$RETURN
 

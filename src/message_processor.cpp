@@ -411,10 +411,6 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
             sc.add_scene(data);
 
             //Iterate to the next result
-            //TO-FIX - I think we are inadvertantly deleting data here
-            //TO-FIX - we need to delete these after sending our response message
-            //TO-FIX - Could we store in the Scene object and delete when this is cleaned?
-            //TO-FIX - Accept tree, object, map as params (or fewer, and derive others) for constructor
             if (tree) delete tree;
             if (obj) delete obj;
             if (map) delete map;
