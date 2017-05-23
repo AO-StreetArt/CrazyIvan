@@ -59,13 +59,14 @@ install:
   - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
   - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
   - sudo docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type
-script:
+before_script:
   # Wait for some time to allow the docker instance to finish building
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
   # Start Crazy Ivan
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500 localhost 5555
   # Show the logs from the crazy ivan docker container
   - sudo docker logs --tail 75 crazyivan
+script:
   # Execute the Python Tests
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
   - cat $TRAVIS_BUILD_DIR/scene_crt.log
@@ -94,5 +95,6 @@ script:
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
   - cat $TRAVIS_BUILD_DIR/scene_del.log
   - sudo docker logs --tail 75 crazyivan
+after_success:
   # Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
