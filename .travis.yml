@@ -66,6 +66,7 @@ before_script:
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500 localhost 5555
   # Show the logs from the crazy ivan docker container
   - sudo docker logs --tail 75 crazyivan
+  - sleep 30
 script:
   # Execute the Python Tests
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
