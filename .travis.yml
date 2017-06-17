@@ -69,33 +69,43 @@ before_script:
   - sleep 30
 script:
   # Execute the Python Tests
+
+  # Success tests
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
-  - cat $TRAVIS_BUILD_DIR/scene_crt.log
+  - tail $TRAVIS_BUILD_DIR/scene_crt.log
   - sudo docker logs --tail 75 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
-  - cat $TRAVIS_BUILD_DIR/scene_get.log
+  - tail $TRAVIS_BUILD_DIR/scene_get.log
   - sudo docker logs --tail 75 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_update.xml
-  - cat $TRAVIS_BUILD_DIR/scene_update.log
+  - tail $TRAVIS_BUILD_DIR/scene_update.log
   - sudo docker logs --tail 75 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
-  - cat $TRAVIS_BUILD_DIR/scene_get.log
+  - tail $TRAVIS_BUILD_DIR/scene_get.log
   - sudo docker logs --tail 75 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query.xml
-  - cat $TRAVIS_BUILD_DIR/scene_query.log
+  - tail $TRAVIS_BUILD_DIR/scene_query.log
   - sudo docker logs --tail 75 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
-  - cat $TRAVIS_BUILD_DIR/device_register.log
-  - sudo docker logs --tail 150 crazyivan
+  - tail $TRAVIS_BUILD_DIR/device_register.log
+  - sudo docker logs --tail 100 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
-  - cat $TRAVIS_BUILD_DIR/device_align.log
-  - sudo docker logs --tail 150 crazyivan
+  - tail $TRAVIS_BUILD_DIR/device_align.log
+  - sudo docker logs --tail 100 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
-  - cat $TRAVIS_BUILD_DIR/device_deregister.log
-  - sudo docker logs --tail 150 crazyivan
+  - tail $TRAVIS_BUILD_DIR/device_deregister.log
+  - sudo docker logs --tail 100 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
-  - cat $TRAVIS_BUILD_DIR/scene_del.log
+  - tail $TRAVIS_BUILD_DIR/scene_del.log
   - sudo docker logs --tail 75 crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get_bad.xml
+  - tail $TRAVIS_BUILD_DIR/scene_get.log
+  - sudo docker logs --tail 75 crazyivan
+
+  # Failure tests
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get_bad.xml
+  - tail $TRAVIS_BUILD_DIR/scene_get.log
+  - sudo docker logs --tail 50 crazyivan
 after_success:
   # Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
