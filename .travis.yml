@@ -106,6 +106,15 @@ script:
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get_bad.xml
   - tail $TRAVIS_BUILD_DIR/scene_get.log
   - sudo docker logs --tail 50 crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_upd_bad.xml
+  - tail $TRAVIS_BUILD_DIR/scene_upd.log
+  - sudo docker logs --tail 50 crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del_bad.xml
+  - tail $TRAVIS_BUILD_DIR/scene_del.log
+  - sudo docker logs --tail 50 crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query_bad.xml
+  - tail $TRAVIS_BUILD_DIR/scene_query.log
+  - sudo docker logs --tail 50 crazyivan
 after_success:
   # Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
