@@ -17,7 +17,7 @@
     <Outbound_Connection_Type>REQ</Outbound_Connection_Type>
   </ZeroMQ>
   <Logging>
-    <Log_File>scene_update.log</Log_File>
+    <Log_File>scene_upd.log</Log_File>
     <Log_Level>Info</Log_Level>
   </Logging>
   <Response>
