@@ -323,8 +323,8 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           std::string where_clause = " WHERE ( "
                                         "12742000 * asin("
                                           "sqrt("
-                                            "haversin(radians({inp_latitude} - scn.latitude)) + "
-                                            "cos(radians({inp_latitude})) * cos(radians(scn.latitude)) * haversin(radians(scn.longitude - {inp_longitude}))"
+                                            "haversin(radians({inp_lat} - scn.latitude)) + "
+                                            "cos(radians({inp_lat})) * cos(radians(scn.latitude)) * haversin(radians(scn.longitude - {inp_long}))"
                                           ")"
                                         ")"
                                       ") < {inp_distance}";
