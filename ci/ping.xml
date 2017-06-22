@@ -9,6 +9,7 @@
   <ZeroMQ>
     <Outbound_Connection>tcp://localhost:5555</Outbound_Connection>
     <Outbound_Connection_Type>REQ</Outbound_Connection_Type>
+    <Timeout>5000</Timeout>
   </ZeroMQ>
   <Logging>
     <Log_File>ping.log</Log_File>
