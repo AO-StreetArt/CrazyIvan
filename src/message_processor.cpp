@@ -320,10 +320,14 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           //Query for distance
           //Assumes distance supplied is in meters
           //Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
-          std::string where_clause = " WHERE ( 12742000 * asin((((sin((scn.longitude -"
-                                      " {inp_long}) / 2) ^ 2) + (cos({inp_long}) * "
-                                      "cos(scn.longitude) * (sin((scn.latitude - "
-                                      "{inp_lat}) / 2) ^ 2))) ^ (1/2)))) < {inp_distance}";
+          std::string where_clause = " WHERE ( "
+                                        "12742000 * asin("
+                                          "sqrt("
+                                            "haversin(radians({inp_latitude} - scn.latitude)) + "
+                                            "cos(radians({inp_latitude})) * cos(radians(scn.latitude)) * haversin(radians(scn.longitude - {inp_longitude}))"
+                                          ")"
+                                        ")"
+                                      ") < {inp_distance}";
           scene_query = scene_query + where_clause;
         }
       }
@@ -365,7 +369,7 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
       try {
         results = n->execute(scene_query, scene_params);
         if (!results) {
-          processor_logging->error("No results returned from update query");
+          processor_logging->error("No results returned from query");
           response->set_error(PROCESSING_ERROR, "Unknown Error processing Scene Retrieval");
         }
         else {

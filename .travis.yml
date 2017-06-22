@@ -118,9 +118,6 @@ script:
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query_bad.xml
   - tail $TRAVIS_BUILD_DIR/scene_query.log
   - sudo docker logs --tail 50 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register_bad.xml
-  - tail $TRAVIS_BUILD_DIR/device_register.log
-  - sudo docker logs --tail 50 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
   - tail $TRAVIS_BUILD_DIR/device_align.log
   - sudo docker logs --tail 50 crazyivan
