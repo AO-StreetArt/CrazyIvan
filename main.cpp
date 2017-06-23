@@ -213,7 +213,11 @@ void my_signal_handler(int s){
 
         //Convert the OMQ message into a string to be passed on the event
         char * req_ptr = zmqi->crecv();
-        if (!req_ptr) {main_logging->error("Null Value returned from ZMQ");continue;}
+        if (!req_ptr) {
+          main_logging->error("Null Value returned from ZMQ");
+          zmqi->send( "{\"err_code\":120}" );
+          continue;
+        }
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
 
