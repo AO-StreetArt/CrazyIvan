@@ -212,9 +212,8 @@ void my_signal_handler(int s){
         std::string clean_string;
 
         //Convert the OMQ message into a string to be passed on the event
-        //std::string req_string = zmqi->recv();
-        //req_string = ltrim(req_string);
         char * req_ptr = zmqi->crecv();
+        if (!req_ptr) {main_logging->error("Null Value returned from ZMQ");continue;}
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
 
