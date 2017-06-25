@@ -54,6 +54,7 @@ install:
   # Set up Redis
   #- sudo docker pull redis
   #- sudo docker run --network=dvs --name=cache -d redis
+  - redis-cli ping
   # Populate Consul Configuration variables
   - sudo docker exec -t registry curl -X PUT -d 'localhost--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
   - sudo docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
