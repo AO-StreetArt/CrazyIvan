@@ -2,6 +2,9 @@
 sudo: required
 dist: trusty
 language: cpp
+env:
+  global:
+  - DOCKER_VERSION="1.9.1-0~trusty"
 
 addons:
   apt:
@@ -24,6 +27,12 @@ services:
   # Start up Docker
   - docker
 before_install:
+  # HACK - Revert to previous version of docker engine to resolve connection issues from Trusty Updates (6-25-17)
+  - sudo apt-get update
+  - sudo apt-get remove docker-engine -yq
+  - sudo apt-get install docker-engine=$DOCKER_VERSION -yq --no-install-suggests --no-install-recommends --force-yes -o Dpkg::Options::="--force-confnew"
+  # Update GCC to v5
+  - gcc --version
   - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
   - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
   # Print the version of gcc
