@@ -23,6 +23,7 @@ addons:
 services:
   # Start up Docker
   - docker
+  - redis
 before_install:
   - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
   - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
@@ -51,11 +52,10 @@ install:
   - sudo docker pull neo4j
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --network=dvs --name=database neo4j
   # Set up Redis
-  - sudo service redis-server start
   - sudo docker pull redis
   - sudo docker run --network=dvs --name=cache -d redis
   # Populate Consul Configuration variables
-  - sudo docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
+  - sudo docker exec -t registry curl -X PUT -d 'localhost--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
   - sudo docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
   - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
   - sudo docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
