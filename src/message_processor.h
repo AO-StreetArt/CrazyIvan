@@ -119,7 +119,7 @@ public:
   }
 
   //Destructor
-  ~MessageProcessor() {delete redis_locks;delete qh;}
+  ~MessageProcessor() {delete redis_locks;delete qh;if (resp_scn) {delete resp_scn;}}
 
   //TO-DO: If we wrap this in a method that accepts a const char *
   //TO-DO: and make this threadsafe, then we can turn this into an
