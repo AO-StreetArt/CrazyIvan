@@ -23,6 +23,6 @@
   </Logging>
   <Response>
     <Field_Path>err_code</Field_Path>
-    <Success_Value>102</Success_Value>
+    <Success_Value>100</Success_Value>
   </Response>
 </Configuration>
