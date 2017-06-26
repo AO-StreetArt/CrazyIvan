@@ -8,7 +8,7 @@
   <Message>
     <Message_Location>ci/json/query.json</Message_Location>
     <Message_Extension>json</Message_Extension>
-    <CSV_Location>ci/csv/scene_query.csv</CSV_Location>
+    <CSV_Location>ci/csv/scene_query_bad.csv</CSV_Location>
     <Variable_Start_Character>$</Variable_Start_Character>
     <Variable_End_Character>@</Variable_End_Character>
   </Message>
@@ -23,6 +23,6 @@
   </Logging>
   <Response>
     <Field_Path>err_code</Field_Path>
-    <Success_Value>100</Success_Value>
+    <Success_Value>102</Success_Value>
   </Response>
 </Configuration>

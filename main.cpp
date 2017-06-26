@@ -212,21 +212,24 @@ void my_signal_handler(int s){
         std::string clean_string;
 
         //Convert the OMQ message into a string to be passed on the event
-        //std::string req_string = zmqi->recv();
-        //req_string = ltrim(req_string);
         char * req_ptr = zmqi->crecv();
+        if (!req_ptr) {
+          main_logging->error("Null Value returned from ZMQ");
+          zmqi->send( "{\"err_code\":120}" );
+          continue;
+        }
         main_logging->debug("Conversion to C String performed with result: ");
         main_logging->debug(req_ptr);
 
         //Trim the string recieved
         std::string recvd_msg (req_ptr);
-        recvd_msg = trim(recvd_msg);
-
-        main_logging->debug("Input String Cleaned");
-        main_logging->debug(clean_string);
 
         //Protocol Buffer Format Type
         if (cm->get_formattype() == PROTO_FORMAT) {
+
+          clean_string = trim(recvd_msg);
+          main_logging->debug("Input String Cleaned");
+          main_logging->debug(clean_string);
 
           try {
             new_proto.Clear();
@@ -249,7 +252,11 @@ void my_signal_handler(int s){
         else if (cm->get_formattype() == JSON_FORMAT) {
 
           //Cleaning methods that only work on JSON
-          clean_string = recvd_msg.substr(0, recvd_msg.find_last_of("}")+1);
+          int final_closing_char = recvd_msg.find_last_of("}");
+          int first_opening_char = recvd_msg.find_first_of("{");
+          clean_string = recvd_msg.substr(first_opening_char, final_closing_char+1);
+          main_logging->debug("Input String Cleaned");
+          main_logging->debug(clean_string);
 
           try {
             d.Parse<rapidjson::kParseStopWhenDoneFlag>(clean_string.c_str());

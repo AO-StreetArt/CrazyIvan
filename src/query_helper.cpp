@@ -576,18 +576,22 @@ int QueryHelper::get_scene_link(std::string scene1_key, std::string scene2_key) 
   if (results) {
     //Find if the first result is forward or backward
     tree = results->next();
-    obj = tree->get(0);
-    if ( !(obj->is_edge()) ) {
-      processor_logging->debug("Non-Edge value returned from query");
-    }
-    else {
-      map = obj->properties();
-      if (map->element_exists("key")) {
-        if ( scene1_key == map->get_string_element("key") ) {
-          ret_val = 1;
-        }
-        else if ( scene2_key == map->get_string_element("key") ) {
-          ret_val = 2;
+    if (!tree) {
+      processor_logging->debug("No values found in result tree");
+    } else {
+      obj = tree->get(0);
+      if ( !(obj->is_edge()) ) {
+        processor_logging->debug("Non-Edge value returned from query");
+      }
+      else {
+        map = obj->properties();
+        if (map->element_exists("key")) {
+          if ( scene1_key == map->get_string_element("key") ) {
+            ret_val = 1;
+          }
+          else if ( scene2_key == map->get_string_element("key") ) {
+            ret_val = 2;
+          }
         }
       }
     }

@@ -6,9 +6,9 @@
     <Fail_On_Response>True</Fail_On_Response>
   </Behavior>
   <Message>
-    <Message_Location>ci/json/query.json</Message_Location>
+    <Message_Location>ci/json/scene_invalid.json</Message_Location>
     <Message_Extension>json</Message_Extension>
-    <CSV_Location>ci/csv/scene_query.csv</CSV_Location>
+    <CSV_Location>ci/csv/scene_crt.csv</CSV_Location>
     <Variable_Start_Character>$</Variable_Start_Character>
     <Variable_End_Character>@</Variable_End_Character>
   </Message>
@@ -18,11 +18,11 @@
     <Timeout>5000</Timeout>
   </ZeroMQ>
   <Logging>
-    <Log_File>scene_query.log</Log_File>
+    <Log_File>scene_crt.log</Log_File>
     <Log_Level>Info</Log_Level>
   </Logging>
   <Response>
     <Field_Path>err_code</Field_Path>
-    <Success_Value>100</Success_Value>
+    <Success_Value>110</Success_Value>
   </Response>
 </Configuration>
