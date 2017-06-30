@@ -82,11 +82,6 @@ script:
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
   - tail $TRAVIS_BUILD_DIR/device_register.log
   - docker logs --tail 100 crazyivan
-  # Removing alignment test from CI to get visibility to other tests
-  # Need to re-introduce and fix whatever is causing the crash
-  #- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
-  #- tail $TRAVIS_BUILD_DIR/device_align.log
-  #- docker logs --tail 100 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
   - tail $TRAVIS_BUILD_DIR/device_deregister.log
   - docker logs --tail 100 crazyivan
@@ -110,13 +105,16 @@ script:
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query_bad.xml
   - tail $TRAVIS_BUILD_DIR/scene_query.log
   - docker logs --tail 50 crazyivan
-  # Removing alignment test from CI to get visibility to other tests
-  # Need to re-introduce and fix whatever is causing the crash
-  #- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
-  #- tail $TRAVIS_BUILD_DIR/device_align.log
-  #- docker logs --tail 50 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister_bad.xml
   - tail $TRAVIS_BUILD_DIR/device_deregister.log
+  - docker logs --tail 50 crazyivan
+
+  # Alignment Tests
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
+  - tail $TRAVIS_BUILD_DIR/device_align.log
+  - docker logs --tail 100 crazyivan
+  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
+  - tail $TRAVIS_BUILD_DIR/device_align.log
   - docker logs --tail 50 crazyivan
 after_success:
   # Push the built image to docker hub

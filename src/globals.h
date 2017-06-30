@@ -57,6 +57,13 @@ extern LoggingComponentFactory *logging_factory;
 //Shutdown the application
 inline void shutdown()
 {
+
+  if(!resp) {main_logging->debug("No response object active at the time of shutdown");}
+  else {delete resp;}
+
+  if (!translated_object) {main_logging->debug("No translated object active at time of shutdown");}
+  else {delete translated_object;}
+  
   //Delete objects off the heap
   if (processor) {
     delete processor;
@@ -79,12 +86,6 @@ inline void shutdown()
   if (cli) {
     delete cli;
   }
-
-  if(!resp) {main_logging->debug("No response object active at the time of shutdown");}
-  else {delete resp;}
-
-  if (!translated_object) {main_logging->debug("No translated object active at time of shutdown");}
-  else {delete translated_object;}
 
   shutdown_logging_submodules();
   if (logging) {
