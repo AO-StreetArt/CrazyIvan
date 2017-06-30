@@ -494,17 +494,15 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
 
   if (!results) {
     processor_logging->error("No Links created");
-    std::string exc_str = "No Links created: ";
-    exc_string = exc_str + udq_string;
+    exc_string = "No Links Created";
     has_exception = true;
   }
-  else {
+  else if (!has_exception) {
     tree = results->next();
     obj = tree->get(0);
     if ( !(obj->is_node()) ) {
-      processor_logging->debug("Query Returned no values");
-      std::string exc_str = "Query Returned no values: ";
-      exc_string = exc_str + udq_string;
+      processor_logging->error("Query Returned no values");
+      exc_string = "Query Returned no values";
       has_exception = true;
     }
   }
