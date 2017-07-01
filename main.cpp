@@ -219,6 +219,7 @@ void my_signal_handler(int s){
           continue;
         }
         main_logging->debug("Conversion to C String performed with result: ");
+        //TO-DO:We are segfaulting here when we try to print a blank string
         main_logging->debug(req_ptr);
 
         //Trim the string recieved

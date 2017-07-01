@@ -793,10 +793,11 @@ ProcessResult* MessageProcessor::process_device_alignment_message(Scene *obj_msg
     current_err_msg = e.what();
   }
 
+  bool registration_found = false;
   //Update the transformation between the scene and user device
   if (current_err_code == NO_ERROR) {
     try {
-      qh->update_device_registration( obj_msg->get_scene(0)->get_device(0)->get_key(),\
+      registration_found = qh->update_device_registration( obj_msg->get_scene(0)->get_device(0)->get_key(),\
         obj_msg->get_scene(0)->get_key(), *(obj_msg->get_scene(0)->get_device(0)->get_transform()) );
     }
     catch (std::exception& e) {
@@ -805,6 +806,14 @@ ProcessResult* MessageProcessor::process_device_alignment_message(Scene *obj_msg
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
+  }
+
+  //If we could not find an existing registration to update
+  //then we want to return a not found error code
+  if (!registration_found) {
+    processor_logging->debug("Existing Registration not found");
+    current_err_code = NOT_FOUND;
+    current_err_msg = "No Existing Registrations Found";
   }
 
   //Find scenes that the object is registered to
