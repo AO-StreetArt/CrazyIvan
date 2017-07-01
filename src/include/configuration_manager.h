@@ -56,6 +56,8 @@ ServiceInterface *s = NULL;
 //Configuration Variables
 std::string DB_ConnStr;
 std::string OMQ_IBConnStr;
+std::string hostname;
+std::string port;
 std::vector<RedisConnChain> RedisConnectionList;
 int format_type;
 bool StampTransactionId;

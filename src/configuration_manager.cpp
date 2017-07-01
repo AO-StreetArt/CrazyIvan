@@ -43,6 +43,16 @@ bool ConfigurationManager::configure_from_file (std::string file_path)
     config_logging->info("Inbound 0MQ Connection:");
     config_logging->info(OMQ_IBConnStr);
   }
+  if (props->opt_exist("0MQ_Hostname")) {
+    hostname = props->get_opt("0MQ_Hostname");
+    config_logging->info("Inbound 0MQ Hostname:");
+    config_logging->info(hostname);
+  }
+  if (props->opt_exist("0MQ_Port")) {
+    port = props->get_opt("0MQ_Port");
+    config_logging->info("Inbound 0MQ Port:");
+    config_logging->info(port);
+  }
   if (props->opt_exist("Data_Format_Type")) {
     std::string param_value = props->get_opt("Data_Format_Type");
     if (param_value == "1" || param_value == "JSON" || param_value == "json") {
@@ -348,6 +358,7 @@ bool ConfigurationManager::configure ()
   else {
 
     bool ret_val = false;
+    bool configured = false;
 
     //See if we have any environment variables specified
     const char * env_consul_addr = std::getenv("CRAZYIVAN_CONSUL_ADDR");
@@ -360,55 +371,52 @@ bool ConfigurationManager::configure ()
     if ( env_conf_file ) {
       std::string env_conf_loc (env_conf_file);
       ret_val = configure_from_file( env_conf_loc );
+      configured = true;
     }
 
     else if ( cli->opt_exist("-config-file") ) {
       ret_val =  configure_from_file( cli->get_opt("-config-file") );
+      configured = true;
     }
 
-    //Check if we have a consul address specified
-    else if (env_consul_addr && env_ip && env_port) {
-      std::string env_consul_addr_str (env_consul_addr);
-      std::string env_ip_str (env_ip);
-      std::string env_port_str (env_port);
+    //String variables to hold the hostname, port, and consul connection info
+    std::string env_ip_str = "";
+    std::string env_port_str = "";
+    std::string env_consul_addr_str = "";
+
+    //Pull any command line and environment variables for ip, port, and consul address
+    if (env_consul_addr) env_consul_addr_str.assign(env_consul_addr);
+    if (env_ip) env_ip_str.assign(env_ip);
+    if (env_port) env_port_str.assign(env_port);
+    if (cli->opt_exist("-ip")) env_ip_str.assign(cli->get_opt("-ip"));
+    if (cli->opt_exist("-port")) env_port_str.assign(cli->get_opt("-port"));
+    if ( cli->opt_exist("-consul-addr") ) env_consul_addr_str.assign( cli->get_opt("-consul-addr") );
+
+    //Execute Consul Configuration
+    if ( !(env_consul_addr_str.empty() || env_ip_str.empty() || env_port_str.empty()) )  {
       ret_val = configure_from_consul( env_consul_addr_str, env_ip_str, env_port_str );
-      if (env_db_addr) {
-        std::string env_db_addr_str (env_db_addr);
-        DB_ConnStr = env_db_addr_str;
-      }
       if (ret_val) {
         isConsulActive = true;
+        configured = true;
       }
       else {
         config_logging->error("Configuration from Consul failed, keeping defaults");
       }
-    }
+    } else {config_logging->error("Insufficient information provided to register with Consul");}
 
-
-    else if ( cli->opt_exist("-consul-addr") && cli->opt_exist("-ip") && cli->opt_exist("-port") )
+    //If we have nothing specified, look for an app.properties file
+    if (!configured)
     {
-      ret_val = configure_from_consul( cli->get_opt("-consul-addr"), cli->get_opt("-ip"), cli->get_opt("-port") );
-      if ( cli->opt_exist("-db-addr") ) {
-        DB_ConnStr = cli->get_opt("-db-addr");
-      }
-      if (ret_val) {
-        isConsulActive = true;
-      }
-      else {
-        config_logging->error("Configuration from Consul failed, keeping defaults");
-      }
-    }
-
-    //Check for the dev flag, which starts up with default ports and no consul connection
-    else if ( cli->opt_exist("-dev") ) {
-      ret_val = true;
-    }
-
-    //If we have nothing specified, look for a ivan.properties file
-    else
-    {
-      ret_val = configure_from_file( "ivan.properties" );
+      ret_val = configure_from_file( "app.properties" );
 	  }
+
+    //Override DB options with command line/env variables
+    if ( cli->opt_exist("-db-addr") ) {
+      DB_ConnStr = cli->get_opt("-db-addr");
+    } else if (env_db_addr) {
+      std::string env_db_addr_str (env_db_addr);
+      DB_ConnStr = env_db_addr_str;
+    }
 
     return ret_val;
 
