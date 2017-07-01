@@ -478,7 +478,6 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   q_params.emplace("rot_z", rotz_param);
 
   processor_logging->debug("Executing Query:");
-  processor_logging->debug(udq_string);
 
   //Execute the query
   bool has_exception = false;
