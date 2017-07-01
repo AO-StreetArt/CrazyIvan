@@ -1,4 +1,4 @@
-#include "configuration_manager.h"
+#include "include/configuration_manager.h"
 
 ConfigurationManager::~ConfigurationManager() {
   if (isConsulActive)

@@ -1,5 +1,5 @@
-#include "../scene.h"
-#include "../ivan_log.h"
+#include "scene.h"
+#include "ivan_log.h"
 #include <iostream>
 #include <Eigen/Dense>
 #include <assert.h>

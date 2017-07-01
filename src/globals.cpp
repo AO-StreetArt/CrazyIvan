@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "include/globals.h"
 
 //Declare our global variables
 

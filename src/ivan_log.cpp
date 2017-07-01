@@ -1,4 +1,4 @@
-#include "ivan_log.h"
+#include "include/ivan_log.h"
 
 LoggingCategoryInterface *config_logging = NULL;
 LoggingCategoryInterface *obj_logging = NULL;

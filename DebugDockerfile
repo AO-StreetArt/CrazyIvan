@@ -112,7 +112,7 @@ RUN cd CrazyIvan && make && make test
 
 # Execute Unit Tests
 RUN cd CrazyIvan && ./scene_test
-RUN cd CrazyIvan && ./configuration_test -config-file=src/test/test.properties
+RUN cd CrazyIvan && ./configuration_test -config-file=test/test.properties
 
 #Expose some of the default ports
 EXPOSE 22

@@ -1,4 +1,4 @@
-#include "query_helper.h"
+#include "include/query_helper.h"
 
 bool QueryHelper::scene_exists(std::string inp_key) {
   //Determine if the scene exists
