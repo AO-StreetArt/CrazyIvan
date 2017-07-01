@@ -59,7 +59,7 @@ public:
   Scene* get_registrations(std::string inp_device);
 
   //Update the transformation between scene and device
-  void update_device_registration(std::string dev_id, std::string scene_id, Transform &transform);
+  bool update_device_registration(std::string dev_id, std::string scene_id, Transform &transform);
 
   //Create a registration link in the DB with the given device, scene, and transform matrix
   void register_device_to_scene(std::string device_id, std::string scene_id, Transform &transform);

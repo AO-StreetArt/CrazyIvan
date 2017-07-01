@@ -426,7 +426,9 @@ void QueryHelper::remove_device_from_scene(std::string device_id, std::string sc
 }
 
 //Update the device registration
-void QueryHelper::update_device_registration(std::string dev_id, std::string scene_id, Transform &transform) {
+//Return true if the update was successful
+//False if we were unable to find an existing link to update
+bool QueryHelper::update_device_registration(std::string dev_id, std::string scene_id, Transform &transform) {
   processor_logging->debug("Updating Device Registration link");
   ResultsIteratorInterface *results = NULL;
   ResultTreeInterface *tree = NULL;
@@ -481,6 +483,7 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
 
   //Execute the query
   bool has_exception = false;
+  bool result_found = true;
   std::string exc_string = "";
   try {
     results = n->execute(udq_string, q_params);
@@ -496,22 +499,19 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
 
   if (!results) {
     processor_logging->error("No Links created");
-    exc_string = "No Links Created";
-    has_exception = true;
+    result_found = false;
   }
-  else if (!has_exception) {
+  else if ( (!has_exception) && result_found ) {
     processor_logging->debug("Query Executed Successfully");
     tree = results->next();
     if (!tree) {
       processor_logging->error("Query Returned no result tree");
-      exc_string = "Query Returned no result tree";
-      has_exception = true;
+      result_found = false;
     } else {
       obj = tree->get(0);
       if ( !(obj->is_node()) ) {
         processor_logging->error("Query Returned no values");
-        exc_string = "Query Returned no values";
-        has_exception = true;
+        result_found = false;
       } else {processor_logging->debug(obj->to_string());}
     }
   }
@@ -527,6 +527,7 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   if (roty_param) delete roty_param;
   if (rotz_param) delete rotz_param;
   if (has_exception) throw QueryException(exc_string);
+  return result_found;
 }
 
 //----------------------------------------------------------------------------//
