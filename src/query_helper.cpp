@@ -477,6 +477,8 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
 
+  processor_logging->debug("Executing Query");
+
   //Execute the query
   bool has_exception = false;
   std::string exc_string = "";
@@ -498,12 +500,19 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
     has_exception = true;
   }
   else if (!has_exception) {
+    processor_logging->debug("Query Executed Successfully");
     tree = results->next();
-    obj = tree->get(0);
-    if ( !(obj->is_node()) ) {
-      processor_logging->error("Query Returned no values");
-      exc_string = "Query Returned no values";
+    if (!tree) {
+      processor_logging->error("Query Returned no result tree");
+      exc_string = "Query Returned no result tree";
       has_exception = true;
+    } else {
+      obj = tree->get(0);
+      if ( !(obj->is_node()) ) {
+        processor_logging->error("Query Returned no values");
+        exc_string = "Query Returned no values";
+        has_exception = true;
+      }
     }
   }
   if (obj) delete obj;
@@ -680,12 +689,19 @@ void QueryHelper::create_scene_link(std::string s1_key, std::string s2_key, Tran
   }
   else {
     tree = results->next();
-    obj = tree->get(0);
-    if ( !(obj->is_node()) ) {
-      processor_logging->debug("Query Returned no values");
+    if (!tree) {
+      processor_logging->error("Query Returned no result tree");
       std::string exc_str = "Query Returned no values: ";
       exc_string = exc_str + udq_string;
       has_exception = true;
+    } else {
+      obj = tree->get(0);
+      if ( !(obj->is_node()) ) {
+        processor_logging->debug("Query Returned no values");
+        std::string exc_str = "Query Returned no values: ";
+        exc_string = exc_str + udq_string;
+        has_exception = true;
+      }
     }
   }
   if (obj) delete obj;
@@ -777,12 +793,19 @@ void QueryHelper::update_scene_link(std::string s1_key, std::string s2_key, Tran
   }
   else {
     tree = results->next();
-    obj = tree->get(0);
-    if ( !(obj->is_node()) ) {
-      processor_logging->debug("Query Returned no values");
+    if (!tree) {
+      processor_logging->debug("Query Returned no result tree");
       has_exception = true;
-      std::string exc_str = "Query Returned no values: ";
+      std::string exc_str = "Query Returned no result tree: ";
       exc_string = exc_str + udq_string;
+    } else {
+      obj = tree->get(0);
+      if ( !(obj->is_node()) ) {
+        processor_logging->debug("Query Returned no values");
+        has_exception = true;
+        std::string exc_str = "Query Returned no values: ";
+        exc_string = exc_str + udq_string;
+      }
     }
   }
   if (obj) delete obj;
@@ -899,6 +922,9 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
   processor_logging->debug(scene_id2);
   path_q_params.emplace("inp_key_start", pkey2_param);
 
+  std::string err_str;
+  bool has_exception = false;
+
   //Execute the query
   try {
     results = n->execute(path_q_string, path_q_params);
@@ -907,90 +933,100 @@ SceneTransformResult QueryHelper::calculate_scene_scene_transform(std::string sc
     processor_logging->error("Error running Query:");
     processor_logging->error(path_q_string);
     processor_logging->error(e.what());
-    std::string err_str (e.what());
-    throw QueryException(err_str);
+    std::string e_str (e.what());
+    err_str = e_str;
+    has_exception = true;
   }
 
   if (!results) {
     processor_logging->error("No Path between scenes found");
+    err_str = "No Path between scenes found";
+    has_exception = true;
   }
-  else {
+  else if (!has_exception) {
     //If we have a path, then calculate the correct transform for the user device
 
     //Get the path object from the query return
     tree = results->next();
-    obj = tree->get(0);
+    if (!tree) {
+      processor_logging->error("No results tree returned");
+    } else {
+      obj = tree->get(0);
 
-    //Determine if we have a path in the return value
-    if (obj->is_path()) {
-      processor_logging->debug("Path object detected in return values from Database");
+      //Determine if we have a path in the return value
+      if (obj->is_path()) {
+        processor_logging->debug("Path object detected in return values from Database");
 
-      //Iterate through the path
-      int path_size = obj->size();
-      for (int i=0;i<path_size;i++) {
+        //Iterate through the path
+        int path_size = obj->size();
+        for (int i=0;i<path_size;i++) {
 
-        //Retrieve the path element
-        path_obj = obj->get_path_element(i);
+          //Retrieve the path element
+          path_obj = obj->get_path_element(i);
 
-        //Are we dealing with an edge?
-        if (path_obj->is_edge()) {
+          //Are we dealing with an edge?
+          if (path_obj->is_edge()) {
 
-          //Transform values
-          double trnx = 0.0;
-          double trny = 0.0;
-          double trnz = 0.0;
-          double rotx = 0.0;
-          double roty = 0.0;
-          double rotz = 0.0;
+            //Transform values
+            double trnx = 0.0;
+            double trny = 0.0;
+            double trnz = 0.0;
+            double rotx = 0.0;
+            double roty = 0.0;
+            double rotz = 0.0;
 
-          //Get the property values
-          map = path_obj->properties();
-          if (map->element_exists("translation_x")) {
-            trnx = map->get_float_element("translation_x");
+            //Get the property values
+            map = path_obj->properties();
+            if (map->element_exists("translation_x")) {
+              trnx = map->get_float_element("translation_x");
+            }
+            if (map->element_exists("translation_y")) {
+              trny = map->get_float_element("translation_y");
+            }
+            if (map->element_exists("translation_z")) {
+              trnz = map->get_float_element("translation_z");
+            }
+            if (map->element_exists("rotation_x")) {
+              rotx = map->get_float_element("rotation_x");
+            }
+            if (map->element_exists("rotation_y")) {
+              roty = map->get_float_element("rotation_y");
+            }
+            if (map->element_exists("rotation_z")) {
+              rotz = map->get_float_element("rotation_z");
+            }
+
+            //Is our edge backward?
+            if ( !(path_obj->forward()) ) {
+              trnx = (-1) * trnx;
+              trny = (-1) * trny;
+              trnz = (-1) * trnz;
+              rotx = (-1) * rotx;
+              roty = (-1) * roty;
+              rotz = (-1) * rotz;
+            }
+
+            //Update the new transformation with the edge
+            new_tran.translate(0, trnx);
+            new_tran.translate(1, trny);
+            new_tran.translate(2, trnz);
+            new_tran.rotate(0, rotx);
+            new_tran.rotate(1, roty);
+            new_tran.rotate(2, rotz);
+
           }
-          if (map->element_exists("translation_y")) {
-            trny = map->get_float_element("translation_y");
-          }
-          if (map->element_exists("translation_z")) {
-            trnz = map->get_float_element("translation_z");
-          }
-          if (map->element_exists("rotation_x")) {
-            rotx = map->get_float_element("rotation_x");
-          }
-          if (map->element_exists("rotation_y")) {
-            roty = map->get_float_element("rotation_y");
-          }
-          if (map->element_exists("rotation_z")) {
-            rotz = map->get_float_element("rotation_z");
-          }
-
-          //Is our edge backward?
-          if ( !(path_obj->forward()) ) {
-            trnx = (-1) * trnx;
-            trny = (-1) * trny;
-            trnz = (-1) * trnz;
-            rotx = (-1) * rotx;
-            roty = (-1) * roty;
-            rotz = (-1) * rotz;
-          }
-
-          //Update the new transformation with the edge
-          new_tran.translate(0, trnx);
-          new_tran.translate(1, trny);
-          new_tran.translate(2, trnz);
-          new_tran.rotate(0, rotx);
-          new_tran.rotate(1, roty);
-          new_tran.rotate(2, rotz);
-
+          if (path_obj) {delete path_obj;path_obj=NULL;}
+          if (map) {delete map;map=NULL;}
         }
-        if (path_obj) {delete path_obj;path_obj=NULL;}
-        if (map) {delete map;map=NULL;}
+      } else {
+        processor_logging->error("Non-Object value returned from query");
       }
     }
   }
   if (obj) delete obj;
   if (tree) delete tree;
   if (results) delete results;
+  if (has_exception) throw QueryException(err_str);
   str.clear();
   str.transform = new_tran;
   str.result_flag = true;

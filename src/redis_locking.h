@@ -59,6 +59,8 @@ inline void get_lock(std::string key, std::string val) {
         redis_logging->error(e.what());
       }
     }
+
+    if (lock_established) {redis_logging->info("Redis Mutex Lock Acquired");}
   }
 }
 
