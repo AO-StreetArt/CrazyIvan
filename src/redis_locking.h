@@ -29,7 +29,7 @@ inline void get_lock(std::string key, std::string val) {
 
   while (!lock_established) {
 
-    redis_logging->error("Redis Mutex Lock Routine Started");
+    redis_logging->debug("Redis Mutex Lock Routine Started");
 
     if ( redis->exists( key ) ) {
       try {
@@ -49,7 +49,7 @@ inline void get_lock(std::string key, std::string val) {
     }
 
     //Try to establish a lock on the Redis Mutex
-    redis_logging->error("Attempting to obtain Redis Mutex Lock");
+    redis_logging->debug("Attempting to obtain Redis Mutex Lock");
     if ( !(redis->exists( key )) ) {
       try {
         lock_established = redis->setnx( key, val);
@@ -60,7 +60,7 @@ inline void get_lock(std::string key, std::string val) {
       }
     }
 
-    if (lock_established) {redis_logging->info("Redis Mutex Lock Acquired");}
+    if (lock_established) {redis_logging->debug("Redis Mutex Lock Acquired");}
   }
 }
 

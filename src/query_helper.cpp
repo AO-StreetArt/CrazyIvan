@@ -477,7 +477,8 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
 
-  processor_logging->debug("Executing Query");
+  processor_logging->debug("Executing Query:");
+  processor_logging->debug(udq_string);
 
   //Execute the query
   bool has_exception = false;
@@ -512,7 +513,7 @@ void QueryHelper::update_device_registration(std::string dev_id, std::string sce
         processor_logging->error("Query Returned no values");
         exc_string = "Query Returned no values";
         has_exception = true;
-      }
+      } else {processor_logging->debug(obj->to_string());}
     }
   }
   if (obj) delete obj;

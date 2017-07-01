@@ -115,10 +115,10 @@ script:
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
   - tail $TRAVIS_BUILD_DIR/device_align.log
-  - docker logs --tail 100 crazyivan
+  - docker logs --tail 150 crazyivan
   - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
   - tail $TRAVIS_BUILD_DIR/device_align.log
-  - docker logs --tail 50 crazyivan
+  - docker logs --tail 75 crazyivan
 after_success:
   # Push the built image to docker hub
   - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
