@@ -1,15 +1,12 @@
-Docker
-======
+.. _deployment:
 
-The Production Docker Image is under construction.
+Deployment
+==========
 
-Connecting Crazy Ivan to other Services with Docker
----------------------------------------------------
+Note: At this time, CrazyIvan has no built-in security or encryption mechanisms.  Until such time, it is not recommended to deploy CrazyIvan in Production.
 
-Next
-====
+The easiest methodology of deployment for CrazyIvan is using Docker.  At this time, it has not been tested with either Docker Compose or Docker Swarm.
 
-Now that you have deployed Crazy Ivan, and want to contribute back by
-developing, you can move on to the
-`Dependencies <https://github.com/AO-StreetArt/Crazy%20Ivan/tree/master/docs/deps>`__
-section and start reading the code. Bon voyage!
+This page will be updated after larger scale testing has been performed with CrazyIvan.
+
+:ref:`Go Home <index>`

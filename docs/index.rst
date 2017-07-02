@@ -6,6 +6,7 @@
 
    pages/quickstart.rst
    pages/config.rst
+   pages/api.rst
    pages/deploy.rst
    pages/arch.rst
    pages/deps.rst

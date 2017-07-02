@@ -1,3 +1,5 @@
+.. _configuration:
+
 Configuration
 =============
 
@@ -35,6 +37,12 @@ Inbound ZeroMQ Connection.
    on tcp://my.ip, and configure from the logging configuration file,
    logging.properties.
 
+We can also use both a properties file and a Consul connection, in which case
+the properties file is used to define the ip and port of the inbound ZeroMQ connection,
+while Consul is used for registration and all other configuration retrieval.
+
+-  ``./crazy_ivan -consul-addr=localhost:8500 -config-file=file.properties``
+
 When configuring from Consul the keys of the properties file are equal
 to the expected keys in Consul.
 
@@ -60,16 +68,6 @@ log file of any given module, or shift any given module to a different
 appender or pattern entirely. These modules should always be present
 within configuration files, but can be configured to suit the particular
 deployment needs.
-
-Greylog
-~~~~~~~
-
-Greylog is a distributed logging solution, which can be used to
-centralize logging across many instances of Crazy Ivan. In order to send
-messages to Greylog, we recommend configuring a SyslogAppender in the
-configuration files, and then following the instructions [here]
-(https://marketplace.graylog.org/addons/a47beb3b-0bd9-4792-a56a-33b27b567856)
-to push the messages logged to syslog out to Greylog.
 
 Configuration Key-Value Variables
 ---------------------------------
@@ -103,10 +101,7 @@ Behavior
    Outbound messages, in order to link the two together.
 -  AtomicTransactions - True to enforce all instances of Crazy Ivan to
    execute on an individual scene one at a time.
+-  Data_Format_Type - JSON to accept JSON messages, protobuf to
+   accept protocol buffer messages
 
-Next
-====
-
-Now that you have configured Crazy Ivan, you can move on to the
-[Architecture] (https://github.com/AO-StreetArt/Crazy
-Ivan/tree/master/docs/arch) section.
+:ref:`Go Home <index>`

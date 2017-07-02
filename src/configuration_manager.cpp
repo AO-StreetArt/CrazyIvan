@@ -55,7 +55,7 @@ bool ConfigurationManager::configure_from_file (std::string file_path)
   }
   if (props->opt_exist("Data_Format_Type")) {
     std::string param_value = props->get_opt("Data_Format_Type");
-    if (param_value == "1" || param_value == "JSON" || param_value == "json") {
+    if (param_value == "1" || param_value == "JSON" || param_value == "json" || param_value == "Json") {
       format_type = JSON_FORMAT;
     }
     else if (param_value == "0" || param_value == "Protobuf" || param_value == "protobuf") {

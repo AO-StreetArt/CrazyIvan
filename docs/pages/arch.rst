@@ -1,11 +1,11 @@
+.. _architecture:
+
 Architecture
 ============
 
 This is designed to be used as a microservice within a larger
-architecture. This will take in CRUD messages for objects in 3 space,
-and track location, rotation, and scaling. It will also ensure that any
-updates are sent out on a separate port to allow streaming to all user
-devices.
+architecture. This will take in CRUD messages for scenes, as well as
+track user device registrations.
 
 A .proto file is included to allow generating the bindings for any
 language (the [protocol buffer compiler]
@@ -26,19 +26,16 @@ Design
 ======
 
 In order to allow for real-time, distributed visualization, one of the
-key problems that needs to be solved is allowing for the sharing of a
-common set of resources, such as Mesh file formats and shader scripts.
-These resources can sometimes be incredibly large, and so a fast and
-efficient means of retrieval and storage is key.
+key problems that needs to be solved is ensuring that coordinate systems
+between various user devices and objects are synchronized.  A key abstraction in
+this case is a 'Scene' which is an arbitrary collection of objects and devices.
+A device can register/de-register from any scene, as well as apply corrections
+to the coordinate system relationship between it and the scene it's registered to.
 
-Crazy Ivan stores data in chunked documents within MongoDB, and pieces
-them back together to respond to requests. Crazy Ivan can chunk down
-large data that is provided, or allow data chunking to be performed in
-another service/client.
+This is done by storing relationships between scenes and devices, and then using
+these to build relationships between scenes themselves.  When devices move between
+these scenes, they will apply corrections.  As they apply corrections, we will
+build a set of known mappings between scenes which should allow users to move without
+needing any corrections by returning the pre-calculated differences.
 
-Next
-====
-
-Now you can move on to the [Deployment]
-(https://github.com/AO-StreetArt/Crazy Ivan/tree/master/docs/deploy)
-section.
+:ref:`Go Home <index>`
