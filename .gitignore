@@ -13,3 +13,4 @@ heartbeat_scripts/*/*
 scripts/*pb2.py
 *.proto
 src/*.proto
+docs/_build/
