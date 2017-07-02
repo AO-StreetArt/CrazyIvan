@@ -7,10 +7,10 @@ Crazy Ivan
 Overview
 --------
 
-Crazy Ivan is a service designed to store 'scenes', with relationships
-between them. These are relationships between coordinate systems, to
-which each scene is associated. This allows for establishing
-relationships between devices in real-space.
+Crazy Ivan is a service designed to store 'scenes', which means an arbitrary collection
+of objects in 3-space within a geographic area.  Devices can register/de-register
+from scenes as they move through the world, and as they do we build a network of
+relationships that can be used to determine the transformations needed for other devices.
 
 Features
 --------
