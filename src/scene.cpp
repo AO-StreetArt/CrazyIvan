@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "include/scene.h"
 
 void Transform::invert() {
   tran[0] = (-1.0) * tran[0];

@@ -13,13 +13,13 @@
 #include <exception>
 #include <signal.h>
 
-#include "src/ivan_log.h"
-#include "src/ivan_utils.h"
-#include "src/configuration_manager.h"
-#include "src/globals.h"
-#include "src/scene.h"
+#include "src/include/ivan_log.h"
+#include "src/include/ivan_utils.h"
+#include "src/include/configuration_manager.h"
+#include "src/include/globals.h"
+#include "src/include/scene.h"
 #include "src/Scene.pb.h"
-#include "src/message_processor.h"
+#include "src/include/message_processor.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -43,12 +43,6 @@
 
 #include "aossl/zmq/include/zmq_interface.h"
 #include "aossl/zmq/include/factory_zmq.h"
-
-enum {
-  CACHE_TYPE_1,
-  CACHE_TYPE_2,
-  CACHE_TYPE_MAX,
-};
 
 //Catch a Signal (for example, keyboard interrupt)
 void my_signal_handler(int s){
@@ -153,6 +147,7 @@ void my_signal_handler(int s){
       }
 
       //Set up our Redis Connection List, which is passed to the Redis Admin to connect
+      //Currently, we just pass the first element until cluster support is added
       std::vector<RedisConnChain> RedisConnectionList = cm->get_redisconnlist();
       //Set up Redis Connection
       if (RedisConnectionList.size() > 0) {

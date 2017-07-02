@@ -1,7 +1,7 @@
 //tests for the configuration manager
 //src/test/test.properties
 
-#include "../configuration_manager.h"
+#include "configuration_manager.h"
 #include <assert.h>
 
 #include "aossl/commandline/include/commandline_interface.h"
@@ -23,7 +23,7 @@ int main( int argc, char** argv )
   //-------------------------------Logging--------------------------------------//
   //----------------------------------------------------------------------------//
 
-  std::string initFileName = "src/test/log4cpp.properties";
+  std::string initFileName = "test/log4cpp.properties";
   logging = logging_factory->get_logging_interface(initFileName);
 
   start_logging_submodules();
