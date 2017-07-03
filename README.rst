@@ -27,3 +27,5 @@ utilizes the `DVS Interface
 library <https://github.com/AO-StreetArt/DvsInterface>`__, also
 available on github. It utilizes the Scene.proto file for inbound
 communications.
+
+Stuck and need help?  Have general questions about the application?  Reach out to the development team at crazyivan@emaillist.io
