@@ -21,7 +21,7 @@ Features
 -  Connect to other services over Zero MQ using Google Protocol Buffers.
 -  Scalable microservice design
 
-Crazy Ivan is a part of the AO Distributed Visualization Server, along
+Crazy Ivan is a part of the AO Aesel Project, along
 with `CLyman <https://github.com/AO-StreetArt/CLyman>`__. It therefore
 utilizes the `DVS Interface
 library <https://github.com/AO-StreetArt/DvsInterface>`__, also
