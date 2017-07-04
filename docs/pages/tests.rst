@@ -1,4 +1,4 @@
-.. tests:
+.. _tests:
 
 Automated Testing
 =================
