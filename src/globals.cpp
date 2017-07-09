@@ -1,35 +1,52 @@
+/*
+Apache2 License Notice
+Copyright 2017 Alex Barry
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 #include "include/globals.h"
 
-//Declare our global variables
+// Declare our global variables
 
-//Response Object
+// Response Object
 Scene *resp = NULL;
 
-//Set up an Scene pointer to hold the currently translated document information
+// Set up an Scene pointer to hold the currently translated document information
 Scene *translated_object = NULL;
 
-//UUID Generator
+// UUID Generator
 uuidInterface *ua = NULL;
 
-//Configuration Manager
+// Configuration Manager
 ConfigurationManager *cm = NULL;
 
-//Global Couchbase Admin Object
+// Global Couchbase Admin Object
 Neo4jInterface *neo = NULL;
 
-//Smart Update Buffer
+// Redis Interface
 RedisInterface *xRedis = NULL;
 
-//Command Line interpreter
+// Command Line interpreter
 CommandLineInterface *cli = NULL;
 
-//Document Manager, highest level object
+// Document Manager, highest level object
 MessageProcessor *processor = NULL;
 
-//ZMQ Admins
+// ZMQ Admins
 Zmqio *zmqi = NULL;
 
-//Factories
+// Factories
 CommandLineInterpreterFactory *cli_factory = NULL;
 Neo4jComponentFactory *neo4j_factory = NULL;
 RedisComponentFactory *redis_factory = NULL;
