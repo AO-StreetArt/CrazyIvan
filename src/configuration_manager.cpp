@@ -392,6 +392,10 @@ bool ConfigurationManager::configure ()
     if (cli->opt_exist("-port")) env_port_str.assign(cli->get_opt("-port"));
     if ( cli->opt_exist("-consul-addr") ) env_consul_addr_str.assign( cli->get_opt("-consul-addr") );
 
+    //If we had a hostname and port specified in the configuration file, then we override to that
+    if ( !(hostname.empty()) ) env_ip_str.assign(hostname);
+    if ( !(port.empty()) ) env_port_str.assign(port);
+
     //Execute Consul Configuration
     if ( !(env_consul_addr_str.empty() || env_ip_str.empty() || env_port_str.empty()) )  {
       ret_val = configure_from_consul( env_consul_addr_str, env_ip_str, env_port_str );

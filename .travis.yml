@@ -1,123 +1,105 @@
 sudo: required
 language: python
 python:
-  - "2.7"
-
+- '2.7'
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    # Install LibSSL
     - libssl-dev
-    # Install Protocol Buffer Compiler
     - protobuf-compiler
     - libprotobuf-dev
 services:
-  # Start up Docker
-  - docker
+- docker
 before_install:
-  # Print the python & pip version
-  - python -V
-  - pip -V
-  # Install python protocol buffer & zmq modules
-  - "pip install protobuf pyzmq"
-  # Get & Install DVS Interfaces
-  - git clone https://github.com/AO-StreetArt/DvsInterface.git
-  - cd DvsInterface && sudo make install
-  - cd $TRAVIS_BUILD_DIR
-  # Clone the repository for the python tests
-  - git clone https://github.com/AO-StreetArt/0-Meter.git
-  # Start the docker network
-  - docker network create dvs
+- python -V
+- pip -V
+- pip install protobuf pyzmq
+- git clone https://github.com/AO-StreetArt/DvsInterface.git
+- cd DvsInterface && sudo make install
+- cd $TRAVIS_BUILD_DIR
+- git clone https://github.com/AO-StreetArt/0-Meter.git
+- docker network create dvs
 install:
-  - cd $TRAVIS_BUILD_DIR
-  # Setup Consul
-  - docker pull consul
-  - docker run -d --name=registry --network=dvs consul
-  # Set up Neo4j
-  - docker pull neo4j
-  - docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --network=dvs --name=database neo4j
-  # Set up Redis
-  - docker pull redis
-  - docker run --network=dvs --name=cache -d redis
-  # Populate Consul Configuration variables
-  - docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
-  - docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
-  - docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
-  - docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
-  - docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type
-  # Wait for some time to allow the docker instance to finish building
-  - cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
-  # Start Crazy Ivan
-  - cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500 localhost 5555
+- cd $TRAVIS_BUILD_DIR
+- docker pull consul
+- docker run -d --name=registry --network=dvs consul
+- docker pull neo4j
+- docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data
+  --network=dvs --name=database neo4j
+- docker pull redis
+- docker run --network=dvs --name=cache -d redis
+- docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
+- docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
+- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
+- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
+- docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type
+- cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH
+  $TRAVIS_BUILD_DIR
+- cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500
+  localhost 5555
 before_script:
-  # Sleep for a few seconds to ensure everything is started up
-  - sleep 5
-  # Display which containers are active and the startup logs for each
-  - docker ps -a
-  - docker logs crazyivan
-  - docker logs cache
-  - docker logs database
-  - docker logs registry
+- sleep 5
+- docker ps -a
+- docker logs crazyivan
+- docker logs cache
+- docker logs database
+- docker logs registry
 script:
-  # Execute the Python Tests
-
-  # Success tests
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
-  - tail $TRAVIS_BUILD_DIR/scene_crt.log
-  - docker logs --tail 75 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
-  - tail $TRAVIS_BUILD_DIR/scene_get.log
-  - docker logs --tail 75 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_update.xml
-  - tail $TRAVIS_BUILD_DIR/scene_update.log
-  - docker logs --tail 75 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
-  - tail $TRAVIS_BUILD_DIR/scene_get.log
-  - docker logs --tail 75 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query.xml
-  - tail $TRAVIS_BUILD_DIR/scene_query.log
-  - docker logs --tail 75 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
-  - tail $TRAVIS_BUILD_DIR/device_register.log
-  - docker logs --tail 100 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
-  - tail $TRAVIS_BUILD_DIR/device_deregister.log
-  - docker logs --tail 100 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
-  - tail $TRAVIS_BUILD_DIR/scene_del.log
-  - docker logs --tail 75 crazyivan
-
-  # Failure tests
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt_bad.xml
-  - tail $TRAVIS_BUILD_DIR/scene_crt.log
-  - docker logs --tail 50 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get_bad.xml
-  - tail $TRAVIS_BUILD_DIR/scene_get.log
-  - docker logs --tail 50 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_upd_bad.xml
-  - tail $TRAVIS_BUILD_DIR/scene_upd.log
-  - docker logs --tail 50 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del_bad.xml
-  - tail $TRAVIS_BUILD_DIR/scene_del.log
-  - docker logs --tail 50 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query_bad.xml
-  - tail $TRAVIS_BUILD_DIR/scene_query.log
-  - docker logs --tail 50 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister_bad.xml
-  - tail $TRAVIS_BUILD_DIR/device_deregister.log
-  - docker logs --tail 50 crazyivan
-
-  # Alignment Tests
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
-  - tail $TRAVIS_BUILD_DIR/device_align.log
-  - docker logs --tail 150 crazyivan
-  - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
-  - tail $TRAVIS_BUILD_DIR/device_align.log
-  - docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
+- tail $TRAVIS_BUILD_DIR/scene_crt.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
+- tail $TRAVIS_BUILD_DIR/scene_get.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_update.xml
+- tail $TRAVIS_BUILD_DIR/scene_update.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
+- tail $TRAVIS_BUILD_DIR/scene_get.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query.xml
+- tail $TRAVIS_BUILD_DIR/scene_query.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
+- tail $TRAVIS_BUILD_DIR/device_register.log
+- docker logs --tail 100 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
+- tail $TRAVIS_BUILD_DIR/device_deregister.log
+- docker logs --tail 100 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
+- tail $TRAVIS_BUILD_DIR/scene_del.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt_bad.xml
+- tail $TRAVIS_BUILD_DIR/scene_crt.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get_bad.xml
+- tail $TRAVIS_BUILD_DIR/scene_get.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_upd_bad.xml
+- tail $TRAVIS_BUILD_DIR/scene_upd.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del_bad.xml
+- tail $TRAVIS_BUILD_DIR/scene_del.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query_bad.xml
+- tail $TRAVIS_BUILD_DIR/scene_query.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister_bad.xml
+- tail $TRAVIS_BUILD_DIR/device_deregister.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
+- tail $TRAVIS_BUILD_DIR/device_align.log
+- docker logs --tail 150 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
+- tail $TRAVIS_BUILD_DIR/device_align.log
+- docker logs --tail 75 crazyivan
 after_success:
-  # Push the built image to docker hub
-  - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
+- cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN
+  $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
+notifications:
+  slack:
+    secure: YGqapA0ZH4TFv9G0otZRcqQXTpL0Y/4J51V0pm6mNp9bQi9XIoE8zoCEtZcCPnEFWjPoq8Nj1tA86WzRnriOzZIkzm83Ou/ZRcB4ZCmro0qC9fffALubzEvbqqG3TW77Xq3N7orz7Bjs8H2nxYgNQPjfQtaIMqL8ziGvf6s22LBQOBlusFJF3uELhtFCXvToKTO6XkkmLQ7Oj/qeX/kF6k7R1+lLna4JVNgkIpoEoubticMqY+/3MiS1tY41Y9phW3rxOi1O4upWnRo0fR/1fXS6Gn2Tr2PBSxdNzaJsbhJWUHf+e4DJtPkuqc7ftqSrb4DZhSukBnjXpMtE45oYcWo3h4txxTGnnzD9yMnEHegvlj1kQbcwCNc8We3RDAP80DWgvH3i1rghJ01n0okOQ4Zokz0Ntw+8pExFXO7qfa1vH3s36oIOF97cU+HWGGxqDmcBNVLNBvYfEWqWEOpZeP5p6YvnOCBwSoPXvjbcu+PeP1n9b+95ZBTTzoTJ5sHy54q7r8o/037n5kij3BfKJIjgVHkFPpXVMWkSsMZnQpBHe0RF+Iiv9SIcySF1ln3jUWIBM4heXYywYNjE6Qpw0xVQ3oq4xBPxmcSN+kcWC7wiwMGLzBQErNhbI2IRNVRAZCWIpGVnrHXB4Ev6+A2YgH4c3pWZsXmXu3L1esLv0ac=

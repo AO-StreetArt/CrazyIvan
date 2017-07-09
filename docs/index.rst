@@ -10,5 +10,7 @@
    pages/deploy.rst
    pages/arch.rst
    pages/deps.rst
+   pages/dev_notes.rst
+   pages/tests.rst
 
 .. include:: ../README.rst
