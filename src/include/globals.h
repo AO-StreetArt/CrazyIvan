@@ -1,6 +1,25 @@
-//This defines some of the global variables that need to be accessed
-//Across different files.  These are either numeric constants or
-//singletons which form the backbone of the service.
+/*
+Apache2 License Notice
+Copyright 2017 Alex Barry
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+// This defines some of the global variables that need to be accessed
+// Across different files.  These are either numeric constants or
+// singletons which form the backbone of the service.
+
+#include <unordered_map>
 
 #include "aossl/commandline/include/commandline_interface.h"
 #include "aossl/commandline/include/factory_cli.h"
@@ -26,27 +45,25 @@
 #include "scene.h"
 #include "Scene.pb.h"
 
-#include <unordered_map>
+#ifndef SRC_INCLUDE_GLOBALS_H_
+#define SRC_INCLUDE_GLOBALS_H_
 
-#ifndef GLOBALS
-#define GLOBALS
-
-//Set up an Obj3 pointer to hold the currently translated document information
+// Set up an Obj3 pointer to hold the currently translated document information
 extern Scene *translated_object;
 extern Scene *resp;
 
-//Globals defined within this service
+// Globals defined within this service
 extern ConfigurationManager *cm;
 extern MessageProcessor *processor;
 
-//Globals from the AO Shared Service Library
+// Globals from the AO Shared Service Library
 extern Neo4jInterface *neo;
 extern RedisInterface *xRedis;
 extern uuidInterface *ua;
 extern Zmqio *zmqi;
 extern CommandLineInterface *cli;
 
-//Global Factory Objects
+// Global Factory Objects
 extern CommandLineInterpreterFactory *cli_factory;
 extern Neo4jComponentFactory *neo4j_factory;
 extern RedisComponentFactory *redis_factory;
@@ -54,17 +71,17 @@ extern uuidComponentFactory *uuid_factory;
 extern ZmqComponentFactory *zmq_factory;
 extern LoggingComponentFactory *logging_factory;
 
-//Shutdown the application
-inline void shutdown()
-{
+// Shutdown the application
+inline void shutdown() {
+  if (!resp) {
+    main_logging->debug("No response object active at the time of shutdown");
+  } else {delete resp;}
 
-  if(!resp) {main_logging->debug("No response object active at the time of shutdown");}
-  else {delete resp;}
+  if (!translated_object) {
+    main_logging->debug("No translated object active at time of shutdown");
+  } else {delete translated_object;}
 
-  if (!translated_object) {main_logging->debug("No translated object active at time of shutdown");}
-  else {delete translated_object;}
-  
-  //Delete objects off the heap
+  // Delete objects off the heap
   if (processor) {
     delete processor;
   }
@@ -92,7 +109,7 @@ inline void shutdown()
     delete logging;
   }
 
-  //Shut down protocol buffer library
+  // Shut down protocol buffer library
   google::protobuf::ShutdownProtobufLibrary();
 
   if (cli_factory) {
@@ -115,4 +132,4 @@ inline void shutdown()
   }
 }
 
-#endif
+#endif  // SRC_INCLUDE_GLOBALS_H_
