@@ -18,17 +18,18 @@ PROTO_OPTS = -I=/usr/local/include/dvs_interface
 
 all: mksrc main.o crazy_ivan
 
-mksrc: src/Scene.pb.cc
+mksrc: src/api/Scene.pb.cc
 	@$(MAKE) -C src
 
-main.o: main.cpp src/include/message_processor.h src/include/ivan_utils.h src/include/ivan_log.h src/include/scene.h src/include/configuration_manager.h src/include/globals.h src/include/query_helper.h
+main.o: main.cpp
 	$(CC) $(CFLAGS) -o $@ -c main.cpp $(STD) -Isrc/
 
 crazy_ivan:
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(FULL_LIBS) $(STD)
 
-src/Scene.pb.cc: /usr/local/include/dvs_interface/Scene.proto
-	$(PROTOC) $(PROTO_OPTS) --cpp_out=src /usr/local/include/dvs_interface/Scene.proto
+src/api/Scene.pb.cc: /usr/local/include/dvs_interface/Scene.proto
+	$(PROTOC) $(PROTO_OPTS) --cpp_out=src/api /usr/local/include/dvs_interface/Scene.proto
+	mv src/api/Scene.pb.h src/api/include
 
 # ------------------------------- Tests -------------------------------------- #
 
@@ -46,4 +47,4 @@ configuration_test: src/ivan_log.o src/configuration_manager.o test/configuratio
 # --------------------------- Clean Project ---------------------------------- #
 
 clean:
-	$(RM) crazy_ivan *.o src/*.o *~ *.log *.log.* src/*.pb.cc src/*.pb.h *_test test/*.o
+	$(RM) crazy_ivan *.o src/*/*.o src/*/*/*.o *~ *.log *.log.* src/*/*.pb.cc src/*/*/*.pb.h *_test test/*.o

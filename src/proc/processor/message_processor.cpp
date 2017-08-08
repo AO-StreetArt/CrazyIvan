@@ -47,13 +47,13 @@ void MessageProcessor::release_mutex_lock(std::string obj_key) {
 // -------------------------------------------------------------------------- //
 
 // Ping the Crazy Ivan Instance
-ProcessResult* MessageProcessor::process_ping_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_ping_message(SceneListInterface *obj_msg) {
   processor_logging->debug("Ping Pong");
   return new ProcessResult;
 }
 
 // Kill the Crazy Ivan Instance
-ProcessResult* MessageProcessor::process_kill_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_kill_message(SceneListInterface *obj_msg) {
   return new ProcessResult;
 }
 
@@ -62,7 +62,7 @@ ProcessResult* MessageProcessor::process_kill_message(Scene *obj_msg) {
 // -------------------------------------------------------------------------- //
 
 // Create a new scene
-ProcessResult* MessageProcessor::process_create_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_create_message(SceneListInterface *obj_msg) {
   processor_logging->info("Processing Scene Creation message");
   processor_logging->debug("Number of Scene Data elements:");
   processor_logging->debug(obj_msg->num_scenes());
@@ -175,7 +175,7 @@ ProcessResult* MessageProcessor::process_create_message(Scene *obj_msg) {
 }
 
 // Update the details of a scene entry
-ProcessResult* MessageProcessor::process_update_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_update_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
 
   if (obj_msg->num_scenes() > 0) {
@@ -307,7 +307,7 @@ ProcessResult* MessageProcessor::process_update_message(Scene *obj_msg) {
 }
 
 // Query for scene data
-ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_retrieve_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     ResultsIteratorInterface *results = NULL;
@@ -401,14 +401,17 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
         } else {
           // Pull results and return
-          Scene sc;
-          sc.set_err_code(NO_ERROR);
-          sc.set_msg_type(SCENE_GET);
-          sc.set_transaction_id(obj_msg->get_transaction_id());
+          SceneListInterface *sc = NULL;
+          if (config->get_formattype() == PROTO_FORMAT) \
+            {sc = slfactory.build_protobuf_scene();}
+          else {sc = slfactory.build_json_scene();}
+          sc->set_err_code(NO_ERROR);
+          sc->set_msg_type(SCENE_GET);
+          sc->set_transaction_id(obj_msg->get_transaction_id());
           ResultTreeInterface *tree = results->next();
           int num_results = 0;
           while (tree) {
-            SceneData *data = new SceneData;
+            SceneInterface *data = sfactory.build_scene();
 
             // Get the first DB Object (Node)
             DbObjectInterface* obj = tree->get(0);
@@ -438,7 +441,7 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
               data->set_longitude(map->get_float_element("longitude"));
             }
 
-            sc.add_scene(data);
+            sc->add_scene(data);
 
             // Iterate to the next result
             if (tree) delete tree;
@@ -448,12 +451,10 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
           }
           if (num_results > 0) {
             processor_logging->debug("Response Scene List:");
-            sc.print();
-            if (config->get_formattype() == PROTO_FORMAT) {
-              response->set_return_string(sc.to_protobuf());
-            } else if (config->get_formattype() == JSON_FORMAT) {
-              response->set_return_string(sc.to_json());
-            }
+            sc->print();
+            std::string msg_string;
+            sc->to_msg_string(msg_string);
+            response->set_return_string(msg_string);
           } else {
             response->set_error(NOT_FOUND, "Document not found");
           }
@@ -478,7 +479,7 @@ ProcessResult* MessageProcessor::process_retrieve_message(Scene *obj_msg) {
 }
 
 // Delete a scene
-ProcessResult* MessageProcessor::process_delete_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_delete_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     processor_logging->debug("Processing Scene Delete message");
@@ -546,14 +547,18 @@ ProcessResult* MessageProcessor::process_delete_message(Scene *obj_msg) {
 void MessageProcessor::build_response_scene(int msg_type, int err_code, \
   std::string err_msg, std::string tran_id, std::string scene_id) {
   if (resp_scn) {delete resp_scn; resp_scn = NULL;}
-  resp_scn = new Scene;
+  if (config->get_formattype() == PROTO_FORMAT) {
+    resp_scn = slfactory.build_protobuf_scene();
+  } else {
+    resp_scn = slfactory.build_json_scene();
+  }
   // Set up the scene list
   resp_scn->set_msg_type(msg_type);
   resp_scn->set_err_code(err_code);
   resp_scn->set_err_msg(err_msg);
   resp_scn->set_transaction_id(tran_id);
   // Set up the scene
-  SceneData *data1 = new SceneData;
+  SceneInterface *data1 = sfactory.build_scene();
   data1->set_key(scene_id);
   resp_scn->add_scene(data1);
 }
@@ -562,33 +567,26 @@ void MessageProcessor::build_response_scene(int msg_type, int err_code, \
 void MessageProcessor::build_string_response(int msg_type, int err_code, \
   std::string err_msg, std::string tran_id, \
   std::string scene_id, int msg_format_type) {
+  //Construct the response scene
   build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
-  // store the serialized string
-  if (msg_format_type == PROTO_FORMAT) {
-    proto_resp = resp_scn->to_protobuf();
-  } else if (msg_format_type == JSON_FORMAT) {
-    proto_resp = resp_scn->to_json();
-  }
+  // Convert the response scene to a response message
+  resp_scn->to_msg_string(proto_resp);
 }
 
 // Build a protocol buffer serialized string
 void MessageProcessor::build_string_response(int msg_type, int err_code, \
   std::string err_msg, std::string tran_id, std::string scene_id, \
-  std::string dev_id, Transform &t, int msg_format_type) {
+  std::string dev_id, TransformInterface *t, int msg_format_type) {
   build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
   // Set up the user device
   UserDevice *ud1 = new UserDevice;
   // Add the transformation and key data to the user device
   ud1->set_key(dev_id);
-  ud1->set_transform(&t);
+  ud1->set_transform(t);
   // Add the user device to the scene data
   resp_scn->get_scene(0)->add_device(ud1);
   // store the serialized string
-  if (msg_format_type == PROTO_FORMAT) {
-    proto_resp = resp_scn->to_protobuf();
-  } else if (msg_format_type == JSON_FORMAT) {
-    proto_resp = resp_scn->to_json();
-  }
+  resp_scn->to_msg_string(proto_resp);
 }
 
 // -------------------------------------------------------------------------- //
@@ -596,7 +594,7 @@ void MessageProcessor::build_string_response(int msg_type, int err_code, \
 // Register a device to a scene
 // Predict a coordinate transform for the device
 // and pass it back in the response
-ProcessResult* MessageProcessor::process_registration_message(Scene *obj_msg) {
+ProcessResult* MessageProcessor::process_registration_message(SceneListInterface *obj_msg) {
   processor_logging->debug("Processing Registration Message");
   // Is this the first device being registered to the scene
   bool is_first_device = false;
@@ -666,7 +664,7 @@ ProcessResult* MessageProcessor::process_registration_message(Scene *obj_msg) {
   }
 
   // Find other scenes that the object is registered to
-  Scene *registered_scenes = NULL;
+  SceneListInterface *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
     try {
       registered_scenes = \
@@ -687,7 +685,7 @@ ProcessResult* MessageProcessor::process_registration_message(Scene *obj_msg) {
   // If we are registering the first device or cannot find
   // any paths from the device's previous scene(s), then we will
   // leave this as the identity matrix
-  Transform new_transform;
+  TransformInterface *new_transform = tfactory.build_transform();
 
   // If we are not registering the first device, the scene exists,
   // the device is not already registered to the scene in question but
@@ -704,7 +702,7 @@ ProcessResult* MessageProcessor::process_registration_message(Scene *obj_msg) {
           registered_scenes->get_scene(i)->get_key(), \
           obj_msg->get_scene(0)->get_key());
         if (st_result.result_flag) {
-          new_transform.add_transform(st_result.transform);
+          new_transform->add_transform(st_result.transform);
         }
       }
       catch (std::exception& e) {
@@ -761,7 +759,7 @@ ProcessResult* MessageProcessor::process_registration_message(Scene *obj_msg) {
 // If we are removing the last user device from a scene,
 // then remove the scene and try to move any paths that pass through the scene
 ProcessResult* MessageProcessor::process_deregistration_message(\
-  Scene *obj_msg) {
+  SceneListInterface *obj_msg) {
   processor_logging->debug("Processing Deregistration Message");
   // Current error information
   int current_err_code = NO_ERROR;
@@ -812,7 +810,7 @@ ProcessResult* MessageProcessor::process_deregistration_message(\
 //  -If a coordinate system transformation doesn't exist, then create one
 //  -If a coordinate system transformation exists, then update it
 ProcessResult* MessageProcessor::process_device_alignment_message(\
-  Scene *obj_msg) {
+  SceneListInterface *obj_msg) {
   processor_logging->debug("Processing Alignment Message");
   // Current error information
   int current_err_code = NO_ERROR;
@@ -837,7 +835,7 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
       registration_found = qh->update_device_registration(\
         obj_msg->get_scene(0)->get_device(0)->get_key(), \
         obj_msg->get_scene(0)->get_key(), \
-        *(obj_msg->get_scene(0)->get_device(0)->get_transform()));
+        obj_msg->get_scene(0)->get_device(0)->get_transform());
     }
     catch (std::exception& e) {
       processor_logging->error("Error Updating Device Registration");
@@ -856,7 +854,7 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   }
 
   // Find scenes that the object is registered to
-  Scene *registered_scenes = NULL;
+  SceneListInterface *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
     processor_logging->debug("Retrieving Scenes already registered to");
     try {
@@ -873,7 +871,7 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
 
   // Iterate through the scenes the devices is registered with &
   // Correct/Create scene-scene transforms
-  Transform new_transform;
+  TransformInterface *new_transform = tfactory.build_transform();
   if (current_err_code == NO_ERROR) {
     processor_logging->debug("Updating Scene-Scene Transforms");
     try {

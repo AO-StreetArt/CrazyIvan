@@ -17,94 +17,72 @@ limitations under the License.
 
 #include <string>
 
-#include "ivan_log.h"
-#include "ivan_utils.h"
-#include "scene.h"
+#include "include/ivan_log.h"
+#include "include/ivan_utils.h"
+
+#include "include/transform_interface.h"
+#include "include/transform_factory.h"
+#include "include/user_device_interface.h"
+#include "include/user_device_factory.h"
+#include "include/scene_interface.h"
+#include "include/scene_factory.h"
+
+#include "include/scene_list_interface.h"
+#include "include/scene_list_factory.h"
 
 #include "aossl/neo4j/include/neo4j_interface.h"
 #include "aossl/neo4j/include/factory_neo4j.h"
 
-#ifndef SRC_INCLUDE_QUERY_HELPER_H_
-#define SRC_INCLUDE_QUERY_HELPER_H_
+#include "include/scene_query_helper.h"
+#include "include/query_helper_interface.h"
 
-// A Query Exception
-
-// A child class of std::exception
-// which holds error information
-struct QueryException: public std::exception {
-  // An error message passed on initialization
-  std::string int_msg;
-  const char * int_msg_cstr;
-
-  // Create a Neo4j Exception, and store the given error message
-  inline QueryException(std::string msg) {
-    int_msg = "Error in Query Helper: " + msg;
-    int_msg_cstr = int_msg.c_str();
-  }
-
-  QueryException() {}
-  ~QueryException() throw() {}
-  // Show the error message in readable format
-  const char * what() const throw() {
-    return int_msg_cstr;
-  }
-};
-
-struct SceneTransformResult {
-  Transform transform;
-  bool result_flag;
-  void clear() {result_flag = false; transform.clear();}
-};
+#ifndef SRC_PROC_PROCESSOR_INCLUDE_ALGORITHM_QUERY_HELPER_H_
+#define SRC_PROC_PROCESSOR_INCLUDE_ALGORITHM_QUERY_HELPER_H_
 
 // The class contains helper methods for working with
 // Scene Data in Neo4j
-class QueryHelper {
-Neo4jInterface *n = NULL;
-Neo4jComponentFactory *neo_factory = NULL;
-SceneTransformResult str;
+class AlgorithmQueryHelper : public SceneQueryHelper, public QueryHelperInterface {
+  SceneTransformResult str;
 
  public:
-  inline QueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf) {
-    n = neo;
-    neo_factory = nf;
-  }
-  ~QueryHelper() {}
+  inline AlgorithmQueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf, ConfigurationManager *con) : SceneQueryHelper(neo, nf, con) {}
+  ~AlgorithmQueryHelper() {}
 
   // Does the scene exist in the DB?
-  bool scene_exists(std::string inp_key);
+  bool scene_exists(std::string inp_key) {return SceneQueryHelper::scene_exists(inp_key);}
 
 // -----------------------Scene-Device Links--------------------------------- //
 
   // Determine if the given user device is registered to the given scene
-  bool is_ud_registered(std::string inp_string, std::string inp_device);
+  bool is_ud_registered(std::string inp_string, std::string inp_device) {return DeviceQueryHelper::is_ud_registered(inp_string, inp_device);}
 
   // Get scenes that this user device is registered to
   // Collect the User Device and Transformation within the scenes returned
-  Scene* get_registrations(std::string inp_device);
+  SceneListInterface* get_registrations(std::string inp_device) {return DeviceQueryHelper::get_registrations(inp_device);}
 
   // Update the transformation between scene and device
   bool update_device_registration(std::string dev_id, std::string scene_id, \
-    Transform &transform);
+    TransformInterface *transform) {return DeviceQueryHelper::update_device_registration(dev_id, scene_id, transform);}
 
   // Create a registration link in the DB
   void register_device_to_scene(std::string device_id, std::string scene_id, \
-    Transform &transform);
+    TransformInterface *transform) {DeviceQueryHelper::register_device_to_scene(device_id, scene_id, transform);}
 
   // Remove a device from a scene
-  void remove_device_from_scene(std::string device_id, std::string scene_id);
+  void remove_device_from_scene(std::string device_id, std::string scene_id) {DeviceQueryHelper::remove_device_from_scene(device_id, scene_id);}
 
 // ------------------------Scene-Scene Links--------------------------------- //
 
   // Get the path between two scenes
-  int get_scene_link(std::string scene1, std::string scene2);
+  int get_scene_link(std::string scene1, std::string scene2) {return SceneQueryHelper::get_scene_link(scene1, scene2);}
 
   // Create a link between scenes
   void create_scene_link(std::string s1_key, std::string s2_key, \
-    Transform new_trans);
+    TransformInterface *new_trans) {SceneQueryHelper::create_scene_link(s1_key, s2_key, new_trans);}
 
   // Update a link between scenes
   void update_scene_link(std::string s1_key, std::string s2_key, \
-    Transform new_trans);
+    TransformInterface *new_trans) {SceneQueryHelper::create_scene_link(s1_key, s2_key, new_trans);}
 
 // ----------------------------Algorithms------------------------------------ //
 
@@ -112,7 +90,7 @@ SceneTransformResult str;
   // Transform Links in the DB
   // As an input, we expect a set of Scenes and User Device pairs
   // which are then processed to generate the Scene-Scene links
-  void process_UDUD_transformation(Scene *registered_scenes, Scene *obj_msg);
+  void process_UDUD_transformation(SceneListInterface *registered_scenes, SceneListInterface *obj_msg);
 
   // Try to find a path from one scene to the next and calculate
   // the resulting transform
@@ -120,4 +98,4 @@ SceneTransformResult str;
     std::string scene_id2);
 };
 
-#endif  // SRC_INCLUDE_QUERY_HELPER_H_
+#endif  // SRC_PROC_PROCESSOR_INCLUDE_ALGORITHM_QUERY_HELPER_H_
