@@ -15,19 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
-#include "include/redis_locking.h"
-#include "include/configuration_manager.h"
-#include "include/scene.h"
-#include "include/query_helper.h"
-
-#include "rapidjson/document.h"
-
-#include "aossl/neo4j/include/neo4j_interface.h"
-#include "aossl/redis/include/redis_interface.h"
-#include "aossl/uuid/include/uuid_interface.h"
-#include "aossl/zmq/include/zmq_interface.h"
+#include <string>
+#include "include/scene_list_interface.h"
 
 #ifndef SRC_PROC_INCLUDE_PROCESSOR_INTERFACE_H_
 #define SRC_PROC_INCLUDE_PROCESSOR_INTERFACE_H_
