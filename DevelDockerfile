@@ -36,8 +36,9 @@ RUN git clone https://github.com/redis/hiredis.git ./hiredis
 RUN cd ./hiredis && make && make install
 
 #Get the Mongo Dependencies
-RUN git clone https://github.com/mongodb/mongo-c-driver.git
-RUN cd mongo-c-driver && ./autogen.sh --with-libbson=bundled && make && sudo make install
+RUN wget https://github.com/mongodb/mongo-c-driver/releases/download/1.6.0/mongo-c-driver-1.6.0.tar.gz
+RUN tar xzf mongo-c-driver-1.6.0.tar.gz
+RUN cd mongo-c-driver-1.6.0 && ./configure --disable-automatic-init-and-cleanup && make && sudo make install
 
 #Get the Neo4j Dependencies
 RUN mkdir $PRE/neo
