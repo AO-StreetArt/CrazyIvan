@@ -20,10 +20,10 @@ limitations under the License.
 // Declare our global variables
 
 // Response Object
-Scene *resp = NULL;
+SceneListInterface *resp = NULL;
 
 // Set up an Scene pointer to hold the currently translated document information
-Scene *translated_object = NULL;
+SceneListInterface *translated_object = NULL;
 
 // UUID Generator
 uuidInterface *ua = NULL;
@@ -41,7 +41,7 @@ RedisInterface *xRedis = NULL;
 CommandLineInterface *cli = NULL;
 
 // Document Manager, highest level object
-MessageProcessor *processor = NULL;
+ProcessorInterface *processor = NULL;
 
 // ZMQ Admins
 Zmqio *zmqi = NULL;
@@ -53,3 +53,7 @@ RedisComponentFactory *redis_factory = NULL;
 uuidComponentFactory *uuid_factory = NULL;
 ZmqComponentFactory *zmq_factory = NULL;
 LoggingComponentFactory *logging_factory = NULL;
+
+ProcessorFactory *processor_factory = NULL;
+SceneListFactory *scene_list_factory = NULL;
+SceneFactory *scene_factory = NULL;

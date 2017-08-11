@@ -31,13 +31,19 @@ limitations under the License.
 #include <exception>
 #include <vector>
 
-#include "src/include/ivan_log.h"
-#include "src/include/ivan_utils.h"
-#include "src/include/configuration_manager.h"
-#include "src/include/globals.h"
-#include "src/include/scene.h"
-#include "src/Scene.pb.h"
-#include "src/include/message_processor.h"
+#include "src/app/include/ivan_log.h"
+#include "src/app/include/ivan_utils.h"
+#include "src/app/include/configuration_manager.h"
+#include "src/app/include/globals.h"
+
+#include "src/api/include/scene_list_interface.h"
+#include "src/api/include/scene_list_factory.h"
+#include "src/api/include/Scene.pb.h"
+
+#include "src/model/include/scene_interface.h"
+#include "src/model/include/scene_factory.h"
+
+#include "src/proc/processor/include/message_processor.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -96,6 +102,9 @@ void my_signal_handler(int s) {
       uuid_factory = new uuidComponentFactory;
       zmq_factory = new ZmqComponentFactory;
       logging_factory = new LoggingComponentFactory;
+
+      scene_list_factory = new SceneListFactory;
+      processor_factory = new ProcessorFactory;
 
       // Set up our command line interpreter
       cli = cli_factory->get_command_line_interface(argc, argv);
@@ -205,7 +214,8 @@ void my_signal_handler(int s) {
       }
 
       // Set up the Message Processor
-      processor = new MessageProcessor(neo4j_factory, neo, xRedis, cm, ua);
+      processor = \
+        processor_factory->build_processor(neo4j_factory, neo, xRedis, cm, ua);
 
       // Main Request Loop
 
@@ -239,7 +249,7 @@ void my_signal_handler(int s) {
           try {
             new_proto.Clear();
             new_proto.ParseFromString(req_ptr);
-            translated_object = new Scene(new_proto);
+            translated_object = scene_list_factory->build_scene(new_proto);
             msg_type = new_proto.message_type();
             main_logging->debug("Translated Scene List:");
             translated_object->print();
@@ -280,19 +290,21 @@ void my_signal_handler(int s) {
         }
 
         if (current_error_code == TRANSLATION_ERROR) {
-          resp = new Scene();
+          if (cm->get_formattype() == PROTO_FORMAT) {
+            resp = scene_list_factory->build_protobuf_scene();
+          } else {
+            resp = scene_list_factory->build_json_scene();
+          }
           resp->set_err_msg(current_error_message);
           resp->set_err_code(current_error_code);
           resp->set_msg_type(msg_type);
-          if (cm->get_formattype() == PROTO_FORMAT) {
-            zmqi->send(resp->to_protobuf());
-          } else if (cm->get_formattype() == JSON_FORMAT) {
-            zmqi->send(resp->to_json());
-          }
+          std::string response_str;
+          resp->to_msg_string(response_str);
+          zmqi->send(response_str);
           delete resp;
         } else {
           // Build the translated object from the document
-          translated_object = new Scene(d);
+          translated_object = scene_list_factory->build_scene(d);
           msg_type = translated_object->get_msg_type();
           translated_object->print();
 
@@ -337,8 +349,12 @@ void my_signal_handler(int s) {
             processor->process_message(translated_object);
 
           // Turn the response from the processor into a response for the client
-          resp = new Scene();
-          SceneData *resp_data = new SceneData;
+          if (cm->get_formattype() == PROTO_FORMAT) {
+            resp = scene_list_factory->build_protobuf_scene();
+          } else {
+            resp = scene_list_factory->build_json_scene();
+          }
+          SceneInterface *resp_data = scene_factory->build_scene();
           resp->set_err_msg(current_error_message);
           resp->set_err_code(current_error_code);
           resp->set_msg_type(msg_type);
@@ -356,7 +372,7 @@ void my_signal_handler(int s) {
           resp->add_scene(resp_data);
 
           // Send reply back to client
-          std::string application_response = "";
+          std::string application_response;
 
           // Ping message, send back "success"
           if (msg_type == PING) {
@@ -371,11 +387,7 @@ void my_signal_handler(int s) {
             resp->set_err_code(response->get_error_code());
             resp->set_err_msg(response->get_error_description());
             // Send the Inbound response
-            if (cm->get_formattype() == PROTO_FORMAT) {
-              application_response = resp->to_protobuf();
-            } else if (cm->get_formattype() == JSON_FORMAT) {
-              application_response = resp->to_json();
-            }
+            resp->to_msg_string(application_response);
           } else if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
             msg_type == SCENE_LEAVE || msg_type == DEVICE_ALIGN) {
               // If we have a load request or a
@@ -385,11 +397,7 @@ void my_signal_handler(int s) {
           } else {
             // We have a standard message
             // Send the Inbound response
-            if (cm->get_formattype() == PROTO_FORMAT) {
-              application_response = resp->to_protobuf();
-            } else if (cm->get_formattype() == JSON_FORMAT) {
-              application_response = resp->to_json();
-            }
+            resp->to_msg_string(application_response);
           }
 
           main_logging->info("Sending Response");

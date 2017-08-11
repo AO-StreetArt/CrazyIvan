@@ -39,22 +39,24 @@ limitations under the License.
 #include "aossl/zmq/include/zmq_interface.h"
 #include "aossl/zmq/include/factory_zmq.h"
 
-#include "message_processor.h"
-#include "configuration_manager.h"
-#include "ivan_log.h"
-#include "scene.h"
-#include "Scene.pb.h"
+#include "include/processor_interface.h"
+#include "include/processor_factory.h"
+#include "include/configuration_manager.h"
+#include "include/ivan_log.h"
+#include "include/scene_list_interface.h"
+#include "include/scene_list_factory.h"
+#include "include/scene_factory.h"
 
-#ifndef SRC_INCLUDE_GLOBALS_H_
-#define SRC_INCLUDE_GLOBALS_H_
+#ifndef SRC_APP_INCLUDE_GLOBALS_H_
+#define SRC_APP_INCLUDE_GLOBALS_H_
 
 // Set up an Obj3 pointer to hold the currently translated document information
-extern Scene *translated_object;
-extern Scene *resp;
+extern SceneListInterface *translated_object;
+extern SceneListInterface *resp;
 
 // Globals defined within this service
 extern ConfigurationManager *cm;
-extern MessageProcessor *processor;
+extern ProcessorInterface *processor;
 
 // Globals from the AO Shared Service Library
 extern Neo4jInterface *neo;
@@ -70,6 +72,10 @@ extern RedisComponentFactory *redis_factory;
 extern uuidComponentFactory *uuid_factory;
 extern ZmqComponentFactory *zmq_factory;
 extern LoggingComponentFactory *logging_factory;
+
+extern ProcessorFactory *processor_factory;
+extern SceneListFactory *scene_list_factory;
+extern SceneFactory *scene_factory;
 
 // Shutdown the application
 inline void shutdown() {
@@ -130,6 +136,12 @@ inline void shutdown() {
   if (logging_factory) {
     delete logging_factory;
   }
+  if (processor_factory) {
+    delete processor_factory;
+  }
+  if (scene_list_factory) {
+    delete scene_list_factory;
+  }
 }
 
-#endif  // SRC_INCLUDE_GLOBALS_H_
+#endif  // SRC_APP_INCLUDE_GLOBALS_H_

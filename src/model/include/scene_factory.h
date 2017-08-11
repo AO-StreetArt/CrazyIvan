@@ -15,19 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef SRC_INCLUDE_IVAN_LOG_H_
-#define SRC_INCLUDE_IVAN_LOG_H_
+#include "scene_interface.h"
+#include "scene.h"
 
-#include "aossl/logging/include/logging_interface.h"
+#ifndef SRC_MODEL_INCLUDE_SCENE_FACTORY_H_
+#define SRC_MODEL_INCLUDE_SCENE_FACTORY_H_
 
-extern LoggingCategoryInterface *uuid_logging;
-extern LoggingCategoryInterface *config_logging;
-extern LoggingCategoryInterface *obj_logging;
-extern LoggingCategoryInterface *redis_logging;
-extern LoggingCategoryInterface *main_logging;
-extern LoggingCategoryInterface *processor_logging;
+// SceneFactory allows for creation of SceneInterface instances
+class SceneFactory {
+ public:
+  SceneFactory() {}
+  ~SceneFactory() {}
+  SceneInterface* build_scene() {return new SceneDocument;}
+  SceneInterface* build_scene(protoScene::SceneList_Scene scn_data) \
+    {return new SceneDocument(scn_data);}
+};
 
-void start_logging_submodules();
-void shutdown_logging_submodules();
-
-#endif  // SRC_INCLUDE_IVAN_LOG_H_
+# endif  // SRC_MODEL_INCLUDE_SCENE_FACTORY_H_

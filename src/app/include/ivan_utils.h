@@ -25,8 +25,8 @@ limitations under the License.
 #include <cctype>
 #include <locale>
 
-#ifndef SRC_INCLUDE_IVAN_UTILS_H_
-#define SRC_INCLUDE_IVAN_UTILS_H_
+#ifndef SRC_APP_INCLUDE_IVAN_UTILS_H_
+#define SRC_APP_INCLUDE_IVAN_UTILS_H_
 
 // Universal Event Types
 const int SCENE_CRT = 0;
@@ -82,4 +82,4 @@ static inline std::string &trim(std::string &s) {
 #define SSTR(x) static_cast< std::ostringstream & >(\
         (std::ostringstream() << std::dec << x)).str()
 
-#endif  // SRC_INCLUDE_IVAN_UTILS_H_
+#endif  // SRC_APP_INCLUDE_IVAN_UTILS_H_
