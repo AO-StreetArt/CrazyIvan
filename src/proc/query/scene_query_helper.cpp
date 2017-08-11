@@ -31,7 +31,8 @@ bool SceneQueryHelper::scene_exists(std::string inp_key) {
 
   // Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> query_params;
-  query_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(inp_key);
+  query_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(inp_key);
   processor_logging->debug("Key:");
   processor_logging->debug(inp_key);
   query_params.emplace("inp_key", query_param);
@@ -41,7 +42,8 @@ bool SceneQueryHelper::scene_exists(std::string inp_key) {
   bool has_exception = false;
   std::string exc_string = "";
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(query_string, query_params);
+    results = BaseQueryHelper::get_neo4j_interface()->execute(query_string, \
+      query_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -96,13 +98,15 @@ int SceneQueryHelper::get_scene_link(std::string scene1_key, \
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   // Insert the first scene key into the query list
-  skey1_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene1_key);
+  skey1_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene1_key);
   processor_logging->debug("Scene 1 Key:");
   processor_logging->debug(scene1_key);
   q_params.emplace("inp_key1", skey1_param);
 
   // Insert the second scene key into the query list
-  skey2_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene2_key);
+  skey2_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene2_key);
   processor_logging->debug("Scene 2 Key:");
   processor_logging->debug(scene2_key);
   q_params.emplace("inp_key2", skey2_param);
@@ -110,7 +114,8 @@ int SceneQueryHelper::get_scene_link(std::string scene1_key, \
   // Execute the query
   int ret_val = 0;
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(query_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(query_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -176,29 +181,37 @@ void SceneQueryHelper::create_scene_link(std::string s1_key, \
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
-  s1key_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s1_key);
+  s1key_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s1_key);
   processor_logging->debug("Scene 1 Key:");
   processor_logging->debug(s1_key);
   q_params.emplace("inp_key1", s1key_param);
 
   // Insert the device key into the query list
-  s2key_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s2_key);
+  s2key_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s2_key);
   processor_logging->debug("Scene 2 Key:");
   processor_logging->debug(s2_key);
   q_params.emplace("inp_key2", s2key_param);
 
   // Insert translation
-  locx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->translation(0));
-  locy_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->translation(1));
-  locz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->translation(2));
+  locx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->translation(0));
+  locy_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->translation(1));
+  locz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   // Insert rotation
-  rotx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->rotation(0));
-  roty_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->rotation(1));
-  rotz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->rotation(2));
+  rotx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->rotation(0));
+  roty_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->rotation(1));
+  rotz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
@@ -207,7 +220,8 @@ void SceneQueryHelper::create_scene_link(std::string s1_key, \
   bool has_exception = false;
   std::string exc_string = "";
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -282,29 +296,37 @@ void SceneQueryHelper::update_scene_link(std::string s1_key, \
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
-  s1key_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s1_key);
+  s1key_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s1_key);
   processor_logging->debug("Scene 1 Key:");
   processor_logging->debug(s1_key);
   q_params.emplace("inp_key1", s1key_param);
 
   // Insert the device key into the query list
-  s2key_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s2_key);
+  s2key_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s2_key);
   processor_logging->debug("Scene 2 Key:");
   processor_logging->debug(s2_key);
   q_params.emplace("inp_key2", s2key_param);
 
   // Insert translation
-  locx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->translation(0));
-  locy_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->translation(1));
-  locz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->translation(2));
+  locx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->translation(0));
+  locy_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->translation(1));
+  locz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   // Insert rotation
-  rotx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->rotation(0));
-  roty_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->rotation(1));
-  rotz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(new_trans->rotation(2));
+  rotx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->rotation(0));
+  roty_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->rotation(1));
+  rotz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(new_trans->rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
@@ -313,7 +335,8 @@ void SceneQueryHelper::update_scene_link(std::string s1_key, \
   bool has_exception = false;
   std::string exc_string = "";
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");

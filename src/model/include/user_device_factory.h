@@ -15,6 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <string>
+
 #include "user_device_interface.h"
 #include "user_device.h"
 
@@ -31,10 +33,11 @@ class UserDeviceFactory {
     {return new UserDevice(ud_data);}
   UserDeviceInterface* build_device(std::string new_key) \
     {return new UserDevice(new_key);}
-  UserDeviceInterface* build_device(std::string new_key, TransformInterface *transform) \
+  UserDeviceInterface* \
+    build_device(std::string new_key, TransformInterface *transform) \
     {return new UserDevice(new_key, transform);}
   UserDeviceInterface* build_device(TransformInterface *transform) \
     {return new UserDevice(transform);}
 };
 
-# endif  // SRC_MODEL_INCLUDE_USER_DEVICE_FACTORY_H_
+#endif  // SRC_MODEL_INCLUDE_USER_DEVICE_FACTORY_H_

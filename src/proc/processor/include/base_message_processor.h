@@ -15,6 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <string>
+
 #include "rapidjson/document.h"
 
 #include "include/ivan_log.h"
@@ -59,8 +61,8 @@ class BaseMessageProcessor {
   TransformFactory tfactory;
   UserDeviceFactory udfactory;
   QueryHelperFactory qfactory;
- public:
 
+ public:
   // Access internal components
   Neo4jInterface* get_neo4j_interface() {return n;}
   Neo4jComponentFactory* get_neo4j_factory() {return neo_factory;}
@@ -96,8 +98,9 @@ class BaseMessageProcessor {
     {return new ProcessResult;}
 
   // Constructor
-  inline BaseMessageProcessor(Neo4jComponentFactory *nf, Neo4jInterface *neo4j, \
-    RedisInterface *rd, ConfigurationManager *con, uuidInterface *u) {
+  inline BaseMessageProcessor(Neo4jComponentFactory *nf, \
+    Neo4jInterface *neo4j, RedisInterface *rd, \
+    ConfigurationManager *con, uuidInterface *u) {
     n = neo4j;
     r = rd;
     config = con;

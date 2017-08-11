@@ -34,7 +34,8 @@ bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
   // Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
   std::string qkey = inp_string;
-  key_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(qkey);
+  key_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(qkey);
   processor_logging->debug("Key:");
   processor_logging->debug(qkey);
   q_params.emplace("inp_key", key_param);
@@ -44,7 +45,8 @@ bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
   bool has_exception = false;
   std::string exc_string = "";
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(q_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(q_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -101,7 +103,8 @@ bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
 
 // Get scenes that this user device is registered to
 // Collect the User Device and Transformation within the scenes returned
-SceneListInterface* DeviceQueryHelper::get_registrations(std::string inp_device) {
+SceneListInterface* \
+  DeviceQueryHelper::get_registrations(std::string inp_device) {
   processor_logging->debug("Checking other scenes the device is registered to");
   ResultsIteratorInterface *results = NULL;
   ResultTreeInterface *tree = NULL;
@@ -127,14 +130,16 @@ SceneListInterface* DeviceQueryHelper::get_registrations(std::string inp_device)
   // Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> udq_params;
   std::string udqkey = inp_device;
-  udkey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(udqkey);
+  udkey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(udqkey);
   processor_logging->debug("Key:");
   processor_logging->debug(udqkey);
   udq_params.emplace("inp_key", udkey_param);
 
   // Execute the query
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(udq_string, udq_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(udq_string, udq_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -226,7 +231,8 @@ SceneListInterface* DeviceQueryHelper::get_registrations(std::string inp_device)
           if (dev_props->element_exists("key")) {
             processor_logging->debug("Device Key Found");
             // Add the device related data to the scene
-            TransformInterface *new_transform = BaseQueryHelper::create_transform();
+            TransformInterface *new_transform = \
+              BaseQueryHelper::create_transform();
             UserDeviceInterface *new_dev = BaseQueryHelper::create_device(\
               dev_props->get_string_element("key"), new_transform);
             new_dev->set_translation(0, translation_x);
@@ -295,36 +301,45 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
-  skey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
+  skey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
   processor_logging->debug("Scene Key:");
   processor_logging->debug(scene_id);
   q_params.emplace("inp_key", skey_param);
 
   // Insert the device key into the query list
-  udkey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(device_id);
+  udkey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(device_id);
   processor_logging->debug("Device Key:");
   processor_logging->debug(device_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   // Insert translation
-  locx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->translation(0));
-  locy_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->translation(1));
-  locz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->translation(2));
+  locx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->translation(0));
+  locy_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->translation(1));
+  locz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   // Insert rotation
-  rotx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->rotation(0));
-  roty_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->rotation(1));
-  rotz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->rotation(2));
+  rotx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->rotation(0));
+  roty_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->rotation(1));
+  rotz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
 
   // Execute the query
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -364,20 +379,23 @@ void DeviceQueryHelper::remove_device_from_scene(std::string device_id, \
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
-  skey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
+  skey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
   processor_logging->debug("Scene Key:");
   processor_logging->debug(scene_id);
   q_params.emplace("inp_key", skey_param);
 
   // Insert the device key into the query list
-  udkey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(device_id);
+  udkey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(device_id);
   processor_logging->debug("Device Key:");
   processor_logging->debug(device_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   // Execute the query
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(query_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(query_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
@@ -422,29 +440,37 @@ bool DeviceQueryHelper::update_device_registration(std::string dev_id, \
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
-  skey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
+  skey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
   processor_logging->debug("Scene Key:");
   processor_logging->debug(scene_id);
   q_params.emplace("inp_key", skey_param);
 
   // Insert the device key into the query list
-  udkey_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(dev_id);
+  udkey_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(dev_id);
   processor_logging->debug("Device Key:");
   processor_logging->debug(dev_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   // Insert translation
-  locx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->translation(0));
-  locy_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->translation(1));
-  locz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->translation(2));
+  locx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->translation(0));
+  locy_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->translation(1));
+  locz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->translation(2));
   q_params.emplace("loc_x", locx_param);
   q_params.emplace("loc_y", locy_param);
   q_params.emplace("loc_z", locz_param);
 
   // Insert rotation
-  rotx_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->rotation(0));
-  roty_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->rotation(1));
-  rotz_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(transform->rotation(2));
+  rotx_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->rotation(0));
+  roty_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->rotation(1));
+  rotz_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(transform->rotation(2));
   q_params.emplace("rot_x", rotx_param);
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
@@ -456,7 +482,8 @@ bool DeviceQueryHelper::update_device_registration(std::string dev_id, \
   bool result_found = true;
   std::string exc_string = "";
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
+    results = \
+      BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");

@@ -58,7 +58,6 @@ class SceneInterface {
 
   // Convinience method to log the contents of the scene
   virtual void print() = 0;
-
 };
 
 #endif  // SRC_MODEL_INCLUDE_SCENE_INTERFACE_H_

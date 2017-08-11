@@ -50,8 +50,8 @@ limitations under the License.
 // Accepts an Scene (assuming it is an inbound message)
 // And performs any and all processing on it,
 // Includes Redis Locks, DB Interactions, and any necessary calculations
-class MessageProcessor : public CrudMessageProcessor, public ProcessorInterface {
-
+class MessageProcessor : public CrudMessageProcessor, \
+  public ProcessorInterface {
 // -------------------------------------------------------------------------- //
 // -------------------------Device Registration------------------------------ //
   // Register a device to a scene

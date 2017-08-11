@@ -21,8 +21,8 @@ limitations under the License.
 // Transform Links in the DB
 // As an input, we expect a set of Scenes and User Device pairs
 // which are then processed to generate the Scene-Scene links
-void AlgorithmQueryHelper::process_UDUD_transformation(SceneListInterface *registered_scenes, \
-  SceneListInterface *obj_msg) {
+void AlgorithmQueryHelper::process_UDUD_transformation(\
+  SceneListInterface *registered_scenes, SceneListInterface *obj_msg) {
   processor_logging->debug("Processing Scene-Scene Links");
 
   // Get the number of scenes
@@ -113,12 +113,14 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
 
   // Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> path_q_params;
-  pkey1_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id1);
+  pkey1_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id1);
   processor_logging->debug("Start Key:");
   processor_logging->debug(scene_id1);
   path_q_params.emplace("inp_key_start", pkey1_param);
 
-  pkey2_param = BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id2);
+  pkey2_param = \
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id2);
   processor_logging->debug("End Key:");
   processor_logging->debug(scene_id2);
   path_q_params.emplace("inp_key_start", pkey2_param);
@@ -128,7 +130,8 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
 
   // Execute the query
   try {
-    results = BaseQueryHelper::get_neo4j_interface()->execute(path_q_string, path_q_params);
+    results = BaseQueryHelper::get_neo4j_interface()->execute(path_q_string, \
+      path_q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");

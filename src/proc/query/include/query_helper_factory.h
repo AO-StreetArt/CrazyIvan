@@ -33,4 +33,4 @@ class QueryHelperFactory {
   }
 };
 
-# endif  // SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_FACTORY_H_
+#endif  // SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_FACTORY_H_

@@ -91,7 +91,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           // Process Scene Transform
           if (itr.HasMember("transform")) {
             obj_logging->debug("Transform found");
-            TransformInterface *new_scene_transform = SceneList::create_transform();
+            TransformInterface *new_scene_transform = \
+              SceneList::create_transform();
             const rapidjson::Value& scene_trn_val = itr["transform"];
             for (
               rapidjson::Value::ConstMemberIterator scn_trns_itr = \
@@ -140,7 +141,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                 // Process the device transform
                 if (device_itr.HasMember("transform")) {
                   obj_logging->debug("UD Transform found");
-                  TransformInterface *new_ud_transform = SceneList::create_transform();
+                  TransformInterface *new_ud_transform = \
+                    SceneList::create_transform();
                   const rapidjson::Value& ud_trn_val = device_itr["transform"];
                   for (rapidjson::Value::ConstMemberIterator ud_trns_itr = \
                     ud_trn_val.MemberBegin(); \
@@ -304,20 +306,23 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             writer.Key("translation");
             writer.StartArray();
             writer.Double(get_scene(a)->get_device(b)->\
-            get_transform()->translation(0));
+              get_transform()->translation(0));
             writer.Double(get_scene(a)->get_device(b)->\
-            get_transform()->translation(1));
+              get_transform()->translation(1));
             writer.Double(get_scene(a)->get_device(b)->\
-            get_transform()->translation(2));
+              get_transform()->translation(2));
             writer.EndArray();
           }
           if (get_scene(a)->get_device(b)->get_transform()->has_rotation()) {
             // Add the rotation
             writer.Key("rotation");
             writer.StartArray();
-            writer.Double(get_scene(a)->get_device(b)->get_transform()->rotation(0));
-            writer.Double(get_scene(a)->get_device(b)->get_transform()->rotation(1));
-            writer.Double(get_scene(a)->get_device(b)->get_transform()->rotation(2));
+            writer.Double(get_scene(a)->get_device(b)->\
+              get_transform()->rotation(0));
+            writer.Double(get_scene(a)->get_device(b)->\
+              get_transform()->rotation(1));
+            writer.Double(get_scene(a)->get_device(b)->\
+              get_transform()->rotation(2));
             writer.EndArray();
           }
           writer.EndObject();

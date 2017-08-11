@@ -47,7 +47,8 @@ class UserDevice : public UserDeviceInterface {
   // Constructors
   UserDevice(protoScene::SceneList_UserDevice scn_data);
   UserDevice() {trns_flag = false;}
-  UserDevice(TransformInterface *transform) {trans = transform; trns_flag = true;}
+  UserDevice(TransformInterface *transform) \
+    {trans = transform; trns_flag = true;}
   UserDevice(std::string new_key) {key = new_key; trns_flag = false;}
   UserDevice(const char * new_key) {my_key = new_key; key.assign(my_key);}
   inline UserDevice(std::string new_key, TransformInterface *transform) {
