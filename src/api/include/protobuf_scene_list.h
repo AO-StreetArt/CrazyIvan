@@ -43,7 +43,7 @@ class ProtobufSceneList : public SceneList {
   // Here we parse the string and populate the SceneList object with the information
   ProtobufSceneList(protoScene::SceneList buffer);
   // Destructor
-  inline ~ProtobufSceneList() {}
+  ~ProtobufSceneList() {}
   // Convert the scene information into a message string
   void to_msg_string(std::string &out_string);
 };

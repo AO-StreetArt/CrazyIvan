@@ -25,8 +25,8 @@ limitations under the License.
 #include "configuration_manager.h"
 #include "ivan_log.h"
 
-#ifndef SRC_INCLUDE_REDIS_LOCKING_H_
-#define SRC_INCLUDE_REDIS_LOCKING_H_
+#ifndef SRC_APP_INCLUDE_REDIS_LOCKING_H_
+#define SRC_APP_INCLUDE_REDIS_LOCKING_H_
 
 class RedisLocker {
 RedisInterface *redis = NULL;
@@ -92,4 +92,4 @@ RedisInterface *redis = NULL;
   }
 };
 
-#endif  // SRC_INCLUDE_REDIS_LOCKING_H_
+#endif  // SRC_APP_INCLUDE_REDIS_LOCKING_H_

@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef SRC_INCLUDE_IVAN_LOG_H_
-#define SRC_INCLUDE_IVAN_LOG_H_
+#ifndef SRC_APP_INCLUDE_IVAN_LOG_H_
+#define SRC_APP_INCLUDE_IVAN_LOG_H_
 
 #include "aossl/logging/include/logging_interface.h"
 
@@ -30,4 +30,4 @@ extern LoggingCategoryInterface *processor_logging;
 void start_logging_submodules();
 void shutdown_logging_submodules();
 
-#endif  // SRC_INCLUDE_IVAN_LOG_H_
+#endif  // SRC_APP_INCLUDE_IVAN_LOG_H_

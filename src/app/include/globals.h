@@ -45,9 +45,10 @@ limitations under the License.
 #include "include/ivan_log.h"
 #include "include/scene_list_interface.h"
 #include "include/scene_list_factory.h"
+#include "include/scene_factory.h"
 
-#ifndef SRC_INCLUDE_GLOBALS_H_
-#define SRC_INCLUDE_GLOBALS_H_
+#ifndef SRC_APP_INCLUDE_GLOBALS_H_
+#define SRC_APP_INCLUDE_GLOBALS_H_
 
 // Set up an Obj3 pointer to hold the currently translated document information
 extern SceneListInterface *translated_object;
@@ -74,6 +75,7 @@ extern LoggingComponentFactory *logging_factory;
 
 extern ProcessorFactory *processor_factory;
 extern SceneListFactory *scene_list_factory;
+extern SceneFactory *scene_factory;
 
 // Shutdown the application
 inline void shutdown() {
@@ -134,6 +136,12 @@ inline void shutdown() {
   if (logging_factory) {
     delete logging_factory;
   }
+  if (processor_factory) {
+    delete processor_factory;
+  }
+  if (scene_list_factory) {
+    delete scene_list_factory;
+  }
 }
 
-#endif  // SRC_INCLUDE_GLOBALS_H_
+#endif  // SRC_APP_INCLUDE_GLOBALS_H_

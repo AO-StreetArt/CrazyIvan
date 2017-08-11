@@ -66,9 +66,8 @@ class SceneList : public SceneListInterface {
   // Setters
   void set_msg_type(int new_msg_type) {msg_type = new_msg_type;}
   void set_err_msg(std::string new_err) {err_msg = new_err;}
-  inline void set_transaction_id(std::string new_tran_id) {
-    transaction_id = new_tran_id;
-  }
+  void set_transaction_id(std::string new_tran_id) \
+    {transaction_id = new_tran_id;}
   void set_err_code(int new_code) {err_code = new_code;}
   void add_scene(SceneInterface *scn) {data.push_back(scn);}
   void set_num_records(int new_num) {num_records = new_num;}

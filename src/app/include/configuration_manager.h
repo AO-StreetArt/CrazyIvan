@@ -21,8 +21,8 @@ limitations under the License.
 // decides how the application needs to be configured.  It may configure either
 // from a configuration file, or from a Consul agent
 
-#ifndef SRC_INCLUDE_CONFIGURATION_MANAGER_H_
-#define SRC_INCLUDE_CONFIGURATION_MANAGER_H_
+#ifndef SRC_APP_INCLUDE_CONFIGURATION_MANAGER_H_
+#define SRC_APP_INCLUDE_CONFIGURATION_MANAGER_H_
 
 const int PROTO_FORMAT = 0;
 const int JSON_FORMAT = 1;
@@ -127,4 +127,4 @@ class ConfigurationManager {
   std::string get_nodeid() {return node_id;}
 };
 
-#endif  // SRC_INCLUDE_CONFIGURATION_MANAGER_H_
+#endif  // SRC_APP_INCLUDE_CONFIGURATION_MANAGER_H_

@@ -54,5 +54,6 @@ uuidComponentFactory *uuid_factory = NULL;
 ZmqComponentFactory *zmq_factory = NULL;
 LoggingComponentFactory *logging_factory = NULL;
 
-ProcessorFactory *processor_factory = 0;
-SceneListFactory *scene_list_factory = 0;
+ProcessorFactory *processor_factory = NULL;
+SceneListFactory *scene_list_factory = NULL;
+SceneFactory *scene_factory = NULL;

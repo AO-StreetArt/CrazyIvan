@@ -5,7 +5,7 @@ CC = g++
 CFLAGS  = -g -Wall
 STD = -std=c++11
 OBJS = configuration_manager.o globals.o ivan_log.o
-INCL_DIRS = -I. -I$(CURDIR)/../app/ -I$(CURDIR)/../api/ -I$(CURDIR)/../model/ -I$(CURDIR)/../proc/
+INCL_DIRS = -I. -I$(CURDIR)/../app/ -I$(CURDIR)/../api/ -I$(CURDIR)/../model/ -I$(CURDIR)/../proc/processor -I$(CURDIR)/../proc/query
 
 default: $(OBJS)
 
