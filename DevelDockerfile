@@ -112,7 +112,6 @@ RUN cd CrazyIvan && git checkout development && git pull origin development
 RUN cd CrazyIvan && make && make test
 
 # Execute Unit Tests
-RUN cd CrazyIvan && ./scene_test
 RUN cd CrazyIvan && ./configuration_test -config-file=test/test.properties
 
 #Expose some of the default ports
