@@ -18,8 +18,8 @@ limitations under the License.
 #include <string>
 #include "include/scene_list_interface.h"
 
-#ifndef SRC_PROC_INCLUDE_PROCESSOR_INTERFACE_H_
-#define SRC_PROC_INCLUDE_PROCESSOR_INTERFACE_H_
+#ifndef SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_INTERFACE_H_
+#define SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_INTERFACE_H_
 
 class ProcessResult {
   int err_code;
@@ -91,4 +91,4 @@ class ProcessorInterface {
   virtual ProcessResult* process_message(SceneListInterface *obj_msg) = 0;
 };
 
-#endif  // SRC_PROC_INCLUDE_PROCESSOR_INTERFACE_H_
+#endif  // SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_INTERFACE_H_

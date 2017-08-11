@@ -31,4 +31,4 @@ class SceneFactory {
     {return new SceneDocument(scn_data);}
 };
 
-# endif  // SRC_MODEL_INCLUDE_SCENE_FACTORY_H_
+#endif  // SRC_MODEL_INCLUDE_SCENE_FACTORY_H_

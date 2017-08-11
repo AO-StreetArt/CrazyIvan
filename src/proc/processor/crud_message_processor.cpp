@@ -22,7 +22,8 @@ limitations under the License.
 // -------------------------------------------------------------------------- //
 
 // Create a new scene
-ProcessResult* CrudMessageProcessor::process_create_message(SceneListInterface *obj_msg) {
+ProcessResult* \
+  CrudMessageProcessor::process_create_message(SceneListInterface *obj_msg) {
   processor_logging->info("Processing Scene Creation message");
   processor_logging->debug("Number of Scene Data elements:");
   processor_logging->debug(obj_msg->num_scenes());
@@ -62,12 +63,14 @@ ProcessResult* CrudMessageProcessor::process_create_message(SceneListInterface *
       }
       processor_logging->info("Key Generated:");
       processor_logging->info(new_id);
-      key_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(new_id);
+      key_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(new_id);
     }
     scene_params.emplace("inp_key", key_param);
     std::string qname = obj_msg->get_scene(0)->get_name();
     if (!(qname.empty())) {
-      name_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qname);
+      name_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(qname);
       processor_logging->debug("Name:");
       processor_logging->debug(qname);
       scene_params.emplace("inp_name", name_param);
@@ -75,7 +78,8 @@ ProcessResult* CrudMessageProcessor::process_create_message(SceneListInterface *
     }
     if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
       qlat = obj_msg->get_scene(0)->get_latitude();
-      lat_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qlat);
+      lat_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(qlat);
       processor_logging->debug("Latitude:");
       processor_logging->debug(std::to_string(qlat));
       scene_params.emplace("inp_lat", lat_param);
@@ -83,7 +87,8 @@ ProcessResult* CrudMessageProcessor::process_create_message(SceneListInterface *
     }
     if (!(obj_msg->get_scene(0)->get_longitude() == -9999.0)) {
       qlong = obj_msg->get_scene(0)->get_longitude();
-      long_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qlong);
+      long_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(qlong);
       processor_logging->debug("Longitude:");
       processor_logging->debug(std::to_string(qlong));
       scene_params.emplace("inp_long", long_param);
@@ -95,7 +100,8 @@ ProcessResult* CrudMessageProcessor::process_create_message(SceneListInterface *
 
     // Execute the query
     try {
-      results = BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, scene_params);
+      results = BaseMessageProcessor::get_neo4j_interface()->\
+        execute(scene_query, scene_params);
     }
     catch (std::exception& e) {
       processor_logging->error("Error running Query:");
@@ -134,7 +140,8 @@ ProcessResult* CrudMessageProcessor::process_create_message(SceneListInterface *
 }
 
 // Update the details of a scene entry
-ProcessResult* CrudMessageProcessor::process_update_message(SceneListInterface *obj_msg) {
+ProcessResult* \
+  CrudMessageProcessor::process_update_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
 
   if (obj_msg->num_scenes() > 0) {
@@ -192,25 +199,29 @@ ProcessResult* CrudMessageProcessor::process_update_message(SceneListInterface *
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
         scene_params;
       std::string qkey = obj_msg->get_scene(0)->get_key();
-      key_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qkey);
+      key_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(qkey);
       processor_logging->debug("Key:");
       processor_logging->debug(qkey);
       scene_params.emplace("inp_key", key_param);
       if (!(obj_msg->get_scene(0)->get_name().empty())) {
         std::string qname = obj_msg->get_scene(0)->get_name();
-        name_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qname);
+        name_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qname);
         processor_logging->debug("Name:");
         processor_logging->debug(qname);
         scene_params.emplace("inp_name", name_param);
       }
       if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
         double qlat = obj_msg->get_scene(0)->get_latitude();
-        lat_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qlat);
+        lat_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qlat);
         scene_params.emplace("inp_lat", lat_param);
       }
       if (!(obj_msg->get_scene(0)->get_longitude() == -9999.0)) {
         double qlong = obj_msg->get_scene(0)->get_longitude();
-        long_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qlong);
+        long_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qlong);
         scene_params.emplace("inp_long", long_param);
       }
 
@@ -218,7 +229,9 @@ ProcessResult* CrudMessageProcessor::process_update_message(SceneListInterface *
       ResultTreeInterface *tree = NULL;
       DbObjectInterface* obj = NULL;
       try {
-        results = BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, scene_params);
+        results = \
+          BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
+          scene_params);
       }
       catch (std::exception& e) {
         if (obj) delete obj;
@@ -266,7 +279,8 @@ ProcessResult* CrudMessageProcessor::process_update_message(SceneListInterface *
 }
 
 // Query for scene data
-ProcessResult* CrudMessageProcessor::process_retrieve_message(SceneListInterface *obj_msg) {
+ProcessResult* \
+  CrudMessageProcessor::process_retrieve_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     ResultsIteratorInterface *results = NULL;
@@ -326,14 +340,16 @@ ProcessResult* CrudMessageProcessor::process_retrieve_message(SceneListInterface
         scene_params;
       if (!(obj_msg->get_scene(0)->get_key().empty())) {
         std::string qkey = obj_msg->get_scene(0)->get_key();
-        key_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qkey);
+        key_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qkey);
         processor_logging->debug("Key:");
         processor_logging->debug(qkey);
         scene_params.emplace("inp_key", key_param);
       }
       if (!(obj_msg->get_scene(0)->get_name().empty())) {
         std::string qname = obj_msg->get_scene(0)->get_name();
-        name_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qname);
+        name_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qname);
         processor_logging->debug("Name:");
         processor_logging->debug(qname);
         scene_params.emplace("inp_name", name_param);
@@ -342,26 +358,32 @@ ProcessResult* CrudMessageProcessor::process_retrieve_message(SceneListInterface
         obj_msg->get_scene(0)->get_longitude() == -9999.0 || \
         obj_msg->get_scene(0)->get_distance() < 0.0)) {
         double qlat = obj_msg->get_scene(0)->get_latitude();
-        lat_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qlat);
+        lat_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qlat);
         scene_params.emplace("inp_lat", lat_param);
         double qlong = obj_msg->get_scene(0)->get_longitude();
-        long_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qlong);
+        long_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qlong);
         scene_params.emplace("inp_long", long_param);
         double qdist = obj_msg->get_scene(0)->get_distance();
-        dist_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qdist);
+        dist_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(qdist);
         scene_params.emplace("inp_distance", dist_param);
       }
 
       // Execute the query
       try {
-        results = BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, scene_params);
+        results = \
+          BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
+          scene_params);
         if (!results) {
           processor_logging->error("No results returned from query");
           response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
         } else {
           // Pull results and return
           SceneListInterface *sc = NULL;
-          if (BaseMessageProcessor::get_config_manager()->get_formattype() == PROTO_FORMAT) \
+          if (BaseMessageProcessor::get_config_manager()->get_formattype() == \
+            PROTO_FORMAT) \
             {sc = BaseMessageProcessor::get_slfactory().build_protobuf_scene();}
           else {sc = BaseMessageProcessor::get_slfactory().build_json_scene();}
           sc->set_err_code(NO_ERROR);
@@ -370,7 +392,8 @@ ProcessResult* CrudMessageProcessor::process_retrieve_message(SceneListInterface
           ResultTreeInterface *tree = results->next();
           int num_results = 0;
           while (tree) {
-            SceneInterface *data = BaseMessageProcessor::get_sfactory().build_scene();
+            SceneInterface *data = \
+              BaseMessageProcessor::get_sfactory().build_scene();
 
             // Get the first DB Object (Node)
             DbObjectInterface* obj = tree->get(0);
@@ -438,7 +461,8 @@ ProcessResult* CrudMessageProcessor::process_retrieve_message(SceneListInterface
 }
 
 // Delete a scene
-ProcessResult* CrudMessageProcessor::process_delete_message(SceneListInterface *obj_msg) {
+ProcessResult* \
+  CrudMessageProcessor::process_delete_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     processor_logging->debug("Processing Scene Delete message");
@@ -458,7 +482,8 @@ ProcessResult* CrudMessageProcessor::process_delete_message(SceneListInterface *
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
         scene_params;
       std::string qkey = obj_msg->get_scene(0)->get_key();
-      key_param = BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(qkey);
+      key_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(qkey);
       processor_logging->debug("Key:");
       processor_logging->debug(qkey);
       scene_params.emplace("inp_key", key_param);
@@ -467,7 +492,9 @@ ProcessResult* CrudMessageProcessor::process_delete_message(SceneListInterface *
       ResultTreeInterface *tree = NULL;
       DbObjectInterface* obj = NULL;
       try {
-        results = BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, scene_params);
+        results = \
+          BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
+          scene_params);
       }
       catch (std::exception& e) {
         processor_logging->error("Error running Query:");

@@ -84,8 +84,10 @@ class SceneDocument : public SceneData, public SceneInterface {
   // List
   void add_device(UserDeviceInterface *d) {SceneData::add_device(d);}
   int num_devices() const {return SceneData::num_devices();}
-  UserDeviceInterface* get_device(int index) const {return SceneData::get_device(index);}
-  std::vector<UserDeviceInterface*> get_devices() const {return SceneData::get_devices();}
+  UserDeviceInterface* get_device(int index) const \
+    {return SceneData::get_device(index);}
+  std::vector<UserDeviceInterface*> get_devices() const \
+    {return SceneData::get_devices();}
 
   // Transform
   TransformInterface* get_scene_transform() const {return scene_transform;}

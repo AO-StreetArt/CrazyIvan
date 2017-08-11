@@ -69,7 +69,8 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
 
   // Determine how many scenes we want to return in the message
   int num_return_scenes = SceneList::num_scenes();
-  if ((SceneList::get_num_records() != -1) && (SceneList::get_num_records() < num_return_scenes)) {
+  if ((SceneList::get_num_records() != -1) && \
+    (SceneList::get_num_records() < num_return_scenes)) {
     num_return_scenes = SceneList::get_num_records();
   }
   // Iterate through the data list and process each scene
@@ -104,12 +105,18 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
       protoScene::SceneList_Vertex3 *proto_translation = \
         trn->mutable_translation();
       protoScene::SceneList_Vertex3 *proto_rot = trn->mutable_rotation();
-      proto_translation->set_x(SceneList::get_scene(a)->get_scene_transform()->translation(0));
-      proto_translation->set_y(SceneList::get_scene(a)->get_scene_transform()->translation(1));
-      proto_translation->set_z(SceneList::get_scene(a)->get_scene_transform()->translation(2));
-      proto_rot->set_x(SceneList::get_scene(a)->get_scene_transform()->rotation(0));
-      proto_rot->set_y(SceneList::get_scene(a)->get_scene_transform()->rotation(1));
-      proto_rot->set_z(SceneList::get_scene(a)->get_scene_transform()->rotation(2));
+      proto_translation->set_x(SceneList::get_scene(a)->\
+        get_scene_transform()->translation(0));
+      proto_translation->set_y(SceneList::get_scene(a)->\
+        get_scene_transform()->translation(1));
+      proto_translation->set_z(SceneList::get_scene(a)->\
+        get_scene_transform()->translation(2));
+      proto_rot->set_x(SceneList::get_scene(a)->\
+        get_scene_transform()->rotation(0));
+      proto_rot->set_y(SceneList::get_scene(a)->\
+        get_scene_transform()->rotation(1));
+      proto_rot->set_z(SceneList::get_scene(a)->\
+        get_scene_transform()->rotation(2));
     }
 
     // Iterate through the device list for the scene and write those
@@ -131,9 +138,12 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
           get_transform()->translation(1));
         proto_translation->set_z(SceneList::get_scene(a)->get_device(b)->\
           get_transform()->translation(2));
-        proto_rot->set_x(SceneList::get_scene(a)->get_device(b)->get_transform()->rotation(0));
-        proto_rot->set_y(SceneList::get_scene(a)->get_device(b)->get_transform()->rotation(1));
-        proto_rot->set_z(SceneList::get_scene(a)->get_device(b)->get_transform()->rotation(2));
+        proto_rot->set_x(SceneList::get_scene(a)->\
+          get_device(b)->get_transform()->rotation(0));
+        proto_rot->set_y(SceneList::get_scene(a)->\
+          get_device(b)->get_transform()->rotation(1));
+        proto_rot->set_z(SceneList::get_scene(a)->\
+          get_device(b)->get_transform()->rotation(2));
       }
     }
   }

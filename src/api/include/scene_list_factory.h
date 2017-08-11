@@ -35,4 +35,4 @@ class SceneListFactory {
     {return new ProtobufSceneList(buffer);}
 };
 
-# endif  // SRC_API_INCLUDE_SCENE_LIST_FACTORY_H_
+#endif  // SRC_API_INCLUDE_SCENE_LIST_FACTORY_H_

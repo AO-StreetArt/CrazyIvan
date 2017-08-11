@@ -38,8 +38,9 @@ void BaseMessageProcessor::release_mutex_lock(std::string obj_key) {
   redis_locks->release_lock(key, val);
 }
 
-SceneListInterface* BaseMessageProcessor::build_response_scene(int msg_type, int err_code, \
-  std::string err_msg, std::string tran_id, std::string scene_id) {
+SceneListInterface* BaseMessageProcessor::build_response_scene(int msg_type, \
+  int err_code, std::string err_msg, \
+  std::string tran_id, std::string scene_id) {
   SceneListInterface *resp_scn = NULL;
   if (config->get_formattype() == PROTO_FORMAT) {
     resp_scn = slfactory.build_protobuf_scene();
@@ -62,7 +63,8 @@ void BaseMessageProcessor::build_string_response(int msg_type, int err_code, \
   std::string err_msg, std::string tran_id, \
   std::string scene_id, std::string &out_string) {
   //Construct the response scene
-  SceneListInterface *resp_scn = build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
+  SceneListInterface *resp_scn = \
+    build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
   // Convert the response scene to a response message
   resp_scn->to_msg_string(out_string);
   delete resp_scn;
@@ -71,7 +73,8 @@ void BaseMessageProcessor::build_string_response(int msg_type, int err_code, \
 void BaseMessageProcessor::build_string_response(int msg_type, int err_code, \
   std::string err_msg, std::string tran_id, std::string scene_id, \
   std::string dev_id, TransformInterface *t, std::string &out_string) {
-  SceneListInterface *resp_scn = build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
+  SceneListInterface *resp_scn = \
+    build_response_scene(msg_type, err_code, err_msg, tran_id, scene_id);
   // Set up the user device
   UserDevice *ud1 = new UserDevice;
   // Add the transformation and key data to the user device

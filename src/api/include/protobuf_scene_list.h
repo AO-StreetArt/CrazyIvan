@@ -40,7 +40,7 @@ class ProtobufSceneList : public SceneList {
   // Constructor
   ProtobufSceneList() : SceneList() {}
   // Constructor accepting Protocol Buffer serialized string
-  // Here we parse the string and populate the SceneList object with the information
+  // parse the string and populate the SceneList object with the information
   ProtobufSceneList(protoScene::SceneList buffer);
   // Destructor
   ~ProtobufSceneList() {}

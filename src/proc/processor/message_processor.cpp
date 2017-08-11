@@ -20,7 +20,8 @@ limitations under the License.
 // Register a device to a scene
 // Predict a coordinate transform for the device
 // and pass it back in the response
-ProcessResult* MessageProcessor::process_registration_message(SceneListInterface *obj_msg) {
+ProcessResult* \
+  MessageProcessor::process_registration_message(SceneListInterface *obj_msg) {
   processor_logging->debug("Processing Registration Message");
   // Is this the first device being registered to the scene
   bool is_first_device = false;
@@ -51,7 +52,8 @@ ProcessResult* MessageProcessor::process_registration_message(SceneListInterface
   // Determine if the scene exists in the DB
   if (current_err_code == NO_ERROR) {
     try {
-      does_scene_exist = BaseMessageProcessor::get_query_helper()->scene_exists(obj_msg->get_scene(0)->get_key());
+      does_scene_exist = BaseMessageProcessor::get_query_helper()->\
+        scene_exists(obj_msg->get_scene(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error checking for scene existence");
@@ -77,8 +79,9 @@ ProcessResult* MessageProcessor::process_registration_message(SceneListInterface
     } else {
       try {
         already_registered = \
-          BaseMessageProcessor::get_query_helper()->is_ud_registered(obj_msg->get_scene(0)->get_key(), \
-          obj_msg->get_scene(0)->get_device(0)->get_key());
+          BaseMessageProcessor::get_query_helper()->\
+            is_ud_registered(obj_msg->get_scene(0)->get_key(), \
+            obj_msg->get_scene(0)->get_device(0)->get_key());
       }
       catch (std::exception& e) {
         processor_logging->error("Error checking if User Device is registered");
@@ -94,7 +97,8 @@ ProcessResult* MessageProcessor::process_registration_message(SceneListInterface
   if (current_err_code == NO_ERROR) {
     try {
       registered_scenes = \
-        BaseMessageProcessor::get_query_helper()->get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
+        BaseMessageProcessor::get_query_helper()->\
+          get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error getting registrations");
@@ -111,7 +115,8 @@ ProcessResult* MessageProcessor::process_registration_message(SceneListInterface
   // If we are registering the first device or cannot find
   // any paths from the device's previous scene(s), then we will
   // leave this as the identity matrix
-  TransformInterface *new_transform = BaseMessageProcessor::get_tfactory().build_transform();
+  TransformInterface *new_transform = \
+    BaseMessageProcessor::get_tfactory().build_transform();
 
   // If we are not registering the first device, the scene exists,
   // the device is not already registered to the scene in question but
@@ -124,7 +129,9 @@ ProcessResult* MessageProcessor::process_registration_message(SceneListInterface
     // to establish a transform
     for (int i = 0; i < registered_scenes->num_scenes(); i++) {
       try {
-        SceneTransformResult st_result = BaseMessageProcessor::get_query_helper()->calculate_scene_scene_transform(\
+        SceneTransformResult st_result = \
+          BaseMessageProcessor::get_query_helper()->\
+          calculate_scene_scene_transform(\
           registered_scenes->get_scene(i)->get_key(), \
           obj_msg->get_scene(0)->get_key());
         if (st_result.result_flag) {
@@ -162,7 +169,8 @@ ProcessResult* MessageProcessor::process_registration_message(SceneListInterface
   // the identity matrix
   if (previously_registered && is_first_device && \
     current_err_code == NO_ERROR) {
-    BaseMessageProcessor::get_query_helper()->process_UDUD_transformation(registered_scenes, obj_msg);
+    BaseMessageProcessor::get_query_helper()->\
+      process_UDUD_transformation(registered_scenes, obj_msg);
   }
 
   // Build a protocol buffer response
@@ -260,7 +268,8 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   // Update the transformation between the scene and user device
   if (current_err_code == NO_ERROR) {
     try {
-      registration_found = BaseMessageProcessor::get_query_helper()->update_device_registration(\
+      registration_found = \
+        BaseMessageProcessor::get_query_helper()->update_device_registration(\
         obj_msg->get_scene(0)->get_device(0)->get_key(), \
         obj_msg->get_scene(0)->get_key(), \
         obj_msg->get_scene(0)->get_device(0)->get_transform());
@@ -287,7 +296,8 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
     processor_logging->debug("Retrieving Scenes already registered to");
     try {
       registered_scenes = \
-        BaseMessageProcessor::get_query_helper()->get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
+        BaseMessageProcessor::get_query_helper()->\
+        get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
     }
     catch (std::exception& e) {
       processor_logging->error("Error Retrieving Device Registrations");
@@ -302,7 +312,8 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   if (current_err_code == NO_ERROR) {
     processor_logging->debug("Updating Scene-Scene Transforms");
     try {
-      BaseMessageProcessor::get_query_helper()->process_UDUD_transformation(registered_scenes, obj_msg);
+      BaseMessageProcessor::get_query_helper()->\
+        process_UDUD_transformation(registered_scenes, obj_msg);
     }
     catch (std::exception& e) {
       processor_logging->error("Error Updating Scene-Scene Transforms");

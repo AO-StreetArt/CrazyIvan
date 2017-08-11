@@ -27,8 +27,9 @@ class TransformFactory {
   TransformFactory() {}
   ~TransformFactory() {}
   TransformInterface* build_transform() {return new Transform;}
-  TransformInterface* build_transform(protoScene::SceneList_Transformation data) \
+  TransformInterface* \
+    build_transform(protoScene::SceneList_Transformation data) \
     {return new Transform(data);}
 };
 
-# endif  // SRC_MODEL_INCLUDE_TRANSFORM_FACTORY_H_
+#endif  // SRC_MODEL_INCLUDE_TRANSFORM_FACTORY_H_

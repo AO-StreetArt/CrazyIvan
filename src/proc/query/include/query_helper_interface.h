@@ -70,22 +70,24 @@ class QueryHelperInterface {
 // -----------------------Scene-Device Links--------------------------------- //
 
   // Determine if the given user device is registered to the given scene
-  virtual bool is_ud_registered(std::string inp_string, std::string inp_device) = 0;
+  virtual bool is_ud_registered(std::string inp_string, \
+    std::string inp_device) = 0;
 
   // Get scenes that this user device is registered to
   // Collect the User Device and Transformation within the scenes returned
   virtual SceneListInterface* get_registrations(std::string inp_device) = 0;
 
   // Update the transformation between scene and device
-  virtual bool update_device_registration(std::string dev_id, std::string scene_id, \
-    TransformInterface *transform) = 0;
+  virtual bool update_device_registration(std::string dev_id, \
+    std::string scene_id, TransformInterface *transform) = 0;
 
   // Create a registration link in the DB
-  virtual void register_device_to_scene(std::string device_id, std::string scene_id, \
-    TransformInterface *transform) = 0;
+  virtual void register_device_to_scene(std::string device_id, \
+    std::string scene_id, TransformInterface *transform) = 0;
 
   // Remove a device from a scene
-  virtual void remove_device_from_scene(std::string device_id, std::string scene_id) = 0;
+  virtual void remove_device_from_scene(std::string device_id, \
+    std::string scene_id) = 0;
 
 // ------------------------Scene-Scene Links--------------------------------- //
 
@@ -106,11 +108,14 @@ class QueryHelperInterface {
   // Transform Links in the DB
   // As an input, we expect a set of Scenes and User Device pairs
   // which are then processed to generate the Scene-Scene links
-  virtual void process_UDUD_transformation(SceneListInterface *registered_scenes, SceneListInterface *obj_msg) = 0;
+  virtual void \
+    process_UDUD_transformation(SceneListInterface *registered_scenes, \
+    SceneListInterface *obj_msg) = 0;
 
   // Try to find a path from one scene to the next and calculate
   // the resulting transform
-  virtual SceneTransformResult calculate_scene_scene_transform(std::string scene_id1, \
+  virtual SceneTransformResult \
+    calculate_scene_scene_transform(std::string scene_id1, \
     std::string scene_id2) = 0;
 };
 

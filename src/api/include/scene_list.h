@@ -42,14 +42,19 @@ class SceneList : public SceneListInterface {
   const char* ret_val;
   TransformFactory tfactory;
   UserDeviceFactory udfactory;
+
  public:
-  inline TransformInterface* create_transform() {return tfactory.build_transform();}
-  inline TransformInterface* create_transform(protoScene::SceneList_Transformation data) \
-   {return tfactory.build_transform(data);}
+  inline TransformInterface* create_transform() \
+    {return tfactory.build_transform();}
+  inline TransformInterface* \
+    create_transform(protoScene::SceneList_Transformation data) \
+    {return tfactory.build_transform(data);}
   inline UserDeviceInterface* create_device() {return udfactory.build_device();}
-  inline UserDeviceInterface* create_device(protoScene::SceneList_UserDevice ud_data) \
-   {return udfactory.build_device(ud_data);}
-  inline UserDeviceInterface* create_device(std::string inp_key, TransformInterface *t) \
+  inline UserDeviceInterface* \
+    create_device(protoScene::SceneList_UserDevice ud_data) \
+    {return udfactory.build_device(ud_data);}
+  inline UserDeviceInterface* \
+    create_device(std::string inp_key, TransformInterface *t) \
     {return udfactory.build_device(inp_key, t);}
   inline UserDeviceInterface* create_device(std::string inp_key) \
     {return udfactory.build_device(inp_key);}

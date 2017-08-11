@@ -18,8 +18,8 @@ limitations under the License.
 #include "include/processor_interface.h"
 #include "include/message_processor.h"
 
-#ifndef SRC_PROC_INCLUDE_PROCESSOR_FACTORY_H_
-#define SRC_PROC_INCLUDE_PROCESSOR_FACTORY_H_
+#ifndef SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_FACTORY_H_
+#define SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_FACTORY_H_
 
 // ProcessorFactory allows for creation of ProcessorInterface instances
 class ProcessorFactory {
@@ -34,4 +34,4 @@ class ProcessorFactory {
   }
 };
 
-# endif  // SRC_PROC_INCLUDE_PROCESSOR_FACTORY_H_
+#endif  // SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_FACTORY_H_
