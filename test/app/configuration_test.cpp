@@ -22,8 +22,6 @@ limitations under the License.
 #include <string>
 #include <vector>
 
-#include "configuration_manager.h"
-
 #include "aossl/commandline/include/commandline_interface.h"
 #include "aossl/commandline/include/factory_cli.h"
 
@@ -32,6 +30,9 @@ limitations under the License.
 
 #include "aossl/uuid/include/uuid_interface.h"
 #include "aossl/uuid/include/factory_uuid.h"
+
+#include "ivan_log.h"
+#include "configuration_manager.h"
 
 int main(int argc, char** argv) {
   LoggingComponentFactory *logging_factory = new LoggingComponentFactory;

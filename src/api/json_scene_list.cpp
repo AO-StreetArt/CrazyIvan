@@ -221,6 +221,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     if ((get_num_records() != -1) && (get_num_records() < num_return_scenes)) {
       num_return_scenes = get_num_records();
     }
+    writer.Key("num_records");
+    writer.Uint(num_return_scenes);
     // Add the scene list
     writer.Key("scenes");
     writer.StartArray();
