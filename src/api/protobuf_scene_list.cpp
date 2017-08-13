@@ -42,7 +42,7 @@ ProtobufSceneList::ProtobufSceneList(protoScene::SceneList buffer) {
     set_num_records(buffer.num_records());
     obj_logging->debug(get_num_records());
   } else {set_num_records(10);}
-  for (int a = 0; a < num_scenes(); a++) {
+  for (int a = 0; a < buffer.scenes_size(); a++) {
     SceneInterface *sc_data = sfactory.build_scene(buffer.scenes(a));
     add_scene(sc_data);
     obj_logging->debug("Scene added");
@@ -73,6 +73,7 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
     (SceneList::get_num_records() < num_return_scenes)) {
     num_return_scenes = SceneList::get_num_records();
   }
+  new_proto->set_num_records(num_return_scenes);
   // Iterate through the data list and process each scene
   for (int a = 0; a < num_return_scenes; a++) {
     // Build a new scene object

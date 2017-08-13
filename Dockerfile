@@ -110,9 +110,6 @@ RUN git clone https://github.com/AO-StreetArt/CrazyIvan.git
 # Build the Project & Unit Tests
 RUN cd CrazyIvan && make && make test
 
-# Execute Unit Tests
-RUN cd CrazyIvan && ./configuration_test -config-file=test/test.properties
-
 #Expose some of the default ports
 EXPOSE 22
 EXPOSE 8091
