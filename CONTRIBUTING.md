@@ -1,5 +1,8 @@
 We love pull requests from everyone.  By participating in this project, you agree to abide by the Code of Conduct, specified in the CODE_OF_CONDUCT.md file.
 
+Keep in mind that we maintain a DebugDockerfile, which can be used to generate a development Docker image.  This will pre-install the application and dependencies for you, making
+working on Crazy Ivan much easier.  Be sure to check out the [Developer Notes](http://crazyivan.readthedocs.io/en/latest/pages/dev_notes.html) for more information.
+
 Start by forking and cloning the repository, then following the instructions to [build from source](http://crazyivan.readthedocs.io/en/latest/quickstart.html).
 
 Ensure that the tests pass:
