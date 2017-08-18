@@ -100,9 +100,12 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           }
 
           // Scene Assets
-          const rapidjson::Value& asset_ids = itr["asset_ids"];
-          for (auto& asset_itr : asset_ids.GetArray()) {
-            scd->add_asset(asset_itr.GetString());
+          rapidjson::Value::ConstMemberIterator assets_itr = \
+            itr.FindMember("asset_ids");
+          if (dist_iter != itr.MemberEnd()) {
+            for (auto& asset_itr : assets_itr->value.GetArray()) {
+              scd->add_asset(asset_itr.GetString());
+            }
           }
 
           // Process Scene Transform
