@@ -100,6 +100,11 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
       scn->set_distance(SceneList::get_scene(a)->get_distance());
     }
 
+    // Asset IDs
+    for (int m = 0; m < SceneList::get_scene(a)->num_assets(); m++) {
+      scn->add_asset_ids(SceneList::get_scene(a)->get_asset(m));
+    }
+
     // Convert transform
     if (SceneList::get_scene(a)->has_transform()) {
       protoScene::SceneList_Transformation *trn = scn->mutable_transform();

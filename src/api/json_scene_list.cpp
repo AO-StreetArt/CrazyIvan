@@ -21,71 +21,88 @@ limitations under the License.
 JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
   obj_logging->info("Creating Scene from Rapidjson Document");
   if (d.IsObject()) {
+    // Message Type
     rapidjson::Value::ConstMemberIterator msgtype_iter = \
       d.FindMember("msg_type");
     if (msgtype_iter != d.MemberEnd()) {
       obj_logging->debug("Message Type found");
       set_msg_type(msgtype_iter->value.GetInt());
     }
+    // Transaction ID
     rapidjson::Value::ConstMemberIterator tranid_iter = \
       d.FindMember("transaction_id");
     if (tranid_iter != d.MemberEnd()) {
       obj_logging->debug("Transaction ID found");
       set_transaction_id(tranid_iter->value.GetString());
     }
+    // Error Code
     rapidjson::Value::ConstMemberIterator errcode_iter = \
       d.FindMember("err_code");
     if (errcode_iter != d.MemberEnd()) {
       obj_logging->debug("Error Code found");
       set_err_code(errcode_iter->value.GetInt());
     }
+    // Error Message
     rapidjson::Value::ConstMemberIterator errmsg_iter = \
       d.FindMember("err_msg");
     if (errmsg_iter != d.MemberEnd()) {
       obj_logging->debug("Error Message found");
       set_err_msg(errmsg_iter->value.GetString());
     }
+    // Query Maximum Number of Records
     rapidjson::Value::ConstMemberIterator maxrcrd_iter = \
       d.FindMember("num_records");
     if (maxrcrd_iter != d.MemberEnd()) {
       obj_logging->debug("Max Records found");
       set_num_records(maxrcrd_iter->value.GetInt());
     }
+    // Scene List
     if (d.HasMember("scenes")) {
       obj_logging->debug("Scene List found");
       const rapidjson::Value& scenes_val = d["scenes"];
       if (scenes_val.IsArray()) {
         for (auto& itr : scenes_val.GetArray()) {
           SceneInterface *scd = sfactory.build_scene();
+          // Scene Key
           rapidjson::Value::ConstMemberIterator key_iter = \
           itr.FindMember("key");
           if (key_iter != itr.MemberEnd()) {
             obj_logging->debug("Key found");
             scd->set_key(key_iter->value.GetString());
           } else {obj_logging->debug("Key not found");}
+          // Scene Name
           rapidjson::Value::ConstMemberIterator name_iter = \
           itr.FindMember("name");
           if (name_iter != itr.MemberEnd()) {
             obj_logging->debug("Name found");
             scd->set_name(name_iter->value.GetString());
           }
+          // Scene Latitude
           rapidjson::Value::ConstMemberIterator lat_iter = \
           itr.FindMember("latitude");
           if (lat_iter != itr.MemberEnd()) {
             obj_logging->debug("Latitude found");
             scd->set_latitude(lat_iter->value.GetDouble());
           }
+          // Scene Longitude
           rapidjson::Value::ConstMemberIterator long_iter = \
             itr.FindMember("longitude");
           if (long_iter != itr.MemberEnd()) {
             obj_logging->debug("Longitude found");
             scd->set_longitude(long_iter->value.GetDouble());
           }
+          // Query Distance
           rapidjson::Value::ConstMemberIterator dist_iter = \
             itr.FindMember("distance");
           if (dist_iter != itr.MemberEnd()) {
             obj_logging->debug("Distance found");
             scd->set_distance(dist_iter->value.GetDouble());
+          }
+
+          // Scene Assets
+          const rapidjson::Value& asset_ids = itr["asset_ids"];
+          for (auto& asset_itr : asset_ids.GetArray()) {
+            scd->add_asset(asset_itr.GetString());
           }
 
           // Process Scene Transform
@@ -260,6 +277,17 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         writer.Key("distance");
         writer.Double(get_scene(a)->get_distance());
       }
+
+      // Asset IDs
+      writer.Key("asset_ids");
+      writer.StartArray();
+
+      for (int m = 0; m < get_scene(a)->num_assets(); m++) {
+        writer.String(get_scene(a)->get_asset(m).c_str(), \
+        (rapidjson::SizeType)get_scene(a)->get_asset(m).length());
+      }
+
+      writer.EndArray();
 
       // Add the scene transform
       if (get_scene(a)->has_transform()) {
