@@ -35,6 +35,7 @@ class SceneData {
   double latitude = 0.0;
   double longitude = 0.0;
   std::vector<UserDeviceInterface*> devices;
+  std::vector<std::string> asset_ids;
   UserDeviceFactory udfactory;
   TransformFactory tfactory;
 
@@ -56,6 +57,11 @@ class SceneData {
   inline SceneData(const SceneData& sd) {
     latitude = sd.get_latitude();
     longitude = sd.get_longitude();
+    for (int i = 0; i < sd.num_assets(); i++) {
+      std::string new_asset;
+      new_asset.assign(sd.get_asset(i));
+      asset_ids.push_back(new_asset);
+    }
     for (int j = 0; j < sd.num_devices(); j++) {
       TransformInterface *new_tran = create_transform();
       for (int k = 0; k < 3; k++) {
@@ -90,6 +96,12 @@ class SceneData {
   int num_devices() const {return devices.size();}
   UserDeviceInterface* get_device(int index) const {return devices[index];}
   std::vector<UserDeviceInterface*> get_devices() const {return devices;}
+
+  // Scene Asset ID List
+  void add_asset(std::string new_asset) {asset_ids.push_back(new_asset);}
+  int num_assets() const {return asset_ids.size();}
+  std::string get_asset(int index) const {return asset_ids[index];}
+  std::vector<std::string> get_assets() const {return asset_ids;}
 };
 
 #endif  // SRC_MODEL_INCLUDE_SCENE_DATA_H_

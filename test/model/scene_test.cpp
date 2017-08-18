@@ -73,8 +73,12 @@ int main() {
 
   std::string sk = "12345";
   std::string sname = "Test Name";
+  std::string asset1 = "First Asset";
+  std::string asset2 = "Second Asset";
   scene->set_key(sk);
   scene->set_name(sname);
+  scene->add_asset(asset1);
+  scene->add_asset(asset2);
   scene->set_latitude(100.0);
   scene->set_longitude(120.0);
   scene->set_distance(20.0);
@@ -85,6 +89,8 @@ int main() {
   assert(scene->num_devices() == 1);
   assert(scene->get_key() == "12345");
   assert(scene->get_name() == "Test Name");
+  assert(scene->get_asset(0) == "First Asset");
+  assert(scene->get_asset(1) == "Second Asset");
   assert(scene->get_latitude() == 100.0);
   assert(scene->get_longitude() == 120.0);
   assert(scene->get_distance() == 20.0);

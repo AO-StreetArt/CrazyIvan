@@ -25,6 +25,11 @@ SceneDocument::SceneDocument(const SceneDocument& sd) {
   SceneData::set_longitude(sd.get_longitude());
   distance = sd.get_distance();
   trns_flag = false;
+  for (int i = 0; i < sd.num_assets(); i++) {
+    std::string new_asset;
+    new_asset.assign(sd.get_asset(i));
+    SceneData::add_asset(new_asset);
+  }
   if (sd.has_transform()) {
     trns_flag = true;
     scene_transform = SceneData::create_transform();
@@ -85,6 +90,11 @@ SceneDocument::SceneDocument(protoScene::SceneList_Scene scn_data) {
       UserDeviceInterface *ud = SceneData::create_device(scn_data.devices(k));
       SceneData::add_device(ud);
       obj_logging->debug("User Device added");
+    }
+  }
+  if (scn_data.asset_ids_size() > 0) {
+    for (int m = 0; m < scn_data.asset_ids_size(); m++) {
+      SceneData::add_asset(scn_data.asset_ids(m));
     }
   }
 }

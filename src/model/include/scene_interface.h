@@ -56,6 +56,12 @@ class SceneInterface {
   virtual bool has_transform() const = 0;
   virtual void set_transform(TransformInterface *trns) = 0;
 
+  // Scene Asset ID List
+  virtual void add_asset(std::string new_asset) = 0;
+  virtual int num_assets() const = 0;
+  virtual std::string get_asset(int index) const = 0;
+  virtual std::vector<std::string> get_assets() const = 0;
+
   // Convinience method to log the contents of the scene
   virtual void print() = 0;
 };

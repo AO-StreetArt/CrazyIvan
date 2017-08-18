@@ -89,6 +89,12 @@ class SceneDocument : public SceneData, public SceneInterface {
   std::vector<UserDeviceInterface*> get_devices() const \
     {return SceneData::get_devices();}
 
+  // Scene Asset ID List
+  void add_asset(std::string new_asset) {SceneData::add_asset(new_asset);}
+  int num_assets() const {return SceneData::num_assets();}
+  std::string get_asset(int index) const {return SceneData::get_asset(index);}
+  std::vector<std::string> get_assets() const {return SceneData::get_assets();}
+
   // Transform
   TransformInterface* get_scene_transform() const {return scene_transform;}
   bool has_transform() const {return trns_flag;}
@@ -106,6 +112,7 @@ class SceneDocument : public SceneData, public SceneInterface {
     obj_logging->debug(get_longitude());
     obj_logging->debug(distance);
     for (int i = 0; i < num_devices(); i++) {get_device(i)->print();}
+    for (int j = 0; j < num_assets(); j++) {obj_logging->debug(get_asset(j));}
     if (trns_flag) {scene_transform->print();}
   }
 };
