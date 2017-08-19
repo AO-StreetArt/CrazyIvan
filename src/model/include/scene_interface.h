@@ -62,6 +62,12 @@ class SceneInterface {
   virtual std::string get_asset(int index) const = 0;
   virtual std::vector<std::string> get_assets() const = 0;
 
+  // Tag list
+  virtual void add_tag(std::string new_tag) = 0;
+  virtual int num_tags() const = 0;
+  virtual std::string get_tag(int index) const = 0;
+  virtual std::vector<std::string> get_tags() const = 0;
+
   // Convinience method to log the contents of the scene
   virtual void print() = 0;
 };

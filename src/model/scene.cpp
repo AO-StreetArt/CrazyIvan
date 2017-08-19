@@ -19,17 +19,26 @@ limitations under the License.
 
 // Copy Constructor
 SceneDocument::SceneDocument(const SceneDocument& sd) {
+  // Basic Attributes
   key = sd.get_key();
   name = sd.get_name();
   SceneData::set_latitude(sd.get_latitude());
   SceneData::set_longitude(sd.get_longitude());
   distance = sd.get_distance();
   trns_flag = false;
+  //Scene Assets
   for (int i = 0; i < sd.num_assets(); i++) {
     std::string new_asset;
     new_asset.assign(sd.get_asset(i));
     SceneData::add_asset(new_asset);
   }
+  // Tags
+  for (int i = 0; i < sd.num_tags(); i++) {
+    std::string new_tag;
+    new_tag.assign(sd.get_tag(i));
+    add_tag(new_tag);
+  }
+  // Scene Transform
   if (sd.has_transform()) {
     trns_flag = true;
     scene_transform = SceneData::create_transform();
@@ -38,6 +47,7 @@ SceneDocument::SceneDocument(const SceneDocument& sd) {
       scene_transform->rotate(i, sd.get_scene_transform()->rotation(i));
     }
   }
+  // Devices
   for (int j = 0; j < sd.num_devices(); j++) {
     TransformInterface *new_tran = SceneData::create_transform();
     for (int k = 0; k < 3; k++) {
@@ -92,9 +102,10 @@ SceneDocument::SceneDocument(protoScene::SceneList_Scene scn_data) {
       obj_logging->debug("User Device added");
     }
   }
-  if (scn_data.asset_ids_size() > 0) {
-    for (int m = 0; m < scn_data.asset_ids_size(); m++) {
-      SceneData::add_asset(scn_data.asset_ids(m));
-    }
+  for (int m = 0; m < scn_data.asset_ids_size(); m++) {
+    SceneData::add_asset(scn_data.asset_ids(m));
+  }
+  for (int n = 0; n < scn_data.tags_size(); n++) {
+    add_tag(scn_data.tags(n));
   }
 }

@@ -79,13 +79,15 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
     // Build a new scene object
     protoScene::SceneList_Scene *scn = new_proto->add_scenes();
 
-    // Name & Key
+    // Key
     std::string key = SceneList::get_scene(a)->get_key();
     obj_logging->info("Scene:To Proto message Called on object");
     obj_logging->info(key);
     if (!(key.empty())) {
       scn->set_key(key);
     }
+
+    // Name
     std::string name = SceneList::get_scene(a)->get_name();
     if (!(name.empty())) {
       scn->set_name(name);
@@ -103,6 +105,11 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
     // Asset IDs
     for (int m = 0; m < SceneList::get_scene(a)->num_assets(); m++) {
       scn->add_asset_ids(SceneList::get_scene(a)->get_asset(m));
+    }
+
+    // Tags
+    for (int n = 0; n < SceneList::get_scene(a)->num_tags(); n++) {
+      scn->add_tags(SceneList::get_scene(a)->get_tag(n));
     }
 
     // Convert transform

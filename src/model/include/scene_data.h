@@ -30,7 +30,7 @@ limitations under the License.
 #ifndef SRC_MODEL_INCLUDE_SCENE_DATA_H_
 #define SRC_MODEL_INCLUDE_SCENE_DATA_H_
 
-// Stores the data for a single scene
+// Stores the core data for a single scene
 class SceneData {
   double latitude = 0.0;
   double longitude = 0.0;

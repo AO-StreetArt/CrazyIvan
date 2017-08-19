@@ -109,6 +109,16 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             }
           }
 
+          // Scene Tags
+          rapidjson::Value::ConstMemberIterator tags_itr = \
+            itr.FindMember("tags");
+          if (tags_itr != itr.MemberEnd()) {
+            obj_logging->debug("Tags found");
+            for (auto& tag_itr : tags_itr->value.GetArray()) {
+              scd->add_tag(tag_itr.GetString());
+            }
+          }
+
           // Process Scene Transform
           if (itr.HasMember("transform")) {
             obj_logging->debug("Transform found");
@@ -289,6 +299,17 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       for (int m = 0; m < get_scene(a)->num_assets(); m++) {
         writer.String(get_scene(a)->get_asset(m).c_str(), \
         (rapidjson::SizeType)get_scene(a)->get_asset(m).length());
+      }
+
+      writer.EndArray();
+
+      // Tags
+      writer.Key("tags");
+      writer.StartArray();
+
+      for (int n = 0; n < get_scene(a)->num_tags(); n++) {
+        writer.String(get_scene(a)->get_tag(n).c_str(), \
+        (rapidjson::SizeType)get_scene(a)->get_tag(n).length());
       }
 
       writer.EndArray();
