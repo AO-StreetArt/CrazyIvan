@@ -84,6 +84,8 @@ int main() {
   std::string tag2 = "Second Tag";
   std::string tag3 = "Third Tag";
   std::string tag4 = "Fourth Tag";
+  std::string region = "USA";
+  std::string region2 = "Italy";
   scene->set_key(sk);
   scene->set_name(sname);
   scene->set_latitude(100.0);
@@ -93,6 +95,7 @@ int main() {
   scene->add_asset(asset2);
   scene->add_tag(tag1);
   scene->add_tag(tag2);
+  scene->set_region(region);
   scene2->set_key(sk);
   scene2->set_name(sname);
   scene2->set_latitude(100.0);
@@ -102,6 +105,7 @@ int main() {
   scene2->add_asset(asset4);
   scene2->add_tag(tag3);
   scene2->add_tag(tag4);
+  scene2->set_region(region2);
 
   scene->add_device(ud);
   scene2->add_device(ud2);
@@ -162,6 +166,7 @@ int main() {
 
   assert(translated_json_list->get_scene(0)->get_key() == "12345");
   assert(translated_json_list->get_scene(0)->get_name() == "Test Name");
+  assert(translated_json_list->get_scene(0)->get_region() == "USA");
   assert(translated_json_list->get_scene(0)->get_latitude() - 100.0 < TOLERANCE);
   assert(translated_json_list->get_scene(0)->get_longitude() - 120.0 < TOLERANCE);
   assert(translated_json_list->get_scene(0)->get_distance() - 20.0 < TOLERANCE);
@@ -196,6 +201,7 @@ int main() {
   assert(translated_proto_list->get_scene(0)->get_asset(1) == "Fourth Asset");
   assert(translated_proto_list->get_scene(0)->get_tag(0) == "Third Tag");
   assert(translated_proto_list->get_scene(0)->get_tag(1) == "Fourth Tag");
+  assert(translated_proto_list->get_scene(0)->get_region() == "Italy");
 
   std::string comp_key2 = "testing";
   assert(translated_proto_list->get_scene(0)->get_device(0)->get_key() == comp_key2);

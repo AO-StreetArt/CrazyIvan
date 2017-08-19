@@ -93,6 +93,12 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
       scn->set_name(name);
     }
 
+    // Region
+    std::string reg = SceneList::get_scene(a)->get_region();
+    if (!(reg.empty())) {
+      scn->set_region(reg);
+    }
+
     // Lat/long
     scn->set_latitude(SceneList::get_scene(a)->get_latitude());
     scn->set_longitude(SceneList::get_scene(a)->get_longitude());

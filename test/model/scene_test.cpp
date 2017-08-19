@@ -77,12 +77,14 @@ int main() {
   std::string asset2 = "Second Asset";
   std::string tag1 = "First Tag";
   std::string tag2 = "Second Tag";
+  std::string region = "USA";
   scene->set_key(sk);
   scene->set_name(sname);
   scene->add_asset(asset1);
   scene->add_asset(asset2);
   scene->add_tag(tag1);
   scene->add_tag(tag2);
+  scene->set_region(region);
   scene->set_latitude(100.0);
   scene->set_longitude(120.0);
   scene->set_distance(20.0);
@@ -97,6 +99,7 @@ int main() {
   assert(scene->get_asset(1) == "Second Asset");
   assert(scene->get_tag(0) == "First Tag");
   assert(scene->get_tag(1) == "Second Tag");
+  assert(scene->get_region() == "USA");
   assert(scene->get_latitude() == 100.0);
   assert(scene->get_longitude() == 120.0);
   assert(scene->get_distance() == 20.0);

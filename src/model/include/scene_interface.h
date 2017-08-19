@@ -34,6 +34,7 @@ class SceneInterface {
   // Setters
   virtual void set_key(std::string new_key) = 0;
   virtual void set_name(std::string new_name) = 0;
+  virtual void set_region(std::string new_region) = 0;
   virtual void set_latitude(double new_lat) = 0;
   virtual void set_longitude(double new_long) = 0;
   virtual void set_distance(double new_dist) = 0;
@@ -41,6 +42,7 @@ class SceneInterface {
   // Getters
   virtual std::string get_key() const = 0;
   virtual std::string get_name() const = 0;
+  virtual std::string get_region() const = 0;
   virtual double get_latitude() const = 0;
   virtual double get_longitude() const = 0;
   virtual double get_distance() const = 0;

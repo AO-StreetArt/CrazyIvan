@@ -45,6 +45,7 @@ limitations under the License.
 class SceneDocument : public SceneData, public SceneInterface {
   std::string key = "";
   std::string name = "";
+  std::string region = "";
   double distance = 0.0;
   bool trns_flag = false;
   TransformInterface* scene_transform;
@@ -64,6 +65,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   // Setters
   void set_key(std::string new_key) {key = new_key;}
   void set_name(std::string new_name) {name = new_name;}
+  void set_region(std::string new_region) {region = new_region;}
   void set_latitude(double new_lat) {SceneData::set_latitude(new_lat);}
   void set_longitude(double new_long) {SceneData::set_longitude(new_long);}
   void set_distance(double new_dist) {distance = new_dist;}
@@ -71,6 +73,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   // Getters
   std::string get_key() const {return key;}
   std::string get_name() const {return name;}
+  std::string get_region() const {return region;}
   double get_latitude() const {return SceneData::get_latitude();}
   double get_longitude() const {return SceneData::get_longitude();}
   double get_distance() const {return distance;}

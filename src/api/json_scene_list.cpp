@@ -72,10 +72,16 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           } else {obj_logging->debug("Key not found");}
           // Scene Name
           rapidjson::Value::ConstMemberIterator name_iter = \
-          itr.FindMember("name");
+            itr.FindMember("name");
           if (name_iter != itr.MemberEnd()) {
             obj_logging->debug("Name found");
             scd->set_name(name_iter->value.GetString());
+          }
+          rapidjson::Value::ConstMemberIterator region_iter = \
+            itr.FindMember("region");
+          if (region_iter != itr.MemberEnd()) {
+            obj_logging->debug("Region found");
+            scd->set_region(region_iter->value.GetString());
           }
           // Scene Latitude
           rapidjson::Value::ConstMemberIterator lat_iter = \
@@ -275,6 +281,12 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         writer.Key("name");
         writer.String(get_scene(a)->get_name().c_str(), \
         (rapidjson::SizeType)get_scene(a)->get_name().length());
+      }
+      // Add the region
+      if (!(get_scene(a)->get_region().empty())) {
+        writer.Key("region");
+        writer.String(get_scene(a)->get_region().c_str(), \
+        (rapidjson::SizeType)get_scene(a)->get_region().length());
       }
       // Add the latitude
       if (get_scene(a)->get_latitude() > -9999.0) {

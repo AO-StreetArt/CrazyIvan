@@ -22,6 +22,7 @@ SceneDocument::SceneDocument(const SceneDocument& sd) {
   // Basic Attributes
   key = sd.get_key();
   name = sd.get_name();
+  region = sd.get_region();
   SceneData::set_latitude(sd.get_latitude());
   SceneData::set_longitude(sd.get_longitude());
   distance = sd.get_distance();
@@ -73,6 +74,10 @@ SceneDocument::SceneDocument(protoScene::SceneList_Scene scn_data) {
   if (scn_data.has_key()) {
     key = scn_data.key();
     obj_logging->debug(key);
+  }
+  if (scn_data.has_region()) {
+    region = scn_data.region();
+    obj_logging->debug(region);
   }
   if (scn_data.has_latitude()) {
     SceneData::set_latitude(scn_data.latitude());
