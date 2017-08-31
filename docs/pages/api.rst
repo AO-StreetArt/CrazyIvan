@@ -500,9 +500,7 @@ Scene Create
 Scene Retrieve
 ~~~~~~~~~~~~~~
 
-{"msg\_type":2,"err\_code":100,"transaction\_id":"123465","scenes":[{"key":"jklmnop","name":"Test
-Scene
-10","latitude":124.0,"longitude":122.0,"distance":0.0,"devices":[]}]}
+{"msg\_type":2,"err\_code":100,"transaction\_id":"123465","scenes":[{"key":"jklmnop","name":"Test Scene 10","latitude":124.0,"longitude":122.0,"distance":0.0,"devices":[]}]}
 
 Scene Update
 ~~~~~~~~~~~~
