@@ -25,6 +25,8 @@ limitations under the License.
 
 #include "include/scene_list_interface.h"
 
+#include "aossl/neo4j/include/neo4j_interface.h"
+
 #ifndef SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_
 #define SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_
 
@@ -117,6 +119,10 @@ class QueryHelperInterface {
   virtual SceneTransformResult \
     calculate_scene_scene_transform(std::string scene_id1, \
     std::string scene_id2) = 0;
+
+// --------------------------Helper Methods---------------------------------- //
+  virtual void assign_scene_properties(DbObjectInterface *db_scene, \
+    SceneInterface *data) = 0;
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_

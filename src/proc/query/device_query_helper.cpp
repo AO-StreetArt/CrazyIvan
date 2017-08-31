@@ -112,7 +112,6 @@ SceneListInterface* \
   DbObjectInterface *edge = NULL;
   DbObjectInterface *device = NULL;
   DbMapInterface *edge_props = NULL;
-  DbMapInterface* map = NULL;
   DbMapInterface *dev_props = NULL;
   Neo4jQueryParameterInterface *udkey_param = NULL;
   // Create the return object
@@ -174,22 +173,8 @@ SceneListInterface* \
       processor_logging->debug(edge->to_string());
       processor_logging->debug(device->to_string());
 
-      // Pull the node properties and assign them to the new
-      // Scene object
-      processor_logging->debug("Getting Scene Properties");
-      map = obj->properties();
-      if (map->element_exists("key")) {
-        new_data->set_key(map->get_string_element("key"));
-      }
-      if (map->element_exists("name")) {
-        new_data->set_name(map->get_string_element("name"));
-      }
-      if (map->element_exists("latitude")) {
-        new_data->set_latitude(map->get_float_element("latitude"));
-      }
-      if (map->element_exists("longitude")) {
-        new_data->set_longitude(map->get_float_element("longitude"));
-      }
+      // Pull the node properties and assign them to the new Scene object
+      BaseQueryHelper::assign_scene_properties(obj, new_data);
 
       // Get the transform and device info
       double translation_x = -999.0;
@@ -255,7 +240,6 @@ SceneListInterface* \
       processor_logging->debug("Cleanup");
       if (edge_props) {delete edge_props; edge_props = NULL;}
       if (dev_props) {delete dev_props; dev_props = NULL;}
-      if (map) {delete map; map = NULL;}
       if (obj) {delete obj; obj = NULL;}
       if (edge) {delete edge; edge = NULL;}
       if (device) {delete device; device = NULL;}
