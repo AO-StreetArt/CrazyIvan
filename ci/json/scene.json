@@ -10,7 +10,7 @@
       "latitude":$LATITUDE@,
       "longitude":$LONGITUDE@,
       "distance":$DISTANCE@,
-      "region":$REGION@,
+      "region":"$REGION@",
       "assets":["$ASSET@"],
       "tags":["$TAG@"]
     }
