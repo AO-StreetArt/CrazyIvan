@@ -1,11 +1,11 @@
-MSG_TYPE,ERR_CODE,ERR_MSG,TRANSACTION_ID,SCN_KEY,SCN_NAME,LATITUDE,LONGITUDE,DISTANCE
-1,100,Test,123456,abcdefg,Test Scene 11,126.0,129.0,101.0
-1,100,Test,123457,bcdefgh,Test Scene 21,126.0,129.0,102.0
-1,100,Test,123458,cdefghi,Test Scene 31,126.0,129.0,103.0
-1,100,Test,123459,defghij,Test Scene 41,126.0,129.0,104.0
-1,100,Test,123460,efghijk,Test Scene 51,126.0,129.0,105.0
-1,100,Test,123461,fghijkl,Test Scene 61,126.0,129.0,106.0
-1,100,Test,123462,ghijklm,Test Scene 71,126.0,129.0,107.0
-1,100,Test,123463,hijklmn,Test Scene 81,126.0,129.0,108.0
-1,100,Test,123464,ijklmno,Test Scene 91,126.0,129.0,109.0
-1,100,Test,123465,jklmnop,Test Scene 101,126.0,129.0,110.0
+MSG_TYPE,ERR_CODE,ERR_MSG,TRANSACTION_ID,SCN_KEY,SCN_NAME,LATITUDE,LONGITUDE,DISTANCE,DISTANCE,REGION,ASSET,TAG
+1,100,Test,123456,abcdefg,Test Scene 11,126.0,129.0,101.0,TestRegion11,TestAsset11,Testing3
+1,100,Test,123457,bcdefgh,Test Scene 21,126.0,129.0,102.0,TestRegion12,TestAsset12,Testing3
+1,100,Test,123458,cdefghi,Test Scene 31,126.0,129.0,103.0,TestRegion13,TestAsset13,Testing3
+1,100,Test,123459,defghij,Test Scene 41,126.0,129.0,104.0,TestRegion14,TestAsset14,Testing3
+1,100,Test,123460,efghijk,Test Scene 51,126.0,129.0,105.0,TestRegion15,TestAsset15,Testing3
+1,100,Test,123461,fghijkl,Test Scene 61,126.0,129.0,106.0,TestRegion16,TestAsset16,Testing4
+1,100,Test,123462,ghijklm,Test Scene 71,126.0,129.0,107.0,TestRegion17,TestAsset17,Testing4
+1,100,Test,123463,hijklmn,Test Scene 81,126.0,129.0,108.0,TestRegion18,TestAsset18,Testing4
+1,100,Test,123464,ijklmno,Test Scene 91,126.0,129.0,109.0,TestRegion19,TestAsset19,Testing4
+1,100,Test,123465,jklmnop,Test Scene 101,126.0,129.0,110.0,TestRegion20,TestAsset20,Testing4

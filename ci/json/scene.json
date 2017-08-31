@@ -9,7 +9,10 @@
       "name":"$SCN_NAME@",
       "latitude":$LATITUDE@,
       "longitude":$LONGITUDE@,
-      "distance":$DISTANCE@
+      "distance":$DISTANCE@,
+      "region":$REGION@,
+      "assets":["$ASSET@"],
+      "tags":["$TAG@"]
     }
   ]
 }
