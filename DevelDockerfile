@@ -5,8 +5,8 @@
 
 ################################################################
 
-#Based on Ubuntu 14.04
-FROM ubuntu:14.04
+#Based on Ubuntu 16.04
+FROM ubuntu:16.04
 
 #Set the Maintainer
 MAINTAINER Alex Barry
@@ -14,12 +14,16 @@ MAINTAINER Alex Barry
 #Set up front end
 ENV DEBIAN_FRONTEND noninteractive
 
-#Ensure that base level build requirements are satisfied
+#Setup basic environment tools
 RUN apt-get update
-RUN apt-get install -y software-properties-common
+RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh software-properties-common
+RUN	apt-get clean
+
+#Setup necessary components for building the application
+RUN add-apt-repository -y ppa:cleishm/neo4j
 RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
 RUN apt-get update
-RUN	apt-get install -y apt-utils debconf-utils iputils-ping wget curl mc htop ssh g++-5 build-essential libprotobuf-dev protobuf-compiler libtool pkg-config autoconf automake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git liblog4cpp5-dev libkrb5-dev
+RUN apt-get install -y build-essential g++-5 libtool pkg-config autoconf automake cmake uuid-dev libhiredis-dev libcurl4-openssl-dev libevent-dev git libsnappy-dev liblog4cpp5-dev neo4j-client libneo4j-client-dev libprotobuf-dev protobuf-compiler libkrb5-dev
 RUN	apt-get clean
 
 #Build the dependencies and place them in the correct places
@@ -31,19 +35,10 @@ RUN unlink /usr/bin/g++ && ln -s /usr/bin/g++-5 /usr/bin/g++
 
 RUN gcc --version
 
-#Get the Redis Dependencies
-RUN git clone https://github.com/redis/hiredis.git ./hiredis
-RUN cd ./hiredis && make && make install
-
-#Get the Mongo Dependencies
-RUN wget https://github.com/mongodb/mongo-c-driver/releases/download/1.6.0/mongo-c-driver-1.6.0.tar.gz
-RUN tar xzf mongo-c-driver-1.6.0.tar.gz
-RUN cd mongo-c-driver-1.6.0 && ./configure --disable-automatic-init-and-cleanup && make && sudo make install
-
-#Get the Neo4j Dependencies
-RUN add-apt-repository -y ppa:cleishm/neo4j
-RUN apt-get update
-RUN apt-get install -y neo4j-client
+#Get the Mongo Dependencies, we build from source as the version provided by apt-get uses deprecated functions
+RUN wget https://github.com/mongodb/mongo-c-driver/releases/download/1.6.3/mongo-c-driver-1.6.3.tar.gz
+RUN tar xzf mongo-c-driver-1.6.3.tar.gz
+RUN cd mongo-c-driver-1.6.3 && ./configure --disable-automatic-init-and-cleanup --with-libbson=bundled && make && make install
 
 #Get the ZMQ Dependencies
 RUN cd /tmp && git clone git://github.com/jedisct1/libsodium.git && cd libsodium && git checkout e2a30a && ./autogen.sh && ./configure && make check && make install && ldconfig
@@ -56,9 +51,6 @@ RUN tar -xvzf zeromq-4.1.4.tar.gz
 
 #Configure, make, & install
 RUN cd ./zeromq-4.1.4 && ./configure && make && make install
-
-#Run ldconfig to ensure that ZMQ is on the linker path
-RUN ldconfig
 
 #Get the ZMQ C++ Bindings
 RUN git clone https://github.com/zeromq/cppzmq.git
@@ -73,19 +65,17 @@ RUN git clone https://github.com/miloyip/rapidjson.git
 #Move the RapidJSON header files to the include path
 RUN cp -r rapidjson/include/rapidjson/ /usr/local/include
 
-#hayai, for compiling benchmarks
-RUN apt-add-repository -y ppa:bruun/hayai
-
-#Update the apt-get cache
-RUN apt-get update
-
-#Install Hayai
-RUN apt-get install -y libhayai-dev
-
 #Ensure we have access to the Protocol Buffer Interfaces
 RUN mkdir $PRE/interfaces/
 RUN git clone https://github.com/AO-StreetArt/DvsInterface.git $PRE/interfaces
 RUN cd $PRE/interfaces && sudo make install
+
+#Get Hayai, for benchmarks
+RUN git clone https://github.com/nickbruun/hayai.git
+RUN cd hayai && cmake . && make && make install
+
+#Run ldconfig to ensure that dependencies is on the linker path
+RUN ldconfig
 
 #Pull the project source from github
 RUN git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git
