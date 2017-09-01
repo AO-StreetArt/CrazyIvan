@@ -68,7 +68,7 @@ RUN cp -r rapidjson/include/rapidjson/ /usr/local/include
 #Ensure we have access to the Protocol Buffer Interfaces
 RUN mkdir $PRE/interfaces/
 RUN git clone https://github.com/AO-StreetArt/DvsInterface.git $PRE/interfaces
-RUN cd $PRE/interfaces && sudo make install
+RUN cd $PRE/interfaces && make install
 
 #Get Hayai, for benchmarks
 RUN git clone https://github.com/nickbruun/hayai.git
