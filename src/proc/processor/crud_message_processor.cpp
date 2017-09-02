@@ -309,7 +309,7 @@ ProcessResult* \
       }
       // Region
       if (!(obj_msg->get_scene(0)->get_region().empty())) {
-        name_param = BaseMessageProcessor::get_neo4j_factory()->\
+        region_param = BaseMessageProcessor::get_neo4j_factory()->\
           get_neo4j_query_parameter(obj_msg->get_scene(0)->get_region());
         processor_logging->debug("Region:");
         processor_logging->debug(obj_msg->get_scene(0)->get_region());
