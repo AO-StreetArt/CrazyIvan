@@ -250,9 +250,6 @@ void my_signal_handler(int s) {
             new_proto.Clear();
             new_proto.ParseFromString(req_ptr);
             translated_object = scene_list_factory->build_scene(new_proto);
-            msg_type = new_proto.message_type();
-            main_logging->debug("Translated Scene List:");
-            translated_object->print();
           }
           // Catch a possible error and write to logs
           catch (std::exception& e) {
@@ -278,6 +275,9 @@ void my_signal_handler(int s) {
               main_logging->error(GetParseError_En(d.GetParseError()));
               current_error_code = TRANSLATION_ERROR;
               current_error_message.assign(GetParseError_En(d.GetParseError()));
+            } else {
+              // Build the translated object from the document
+              translated_object = scene_list_factory->build_scene(d);
             }
           }
           // Catch a possible error and write to logs
@@ -289,7 +289,7 @@ void my_signal_handler(int s) {
           }
         }
 
-        if (current_error_code == TRANSLATION_ERROR) {
+        if ((current_error_code == TRANSLATION_ERROR) || (!translated_object)) {
           if (cm->get_formattype() == PROTO_FORMAT) {
             resp = scene_list_factory->build_protobuf_scene();
           } else {
@@ -303,8 +303,6 @@ void my_signal_handler(int s) {
           zmqi->send(response_str);
           delete resp;
         } else {
-          // Build the translated object from the document
-          translated_object = scene_list_factory->build_scene(d);
           msg_type = translated_object->get_msg_type();
           translated_object->print();
 
@@ -380,6 +378,7 @@ void my_signal_handler(int s) {
           } else if (msg_type == KILL) {
             // Kill message, shut down
             application_response = "{\"err_code\":100}";
+            zmqi->send(application_response);
             shutdown();
             exit(1);
           } else if (!(response->successful())) {

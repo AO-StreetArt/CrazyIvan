@@ -360,7 +360,7 @@ ProcessResult* \
         processor_logging->error("No results returned from update query");
         response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
       } else {
-        response->set_return_string(qkey);
+        response->set_return_string(obj_msg->get_scene(0)->get_key());
         tree = results->next();
         if (tree) {
           obj = tree->get(0);
