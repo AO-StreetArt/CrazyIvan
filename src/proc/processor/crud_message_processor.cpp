@@ -503,16 +503,16 @@ ProcessResult* \
         processor_logging->debug(obj_msg->get_scene(0)->get_region());
         scene_params.emplace("inp_region", region_param);
       }
-      if (!(obj_msg->get_scene(0)->num_tags() > 0)) {
+      if (obj_msg->get_scene(0)->num_tags() > 0) {
         tag_param = BaseMessageProcessor::get_neo4j_factory()->\
           get_neo4j_query_parameter(obj_msg->get_scene(0)->get_tag(0));
         processor_logging->debug("Tag:");
         processor_logging->debug(obj_msg->get_scene(0)->get_tag(0));
         scene_params.emplace("inp_tag", tag_param);
       }
-      if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0 || \
-        obj_msg->get_scene(0)->get_longitude() == -9999.0 || \
-        obj_msg->get_scene(0)->get_distance() < 0.0)) {
+      if (obj_msg->get_scene(0)->get_latitude() + 9999.0 > 0.0001 && \
+        obj_msg->get_scene(0)->get_longitude() + 9999.0 > 0.0001 && \
+        obj_msg->get_scene(0)->get_distance() > 0.0001) {
         double qlat = obj_msg->get_scene(0)->get_latitude();
         lat_param = BaseMessageProcessor::get_neo4j_factory()->\
           get_neo4j_query_parameter(qlat);
