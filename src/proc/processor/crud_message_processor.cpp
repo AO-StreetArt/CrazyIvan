@@ -211,12 +211,12 @@ ProcessResult* \
     processor_logging->debug("Processing Scene Update message");
 
     // Ensure that we have fields in the query
-    if (obj_msg->get_scene(0)->get_name().empty() || \
-      obj_msg->get_scene(0)->get_latitude() == -9999.0 || \
-      obj_msg->get_scene(0)->get_longitude() == -9999.0 || \
-      obj_msg->get_scene(0)->get_key().empty() || \
-      obj_msg->get_scene(0)->get_region().empty() || \
-      obj_msg->get_scene(0)->num_tags() == 0 || \
+    if (obj_msg->get_scene(0)->get_name().empty() && \
+      obj_msg->get_scene(0)->get_latitude() == -9999.0 && \
+      obj_msg->get_scene(0)->get_longitude() == -9999.0 && \
+      obj_msg->get_scene(0)->get_key().empty() && \
+      obj_msg->get_scene(0)->get_region().empty() && \
+      obj_msg->get_scene(0)->num_tags() == 0 && \
       obj_msg->get_scene(0)->num_assets() == 0) {
       processor_logging->error("No fields found in update message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message");
@@ -411,11 +411,12 @@ ProcessResult* \
     Neo4jQueryParameterInterface *tag_param = NULL;
     processor_logging->debug("Processing Scene Retrieve message");
 
-    if ((!(obj_msg->get_scene(0)->get_name().empty() && \
+    if (obj_msg->get_scene(0)->get_name().empty() && \
       obj_msg->get_scene(0)->get_latitude() + 9999.0 < 0.0001 && \
-      obj_msg->get_scene(0)->get_longitude() + 9999.0 < 0.0001)) || \
-      obj_msg->get_scene(0)->get_key().empty() || \
-      obj_msg->get_scene(0)->get_region().empty() || \
+      obj_msg->get_scene(0)->get_longitude() + 9999.0 < 0.0001 && \
+      obj_msg->get_scene(0)->get_distance() < 0.0001 && \
+      obj_msg->get_scene(0)->get_key().empty() && \
+      obj_msg->get_scene(0)->get_region().empty() && \
       obj_msg->get_scene(0)->num_tags() == 0) {
       processor_logging->error("No fields found in get message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields for get");
