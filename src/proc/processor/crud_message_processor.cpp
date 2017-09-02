@@ -431,13 +431,13 @@ ProcessResult* \
         // Otherwise, we need to check for other values in the message
         bool inp_name_empty = obj_msg->get_scene(0)->get_name().empty();
         bool inp_region_empty = obj_msg->get_scene(0)->get_region().empty();
-        if ((!inp_name_empty) || (!inp_scene_empty)) {
+        if ((!inp_name_empty) || (!inp_region_empty)) {
           scene_query = scene_query + " {";
           // Start by checking for a name
           if (!inp_name_empty) {
             scene_query = scene_query + "name: {inp_name}";
           }
-          if ((!inp_name_empty) && (!inp_scene_empty)) {
+          if ((!inp_name_empty) && (!inp_region_empty)) {
             scene_query = scene_query + ", ";
           }
           // Check for Region
