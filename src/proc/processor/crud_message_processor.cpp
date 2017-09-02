@@ -429,17 +429,24 @@ ProcessResult* \
         scene_query = scene_query + " {key: {inp_key}})";
       } else {
         // Otherwise, we need to check for other values in the message
-        // Start by checking for a name
-        if (!(obj_msg->get_scene(0)->get_name().empty())) {
-          scene_query = scene_query + " {name: {inp_name}";
+        bool inp_name_empty = obj_msg->get_scene(0)->get_name().empty();
+        bool inp_region_empty = obj_msg->get_scene(0)->get_region().empty();
+        if ((!inp_name_empty) || (!inp_scene_empty)) {
+          scene_query = scene_query + " {";
+          // Start by checking for a name
+          if (!inp_name_empty) {
+            scene_query = scene_query + "name: {inp_name}";
+          }
+          if ((!inp_name_empty) && (!inp_scene_empty)) {
+            scene_query = scene_query + ", ";
+          }
+          // Check for Region
+          if (!inp_region_empty) {
+            scene_query = scene_query + "region: {inp_region}";
+          }
+          scene_query = scene_query + "}";
         }
-
-        // Check for Region
-        if (!(obj_msg->get_scene(0)->get_region().empty())) {
-          scene_query = scene_query + " {region: {inp_region}";
-        }
-
-        scene_query = scene_query + "})";
+        scene_query = scene_query + ")";
         bool is_started = false;
 
         // Check for Tags
