@@ -230,89 +230,57 @@ Scene Create
 ~~~~~~~~~~~~
 
 {
-
- "msg\_type":0,
-
- "err\_code":100,
-
- "err\_msg":"Test",
-
- "transaction\_id":"123464",
-
- "scenes":[
-
- {
-
- "key":"ijklmno",
-
- "name":"Test Scene 9",
-
- "latitude":124.0,
-
- "longitude":122.0,
-
- "distance":100.0,
-
- "region":"USA"
-
- }
-
- ]
-
+  "msg\_type":0,
+  "err\_code":100,
+  "err\_msg":"Test",
+  "transaction\_id":"123465",
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "name":"Test Scene 10",
+      "latitude":124.0,
+      "longitude":122.0,
+      "distance":100.0,
+      "region":"TestRegion5",
+      "assets":["TestAsset10"],
+      "tags":["Testing2"]
+    }
+  ]
 }
 
 Scene Retrieve
 ~~~~~~~~~~~~~~
 
 {
-
- "msg\_type":2,
-
- "transaction\_id":"123465",
-
- "scenes":[
-
- {
-
- "key":"jklmnop"
-
- }
-
- ]
-
+  "msg\_type":2,
+  "transaction\_id":"123464",
+  "scenes":[
+    {
+      "key":"ijklmno"
+    }
+  ]
 }
 
 Scene Update
 ~~~~~~~~~~~~
 
 {
-
- "msg\_type":1,
-
- "err\_code":100,
-
- "err\_msg":"Test",
-
- "transaction\_id":"123465",
-
- "scenes":[
-
- {
-
- "key":"jklmnop",
-
- "name":"Test Scene 101",
-
- "latitude":126.0,
-
- "longitude":129.0,
-
- "distance":110.0
-
- }
-
- ]
-
+  "msg\_type":1,
+  "err\_code":100,
+  "err\_msg":"Test",
+  "transaction\_id":"123465",
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "name":"Test Scene 101",
+      "latitude":126.0,
+      "longitude":129.0,
+      "distance":110.0,
+      "region":"TestRegion20",
+      "assets":["TestAsset20"],
+      "tags":["Testing4"]
+    }
+  ]
 }
 
 Scene Destroy
@@ -340,153 +308,84 @@ Device Registration
 ~~~~~~~~~~~~~~~~~~~
 
 {
-
- "msg\_type":4,
-
- "err\_code":100,
-
- "err\_msg":"Test",
-
- "transaction\_id":"123465",
-
- "scenes":[
-
- {
-
- "key":"jklmnop",
-
- "name":"Test Scene 10",
-
- "latitude":124.0,
-
- "longitude":122.0,
-
- "distance":100.0,
-
- "devices":[
-
- {
-
- "key":"Ud\_132",
-
- "transform":{
-
- "translation":[1.0,1.0,1.0],
-
- "rotation":[1.0,1.0,1.0]
-
- }
-
- }
-
- ]
-
- }
-
- ]
-
+  "msg\_type":4,
+  "err\_code":100,
+  "err\_msg":"Test",
+  "transaction\_id":"123465",
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "name":"Test Scene 10",
+      "latitude":124.0,
+      "longitude":122.0,
+      "distance":100.0,
+      "devices":[
+        {
+          "key":"Ud\_132",
+          "transform":{
+            "translation":[1.0,1.0,1.0],
+            "rotation":[1.0,1.0,1.0]
+          }
+        }
+      ]
+    }
+  ]
 }
 
 Device De-Registration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 {
-
- "msg\_type":5,
-
- "err\_code":100,
-
- "err\_msg":"Test",
-
- "transaction\_id":"123465",
-
- "scenes":[
-
- {
-
- "key":"jklmnop",
-
- "name":"Test Scene 10",
-
- "latitude":124.0,
-
- "longitude":122.0,
-
- "distance":100.0,
-
- "devices":[
-
- {
-
- "key":"Ud\_132",
-
- "transform":{
-
- "translation":[1.0,1.0,1.0],
-
- "rotation":[1.0,1.0,1.0]
-
- }
-
- }
-
- ]
-
- }
-
- ]
-
+  "msg\_type":5,
+  "err\_code":100,
+  "err\_msg":"Test",
+  "transaction\_id":"123465",
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "name":"Test Scene 10",
+      "latitude":124.0,
+      "longitude":122.0,
+      "distance":100.0,
+      "devices":[
+        {
+          "key":"Ud\_132",
+          "transform":{
+            "translation":[1.0,1.0,1.0],
+            "rotation":[1.0,1.0,1.0]
+          }
+        }
+      ]
+    }
+  ]
 }
 
 Device Alignment
 ~~~~~~~~~~~~~~~~
 
 {
-
- "msg\_type":6,
-
- "err\_code":100,
-
- "err\_msg":"Test",
-
- "transaction\_id":"123465",
-
- "scenes":[
-
- {
-
- "key":"jklmnop",
-
- "name":"Test Scene 10",
-
- "latitude":124.0,
-
- "longitude":122.0,
-
- "distance":100.0,
-
- "devices":[
-
- {
-
- "key":"Ud\_132",
-
- "transform":{
-
- "translation":[6.0,1.0,1.0],
-
- "rotation":[1.0,45.0,1.0]
-
- }
-
- }
-
- ]
-
- }
-
- ]
-
+  "msg\_type":6,
+  "err\_code":100,
+  "err\_msg":"Test",
+  "transaction\_id":"123465",
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "name":"Test Scene 10",
+      "latitude":124.0,
+      "longitude":122.0,
+      "distance":100.0,
+      "devices":[
+        {
+          "key":"Ud_132",
+          "transform":{
+            "translation":[6.0,1.0,1.0],
+            "rotation":[1.0,45.0,1.0]
+          }
+        }
+      ]
+    }
+  ]
 }
 
 Response
@@ -495,37 +394,153 @@ Response
 Scene Create
 ~~~~~~~~~~~~
 
-{"msg\_type":0,"err\_code":100,"scenes":[{"latitude":0.0,"longitude":0.0,"distance":0.0,"devices":[]}]}
+{
+  "msg_type":0,
+  "err_code":100,
+  "num_records":1,
+  "scenes":[
+    {
+      "key":"ijklmno",
+      "latitude":0.0,
+      "longitude":0.0,
+      "distance":0.0,
+      "asset_ids":[],
+      "tags":[],
+      "devices":[]
+    }
+  ]
+}
 
 Scene Retrieve
 ~~~~~~~~~~~~~~
 
-{"msg\_type":2,"err\_code":100,"transaction\_id":"123465","scenes":[{"key":"jklmnop","name":"Test Scene 10","latitude":124.0,"longitude":122.0,"distance":0.0,"devices":[]}]}
+{
+  "msg_type":2,
+  "err_code":100,
+  "transaction_id":"123465",
+  "num_records":1,
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "name":"Test Scene 10",
+      "region":"TestRegion5",
+      "latitude":124.0,
+      "longitude":122.0,
+      "distance":0.0,
+      "asset_ids":[],
+      "tags":["Testing2"],
+      "devices":[]
+    }
+  ]
+}
 
 Scene Update
 ~~~~~~~~~~~~
 
-{"msg\_type":1,"err\_code":100,"scenes":[{"key":"jklmnop","latitude":0.0,"longitude":0.0,"distance":0.0,"devices":[]}]}
+{
+  "msg\_type":1,
+  "err\_code":100,
+  "num\_records":1,
+  "scenes":[
+    {
+      "key":"ijklmno",
+      "latitude":0.0,
+      "longitude":0.0,
+      "distance":0.0,
+      "asset\_ids":[],
+      "tags":[],
+      "devices":[]
+    }
+  ]
+}
 
 Scene Destroy
 ~~~~~~~~~~~~~
 
-{"msg\_type":3,"err\_code":100,"scenes":[{"key":"jklmnop","latitude":0.0,"longitude":0.0,"distance":0.0,"devices":[]}]}
+{
+  "msg\_type":3,
+  "err\_code":100,
+  "num\_records":1,
+  "scenes":[
+    {
+      "key":"hijklmn",
+      "latitude":0.0,
+      "longitude":0.0,
+      "distance":0.0,
+      "asset\_ids":[],
+      "tags":[],
+      "devices":[]
+    }
+  ]
+}
 
 Device Registration
 ~~~~~~~~~~~~~~~~~~~
 
-{"msg\_type":4,"err\_code":100,"transaction\_id":"123465","scenes":[{"key":"jklmnop","latitude":0.0,"longitude":0.0,"distance":0.0,"devices":[]}]}
+{
+  "msg\_type":4,
+  "err\_code":100,
+  "transaction\_id":"123465",
+  "num\_records":1,
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "latitude":0.0,
+      "longitude":0.0,
+      "distance":0.0,
+      "asset\_ids":[],
+      "tags":[],
+      "devices":[
+        {
+          "key":"Ud\_132",
+          "transform":{"translation":[0.0,0.0,0.0],"rotation":[0.0,0.0,0.0]}
+        }
+      ]
+    }
+  ]
+}
 
 Device De-Registration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-{"msg\_type":5,"err\_code":100,"transaction\_id":"123465","scenes":[{"key":"jklmnop","latitude":0.0,"longitude":0.0,"distance":0.0,"devices":[]}]}
+{
+  "msg\_type":5,
+  "err\_code":100,
+  "transaction\_id":"123464",
+  "num\_records":1,
+  "scenes":[
+    {
+      "key":"ijklmno",
+      "latitude":0.0,
+      "longitude":0.0,
+      "distance":0.0,
+      "asset\_ids":[],
+      "tags":[],
+      "devices":[]
+    }
+  ]
+}
 
 Device Alignment
 ~~~~~~~~~~~~~~~~
 
-{"msg\_type":6,"err\_code":100,"transaction\_id":"123464","scenes":[{"key":"ijklmno","latitude":0.0,"longitude":0.0,"distance":0.0,"devices":[]}]}
+{
+  "msg\_type":6,
+  "err\_code":100,
+  "transaction\_id":"123465",
+  "num\_records":1,
+  "scenes":[
+    {
+      "key":"jklmnop",
+      "latitude":0.0,
+      "longitude":0.0,
+      "distance":0.0,
+      "asset\_ids":[],
+      "tags":[],
+      "devices":[]
+    }
+  ]
+}
 
 Appendix B: Error Codes
 =======================
