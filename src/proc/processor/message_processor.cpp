@@ -101,7 +101,7 @@ ProcessResult* \
     }
   }
 
-  // Find other scenes that the object is registered to
+  // Find other scenes that the device is registered to
   SceneListInterface *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
     try {
@@ -126,6 +126,9 @@ ProcessResult* \
   // leave this as the identity matrix
   TransformInterface *new_transform = \
     BaseMessageProcessor::get_tfactory().build_transform();
+  // Activate Transform Elements
+  new_transform->translate(0, 0.0);
+  new_transform->rotate(0, 0.0);
 
   // If we are not registering the first device, the scene exists,
   // the device is not already registered to the scene in question but
