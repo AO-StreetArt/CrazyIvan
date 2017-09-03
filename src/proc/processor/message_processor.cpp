@@ -196,7 +196,7 @@ ProcessResult* \
     ud_interface = BaseMessageProcessor::get_udfactory().build_device( \
       obj_msg->get_scene(0)->get_device(0)->get_key(), new_transform);
 
-    resp_interface->add_device(ud_interface);
+    resp_interface->get_scene(0)->add_device(ud_interface);
   }
 
   // Convert the Response to a string for sending
