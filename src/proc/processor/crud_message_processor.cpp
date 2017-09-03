@@ -57,6 +57,7 @@ ProcessResult* \
       key_param = \
         BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(\
         obj_msg->get_scene(0)->get_key());
+      response->set_return_string(obj_msg->get_scene(0)->get_key());
     } else {
       // Generate a new key
       BaseMessageProcessor::create_uuid(new_id);
@@ -69,6 +70,7 @@ ProcessResult* \
       processor_logging->info(new_id);
       key_param = BaseMessageProcessor::get_neo4j_factory()->\
         get_neo4j_query_parameter(new_id);
+      response->set_return_string(new_id);
     }
     scene_params.emplace("inp_key", key_param);
     std::string qname = obj_msg->get_scene(0)->get_name();
@@ -159,7 +161,6 @@ ProcessResult* \
       response->set_error(PROCESSING_ERROR, "Error processing Scene Update");
     } else {
       processor_logging->info("Scene Successfully added");
-      response->set_return_string(new_id);
       tree = results->next();
       if (tree) {
         obj = tree->get(0);
