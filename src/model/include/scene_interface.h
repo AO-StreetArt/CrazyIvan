@@ -34,6 +34,7 @@ class SceneInterface {
   // Setters
   virtual void set_key(std::string new_key) = 0;
   virtual void set_name(std::string new_name) = 0;
+  virtual void set_region(std::string new_region) = 0;
   virtual void set_latitude(double new_lat) = 0;
   virtual void set_longitude(double new_long) = 0;
   virtual void set_distance(double new_dist) = 0;
@@ -41,6 +42,7 @@ class SceneInterface {
   // Getters
   virtual std::string get_key() const = 0;
   virtual std::string get_name() const = 0;
+  virtual std::string get_region() const = 0;
   virtual double get_latitude() const = 0;
   virtual double get_longitude() const = 0;
   virtual double get_distance() const = 0;
@@ -55,6 +57,18 @@ class SceneInterface {
   virtual TransformInterface* get_scene_transform() const = 0;
   virtual bool has_transform() const = 0;
   virtual void set_transform(TransformInterface *trns) = 0;
+
+  // Scene Asset ID List
+  virtual void add_asset(std::string new_asset) = 0;
+  virtual int num_assets() const = 0;
+  virtual std::string get_asset(int index) const = 0;
+  virtual std::vector<std::string> get_assets() const = 0;
+
+  // Tag list
+  virtual void add_tag(std::string new_tag) = 0;
+  virtual int num_tags() const = 0;
+  virtual std::string get_tag(int index) const = 0;
+  virtual std::vector<std::string> get_tags() const = 0;
 
   // Convinience method to log the contents of the scene
   virtual void print() = 0;

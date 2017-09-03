@@ -70,6 +70,7 @@ class BaseMessageProcessor {
   QueryHelperInterface* get_query_helper() {return qh;}
   SceneListFactory get_slfactory() {return slfactory;}
   SceneFactory get_sfactory() {return sfactory;}
+  UserDeviceFactory get_udfactory() {return udfactory;}
   TransformFactory get_tfactory() {return tfactory;}
 
   // Helper Methods

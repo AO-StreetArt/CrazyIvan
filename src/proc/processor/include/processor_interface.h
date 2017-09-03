@@ -40,14 +40,14 @@ class ProcessResult {
   // Error constructor
   inline ProcessResult(int ecode, std::string edesc) {
     err_code = ecode;
-    err_desc = edesc;
+    err_desc.assign(edesc);
     success = false;
     return_str = "";
   }
 
   // Success constructor
   inline ProcessResult(std::string data) {
-    return_str = data;
+    return_str.assign(data);
     err_code = 100;
     err_desc = "";
     success = true;
@@ -56,7 +56,7 @@ class ProcessResult {
   // Set the error
   inline void set_error(int ecode, std::string edesc) {
     err_code = ecode;
-    err_desc = edesc;
+    err_desc.assign(edesc);
     success = false;
     return_str = "";
   }
@@ -72,7 +72,7 @@ class ProcessResult {
 
   int get_error_code() {return err_code;}
   std::string get_error_description() {return err_desc;}
-  void set_return_string(std::string key) {return_str = key;}
+  void set_return_string(std::string key) {return_str.assign(key);}
   std::string get_return_string() {return return_str;}
   bool successful() {return success;}
 };

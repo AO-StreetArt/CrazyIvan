@@ -94,6 +94,45 @@ class BaseQueryHelper {
   ConfigurationManager* get_config_manager() {return config;}
   Neo4jInterface* get_neo4j_interface() {return n;}
   Neo4jComponentFactory* get_neo4j_factory() {return neo_factory;}
+
+  // Utility Methods
+
+  // Assign the properties from a DB Scene to a Scene Interface
+  inline void assign_scene_properties(DbObjectInterface *db_scene, \
+    SceneInterface *data) {
+    processor_logging->debug("Assigning Scene Properties");
+    DbMapInterface* map = db_scene->properties();
+    if (map->element_exists("key")) {
+      data->set_key(map->get_string_element("key"));
+    }
+    if (map->element_exists("name")) {
+      data->set_name(map->get_string_element("name"));
+    }
+    if (map->element_exists("region")) {
+      data->set_region(map->get_string_element("region"));
+    }
+    if (map->element_exists("latitude")) {
+      data->set_latitude(map->get_float_element("latitude"));
+    }
+    if (map->element_exists("longitude")) {
+      data->set_longitude(map->get_float_element("longitude"));
+    }
+    if (map->element_exists("assets")) {
+      DbListInterface *asset_list = map->get_list_element("assets");
+      for (unsigned int i = 0; i < asset_list->size(); i++) {
+        data->add_asset(asset_list->get_string_element(i));
+      }
+      delete asset_list;
+    }
+    if (map->element_exists("tags")) {
+      DbListInterface *tag_list = map->get_list_element("tags");
+      for (unsigned int j = 0; j < tag_list->size(); j++) {
+        data->add_tag(tag_list->get_string_element(j));
+      }
+      delete tag_list;
+    }
+    delete map;
+  }
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_BASE_QUERY_HELPER_H_

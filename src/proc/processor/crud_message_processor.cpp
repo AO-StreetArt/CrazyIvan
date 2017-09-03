@@ -34,6 +34,9 @@ ProcessResult* \
     Neo4jQueryParameterInterface *lat_param = NULL;
     Neo4jQueryParameterInterface *long_param = NULL;
     Neo4jQueryParameterInterface *key_param = NULL;
+    Neo4jQueryParameterInterface *region_param = NULL;
+    Neo4jQueryParameterInterface *asset_param = NULL;
+    Neo4jQueryParameterInterface *tag_param = NULL;
     ResultTreeInterface *tree = NULL;
     DbObjectInterface* obj = NULL;
     double qlat;
@@ -48,11 +51,13 @@ ProcessResult* \
 
     // Set up the query parameters for scene creation
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
+    // Key
     if (!(obj_msg->get_scene(0)->get_key().empty())) {
       // Use an existing key from the input message
       key_param = \
         BaseMessageProcessor::get_neo4j_factory()->get_neo4j_query_parameter(\
         obj_msg->get_scene(0)->get_key());
+      response->set_return_string(obj_msg->get_scene(0)->get_key());
     } else {
       // Generate a new key
       BaseMessageProcessor::create_uuid(new_id);
@@ -65,6 +70,7 @@ ProcessResult* \
       processor_logging->info(new_id);
       key_param = BaseMessageProcessor::get_neo4j_factory()->\
         get_neo4j_query_parameter(new_id);
+      response->set_return_string(new_id);
     }
     scene_params.emplace("inp_key", key_param);
     std::string qname = obj_msg->get_scene(0)->get_name();
@@ -76,6 +82,7 @@ ProcessResult* \
       scene_params.emplace("inp_name", name_param);
       scene_query = scene_query + ", name: {inp_name}";
     }
+    // Latitude
     if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
       qlat = obj_msg->get_scene(0)->get_latitude();
       lat_param = BaseMessageProcessor::get_neo4j_factory()->\
@@ -85,6 +92,7 @@ ProcessResult* \
       scene_params.emplace("inp_lat", lat_param);
       scene_query = scene_query + ", latitude: {inp_lat}";
     }
+    // Longitude
     if (!(obj_msg->get_scene(0)->get_longitude() == -9999.0)) {
       qlong = obj_msg->get_scene(0)->get_longitude();
       long_param = BaseMessageProcessor::get_neo4j_factory()->\
@@ -93,6 +101,45 @@ ProcessResult* \
       processor_logging->debug(std::to_string(qlong));
       scene_params.emplace("inp_long", long_param);
       scene_query = scene_query + ", longitude: {inp_long}";
+    }
+    // Region
+    if (!(obj_msg->get_scene(0)->get_region().empty())) {
+      region_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(obj_msg->get_scene(0)->get_region());
+      processor_logging->debug("Region:");
+      processor_logging->debug(obj_msg->get_scene(0)->get_region());
+      scene_params.emplace("inp_region", region_param);
+      scene_query = scene_query + ", region: {inp_region}";
+    }
+    // Assets
+    if (obj_msg->get_scene(0)->num_assets() > 0) {
+      // Create the Query Parameter
+      asset_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter();
+      // Add the assets from the object message to the parameter
+      for (int i = 0; i < obj_msg->get_scene(0)->num_assets(); i++) {
+        asset_param->add_value(obj_msg->get_scene(0)->get_asset(i));
+        processor_logging->debug("Asset:");
+        processor_logging->debug(obj_msg->get_scene(0)->get_asset(i));
+      }
+      // Put the query parameter and query section in place
+      scene_params.emplace("inp_assets", asset_param);
+      scene_query = scene_query + ", assets: {inp_assets}";
+    }
+    // Tags
+    if (obj_msg->get_scene(0)->num_tags() > 0) {
+      // Create the Query Parameter
+      tag_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter();
+      // Add the assets from the object message to the parameter
+      for (int j = 0; j < obj_msg->get_scene(0)->num_tags(); j++) {
+        tag_param->add_value(obj_msg->get_scene(0)->get_tag(j));
+        processor_logging->debug("Tag:");
+        processor_logging->debug(obj_msg->get_scene(0)->get_tag(j));
+      }
+      // Put the query parameter and query section in place
+      scene_params.emplace("inp_tags", tag_param);
+      scene_query = scene_query + ", tags: {inp_tags}";
     }
 
     scene_query = scene_query + "}) RETURN scn";
@@ -114,7 +161,6 @@ ProcessResult* \
       response->set_error(PROCESSING_ERROR, "Error processing Scene Update");
     } else {
       processor_logging->info("Scene Successfully added");
-      response->set_return_string(new_id);
       tree = results->next();
       if (tree) {
         obj = tree->get(0);
@@ -133,6 +179,9 @@ ProcessResult* \
     if (lat_param) delete lat_param;
     if (long_param) delete long_param;
     if (key_param) delete key_param;
+    if (asset_param) delete asset_param;
+    if (tag_param) delete tag_param;
+    if (region_param) delete region_param;
     return response;
   }
   response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
@@ -157,23 +206,30 @@ ProcessResult* \
     Neo4jQueryParameterInterface *lat_param = NULL;
     Neo4jQueryParameterInterface *long_param = NULL;
     Neo4jQueryParameterInterface *key_param = NULL;
+    Neo4jQueryParameterInterface *region_param = NULL;
+    Neo4jQueryParameterInterface *asset_param = NULL;
+    Neo4jQueryParameterInterface *tag_param = NULL;
     processor_logging->debug("Processing Scene Update message");
 
     // Ensure that we have fields in the query
-    if ((obj_msg->get_scene(0)->get_name().empty() && \
+    if (obj_msg->get_scene(0)->get_name().empty() && \
       obj_msg->get_scene(0)->get_latitude() == -9999.0 && \
-      obj_msg->get_scene(0)->get_longitude() == -9999.0) || \
-      obj_msg->get_scene(0)->get_key().empty()) {
+      obj_msg->get_scene(0)->get_longitude() == -9999.0 && \
+      obj_msg->get_scene(0)->get_key().empty() && \
+      obj_msg->get_scene(0)->get_region().empty() && \
+      obj_msg->get_scene(0)->num_tags() == 0 && \
+      obj_msg->get_scene(0)->num_assets() == 0) {
       processor_logging->error("No fields found in update message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message");
     } else {
       // Set up the Cypher Query for scene update
       std::string scene_query = "MATCH (scn:Scene {key: {inp_key}}) SET ";
+      // Name
       if (!(obj_msg->get_scene(0)->get_name().empty())) {
         scene_query = scene_query + "scn.name = {inp_name}";
         is_started = true;
       }
-
+      // Latitude
       if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
         if (is_started) {
           scene_query = scene_query + ", ";
@@ -181,12 +237,36 @@ ProcessResult* \
         scene_query = scene_query + "scn.latitude = {inp_lat}";
         is_started = true;
       }
-
+      // Longitude
       if (!(obj_msg->get_scene(0)->get_longitude() == -9999.0)) {
         if (is_started) {
           scene_query = scene_query + ", ";
         }
         scene_query = scene_query + "scn.longitude = {inp_long}";
+        is_started = true;
+      }
+      // Region
+      if (!(obj_msg->get_scene(0)->get_region().empty())) {
+        if (is_started) {
+          scene_query = scene_query + ", ";
+        }
+        scene_query = scene_query + "scn.region = {inp_region}";
+        is_started = true;
+      }
+      // Assets
+      if (obj_msg->get_scene(0)->num_assets() > 0) {
+        if (is_started) {
+          scene_query = scene_query + ", ";
+        }
+        scene_query = scene_query + "scn.assets = scn.assets + {inp_assets}";
+        is_started = true;
+      }
+      // Tags
+      if (obj_msg->get_scene(0)->num_tags() > 0) {
+        if (is_started) {
+          scene_query = scene_query + ", ";
+        }
+        scene_query = scene_query + "scn.tags = scn.tags + {inp_tags}";
         is_started = true;
       }
 
@@ -198,12 +278,14 @@ ProcessResult* \
       // Set up the query parameters for scene update
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
         scene_params;
+      // Key
       std::string qkey = obj_msg->get_scene(0)->get_key();
       key_param = BaseMessageProcessor::get_neo4j_factory()->\
         get_neo4j_query_parameter(qkey);
       processor_logging->debug("Key:");
       processor_logging->debug(qkey);
       scene_params.emplace("inp_key", key_param);
+      // Name
       if (!(obj_msg->get_scene(0)->get_name().empty())) {
         std::string qname = obj_msg->get_scene(0)->get_name();
         name_param = BaseMessageProcessor::get_neo4j_factory()->\
@@ -212,17 +294,51 @@ ProcessResult* \
         processor_logging->debug(qname);
         scene_params.emplace("inp_name", name_param);
       }
+      // Latitude
       if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
         double qlat = obj_msg->get_scene(0)->get_latitude();
         lat_param = BaseMessageProcessor::get_neo4j_factory()->\
           get_neo4j_query_parameter(qlat);
         scene_params.emplace("inp_lat", lat_param);
       }
+      // Longitude
       if (!(obj_msg->get_scene(0)->get_longitude() == -9999.0)) {
         double qlong = obj_msg->get_scene(0)->get_longitude();
         long_param = BaseMessageProcessor::get_neo4j_factory()->\
           get_neo4j_query_parameter(qlong);
         scene_params.emplace("inp_long", long_param);
+      }
+      // Region
+      if (!(obj_msg->get_scene(0)->get_region().empty())) {
+        region_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(obj_msg->get_scene(0)->get_region());
+        processor_logging->debug("Region:");
+        processor_logging->debug(obj_msg->get_scene(0)->get_region());
+        scene_params.emplace("inp_region", region_param);
+      }
+      // Assets
+      if (obj_msg->get_scene(0)->num_assets() > 0) {
+        asset_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter();
+        // Add the assets from the object message to the parameter
+        for (int i = 0; i < obj_msg->get_scene(0)->num_assets(); i++) {
+          asset_param->add_value(obj_msg->get_scene(0)->get_asset(i));
+          processor_logging->debug("Asset:");
+          processor_logging->debug(obj_msg->get_scene(0)->get_asset(i));
+        }
+        scene_params.emplace("inp_assets", asset_param);
+      }
+      // Tags
+      if (obj_msg->get_scene(0)->num_tags() > 0) {
+        tag_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter();
+        // Add the assets from the object message to the parameter
+        for (int j = 0; j < obj_msg->get_scene(0)->num_tags(); j++) {
+          tag_param->add_value(obj_msg->get_scene(0)->get_tag(j));
+          processor_logging->debug("Tag:");
+          processor_logging->debug(obj_msg->get_scene(0)->get_tag(j));
+        }
+        scene_params.emplace("inp_tags", tag_param);
       }
 
       // Execute the query
@@ -245,7 +361,7 @@ ProcessResult* \
         processor_logging->error("No results returned from update query");
         response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
       } else {
-        response->set_return_string(qkey);
+        response->set_return_string(obj_msg->get_scene(0)->get_key());
         tree = results->next();
         if (tree) {
           obj = tree->get(0);
@@ -266,6 +382,9 @@ ProcessResult* \
     if (lat_param) delete lat_param;
     if (long_param) delete long_param;
     if (key_param) delete key_param;
+    if (asset_param) delete asset_param;
+    if (tag_param) delete tag_param;
+    if (region_param) delete region_param;
 
     // Release the Redis Mutex Lock
     if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {
@@ -289,35 +408,66 @@ ProcessResult* \
     Neo4jQueryParameterInterface *long_param = NULL;
     Neo4jQueryParameterInterface *key_param = NULL;
     Neo4jQueryParameterInterface *dist_param = NULL;
+    Neo4jQueryParameterInterface *region_param = NULL;
+    Neo4jQueryParameterInterface *tag_param = NULL;
     processor_logging->debug("Processing Scene Retrieve message");
 
     if (obj_msg->get_scene(0)->get_name().empty() && \
-      obj_msg->get_scene(0)->get_latitude() == -9999.0 && \
-      obj_msg->get_scene(0)->get_longitude() == -9999.0 && \
-      obj_msg->get_scene(0)->get_key().empty()) {
+      obj_msg->get_scene(0)->get_latitude() + 9999.0 < 0.0001 && \
+      obj_msg->get_scene(0)->get_longitude() + 9999.0 < 0.0001 && \
+      obj_msg->get_scene(0)->get_distance() < 0.0001 && \
+      obj_msg->get_scene(0)->get_key().empty() && \
+      obj_msg->get_scene(0)->get_region().empty() && \
+      obj_msg->get_scene(0)->num_tags() == 0) {
       processor_logging->error("No fields found in get message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields for get");
     } else {
       // Set up the Cypher Query for scene retrieval
       std::string scene_query = "MATCH (scn:Scene";
 
+      // If we have a key present in the request, we can just pull that value
       if (!(obj_msg->get_scene(0)->get_key().empty())) {
         scene_query = scene_query + " {key: {inp_key}})";
       } else {
-        if (!(obj_msg->get_scene(0)->get_name().empty())) {
-          scene_query = scene_query + " {name: {inp_name}}";
+        // Otherwise, we need to check for other values in the message
+        bool inp_name_empty = obj_msg->get_scene(0)->get_name().empty();
+        bool inp_region_empty = obj_msg->get_scene(0)->get_region().empty();
+        if ((!inp_name_empty) || (!inp_region_empty)) {
+          scene_query = scene_query + " {";
+          // Start by checking for a name
+          if (!inp_name_empty) {
+            scene_query = scene_query + "name: {inp_name}";
+          }
+          if ((!inp_name_empty) && (!inp_region_empty)) {
+            scene_query = scene_query + ", ";
+          }
+          // Check for Region
+          if (!inp_region_empty) {
+            scene_query = scene_query + "region: {inp_region}";
+          }
+          scene_query = scene_query + "}";
+        }
+        scene_query = scene_query + ")";
+        bool is_started = false;
+
+        // Check for Tags
+        // We will only query for the first tag supplied
+        if (obj_msg->get_scene(0)->num_tags() > 0) {
+          scene_query = scene_query + " WHERE {inp_tag} in scn.tags";
+          is_started = true;
         }
 
-        scene_query = scene_query + ")";
-
+        // Check for a distance-based query
         if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0 || \
           obj_msg->get_scene(0)->get_longitude() == -9999.0 || \
           obj_msg->get_scene(0)->get_distance() < 0.0)) {
+          if (is_started) {scene_query = scene_query + " AND";}
+          else {scene_query = scene_query + " WHERE";}
           // Query for distance
           // Assumes distance supplied is in meters
           // Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
           std::string where_clause = \
-                " WHERE ( "
+                " ( "
                   "12742000 * asin("
                     "sqrt("
                       "haversin(radians({inp_lat} - scn.latitude)) + "
@@ -354,9 +504,23 @@ ProcessResult* \
         processor_logging->debug(qname);
         scene_params.emplace("inp_name", name_param);
       }
-      if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0 || \
-        obj_msg->get_scene(0)->get_longitude() == -9999.0 || \
-        obj_msg->get_scene(0)->get_distance() < 0.0)) {
+      if (!(obj_msg->get_scene(0)->get_region().empty())) {
+        region_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(obj_msg->get_scene(0)->get_region());
+        processor_logging->debug("Region:");
+        processor_logging->debug(obj_msg->get_scene(0)->get_region());
+        scene_params.emplace("inp_region", region_param);
+      }
+      if (obj_msg->get_scene(0)->num_tags() > 0) {
+        tag_param = BaseMessageProcessor::get_neo4j_factory()->\
+          get_neo4j_query_parameter(obj_msg->get_scene(0)->get_tag(0));
+        processor_logging->debug("Tag:");
+        processor_logging->debug(obj_msg->get_scene(0)->get_tag(0));
+        scene_params.emplace("inp_tag", tag_param);
+      }
+      if (obj_msg->get_scene(0)->get_latitude() + 9999.0 > 0.0001 && \
+        obj_msg->get_scene(0)->get_longitude() + 9999.0 > 0.0001 && \
+        obj_msg->get_scene(0)->get_distance() > 0.0001) {
         double qlat = obj_msg->get_scene(0)->get_latitude();
         lat_param = BaseMessageProcessor::get_neo4j_factory()->\
           get_neo4j_query_parameter(qlat);
@@ -406,29 +570,14 @@ ProcessResult* \
 
             // Pull the node properties and assign them to the new
             // Scene object
-            DbMapInterface* map = obj->properties();
-            if (map->element_exists("key")) {
-              std::string new_key = map->get_string_element("key", 512);
-              processor_logging->debug("Key retrieved from query:");
-              processor_logging->debug(new_key);
-              data->set_key(new_key);
-            }
-            if (map->element_exists("name")) {
-              data->set_name(map->get_string_element("name", 512));
-            }
-            if (map->element_exists("latitude")) {
-              data->set_latitude(map->get_float_element("latitude"));
-            }
-            if (map->element_exists("longitude")) {
-              data->set_longitude(map->get_float_element("longitude"));
-            }
+            BaseMessageProcessor::get_query_helper()->assign_scene_properties(\
+              obj, data);
 
             sc->add_scene(data);
 
             // Iterate to the next result
             if (tree) delete tree;
             if (obj) delete obj;
-            if (map) delete map;
             tree = results->next();
           }
           if (num_results > 0) {
@@ -454,6 +603,8 @@ ProcessResult* \
     if (long_param) delete long_param;
     if (key_param) delete key_param;
     if (dist_param) delete dist_param;
+    if (tag_param) delete tag_param;
+    if (region_param) delete region_param;
     return response;
   }
   response->set_error(PROCESSING_ERROR, "No Scene Data recieved");

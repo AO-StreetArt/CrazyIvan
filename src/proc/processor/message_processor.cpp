@@ -35,6 +35,15 @@ ProcessResult* \
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
 
+  // Basic checks to ensure we have the needed fields
+  if (obj_msg->num_scenes() < 1) {
+    current_err_code = INSUFF_DATA_ERROR;
+    current_err_msg = "Scene needed to process registration";
+  } else if (obj_msg->get_scene(0)->num_devices() < 1) {
+    current_err_code = INSUFF_DATA_ERROR;
+    current_err_msg = "Device needed to process registration";
+  }
+
   // Start by getting a mutex lock against the scene
   processor_logging->debug("Getting mutex lock");
   if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {
@@ -92,7 +101,7 @@ ProcessResult* \
     }
   }
 
-  // Find other scenes that the object is registered to
+  // Find other scenes that the device is registered to
   SceneListInterface *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
     try {
@@ -117,6 +126,9 @@ ProcessResult* \
   // leave this as the identity matrix
   TransformInterface *new_transform = \
     BaseMessageProcessor::get_tfactory().build_transform();
+  // Activate Transform Elements
+  new_transform->translate(0, 0.0);
+  new_transform->rotate(0, 0.0);
 
   // If we are not registering the first device, the scene exists,
   // the device is not already registered to the scene in question but
@@ -173,12 +185,25 @@ ProcessResult* \
       process_UDUD_transformation(registered_scenes, obj_msg);
   }
 
-  // Build a protocol buffer response
+  // Build a response
   processor_logging->debug("Creating Response message");
   std::string response_string;
-  BaseMessageProcessor::build_string_response(SCENE_ENTER, current_err_code, \
+  SceneListInterface *resp_interface = \
+    BaseMessageProcessor::build_response_scene(SCENE_ENTER, current_err_code, \
     current_err_msg, obj_msg->get_transaction_id(), \
-    obj_msg->get_scene(0)->get_key(), response_string);
+    obj_msg->get_scene(0)->get_key());
+
+  // Build a Response Device
+  UserDeviceInterface *ud_interface = NULL;
+  if (new_transform && current_err_code == NO_ERROR) {
+    ud_interface = BaseMessageProcessor::get_udfactory().build_device( \
+      obj_msg->get_scene(0)->get_device(0)->get_key(), new_transform);
+
+    resp_interface->get_scene(0)->add_device(ud_interface);
+  }
+
+  // Convert the Response to a string for sending
+  resp_interface->to_msg_string(response_string);
 
   if (registered_scenes) {
     delete registered_scenes;

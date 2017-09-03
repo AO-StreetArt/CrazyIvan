@@ -41,6 +41,7 @@ limitations under the License.
 
 // The class contains helper methods for working with
 // Scene Data in Neo4j
+// The Scene Query Helper deals with individual scenes, and links between them
 class SceneQueryHelper : public DeviceQueryHelper {
  public:
   inline SceneQueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf, \

@@ -40,21 +40,16 @@ limitations under the License.
 #ifndef SRC_MODEL_INCLUDE_SCENE_H_
 #define SRC_MODEL_INCLUDE_SCENE_H_
 
-// Stores the data for a single scene
+// Stores the additional information used on a scene document for finding
+// a given scene via messaging.  It also handles
 class SceneDocument : public SceneData, public SceneInterface {
   std::string key = "";
   std::string name = "";
+  std::string region = "";
   double distance = 0.0;
   bool trns_flag = false;
   TransformInterface* scene_transform;
-  const rapidjson::Value *key_val;
-  const rapidjson::Value *scene_val;
-  const rapidjson::Value *name_val;
-  const rapidjson::Value *lat_val;
-  const rapidjson::Value *long_val;
-  const rapidjson::Value *dist_val;
-  const rapidjson::Value *transform_val;
-  const rapidjson::Value *devices_val;
+  std::vector<std::string> tag_vect;
 
  public:
   // Constructors
@@ -70,6 +65,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   // Setters
   void set_key(std::string new_key) {key = new_key;}
   void set_name(std::string new_name) {name = new_name;}
+  void set_region(std::string new_region) {region = new_region;}
   void set_latitude(double new_lat) {SceneData::set_latitude(new_lat);}
   void set_longitude(double new_long) {SceneData::set_longitude(new_long);}
   void set_distance(double new_dist) {distance = new_dist;}
@@ -77,6 +73,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   // Getters
   std::string get_key() const {return key;}
   std::string get_name() const {return name;}
+  std::string get_region() const {return region;}
   double get_latitude() const {return SceneData::get_latitude();}
   double get_longitude() const {return SceneData::get_longitude();}
   double get_distance() const {return distance;}
@@ -88,6 +85,18 @@ class SceneDocument : public SceneData, public SceneInterface {
     {return SceneData::get_device(index);}
   std::vector<UserDeviceInterface*> get_devices() const \
     {return SceneData::get_devices();}
+
+  // Scene Asset ID List
+  void add_asset(std::string new_asset) {SceneData::add_asset(new_asset);}
+  int num_assets() const {return SceneData::num_assets();}
+  std::string get_asset(int index) const {return SceneData::get_asset(index);}
+  std::vector<std::string> get_assets() const {return SceneData::get_assets();}
+
+  // Tag List
+  void add_tag(std::string new_tag) {tag_vect.push_back(new_tag);}
+  int num_tags() const {return tag_vect.size();}
+  std::string get_tag(int index) const {return tag_vect[index];}
+  std::vector<std::string> get_tags() const {return tag_vect;}
 
   // Transform
   TransformInterface* get_scene_transform() const {return scene_transform;}
@@ -106,6 +115,7 @@ class SceneDocument : public SceneData, public SceneInterface {
     obj_logging->debug(get_longitude());
     obj_logging->debug(distance);
     for (int i = 0; i < num_devices(); i++) {get_device(i)->print();}
+    for (int j = 0; j < num_assets(); j++) {obj_logging->debug(get_asset(j));}
     if (trns_flag) {scene_transform->print();}
   }
 };

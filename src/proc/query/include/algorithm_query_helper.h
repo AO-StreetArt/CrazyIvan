@@ -41,6 +41,9 @@ limitations under the License.
 
 // The class contains helper methods for working with
 // Scene Data in Neo4j
+// The Algorithm Query Helper implements the Query Helper Interface, inheriting
+// most of the methods from it's children.  The only methods it implements are
+// algorithmic methods, built on top of basic queries.
 class AlgorithmQueryHelper : public SceneQueryHelper, \
   public QueryHelperInterface {
   SceneTransformResult str;
@@ -110,6 +113,11 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
   // the resulting transform
   SceneTransformResult calculate_scene_scene_transform(std::string scene_id1, \
     std::string scene_id2);
+
+// --------------------------Helper Methods---------------------------------- //
+  void assign_scene_properties(DbObjectInterface *db_scene, \
+    SceneInterface *data) \
+    {BaseQueryHelper::assign_scene_properties(db_scene, data);}
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_ALGORITHM_QUERY_HELPER_H_
