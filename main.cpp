@@ -132,20 +132,7 @@ void my_signal_handler(int s) {
       // Set up the UUID Generator
       ua = uuid_factory->get_uuid_interface();
 
-      std::string service_instance_id = "Ivan-";
-      UuidContainer sid_container;
-      try {
-        sid_container = ua->generate();
-        if (!sid_container.err.empty()) {
-          uuid_logging->error(sid_container.err);
-        }
-        service_instance_id = service_instance_id + sid_container.id;
-      }
-      catch (std::exception& e) {
-        main_logging->error("Exception during Service ID Generation");
-        shutdown();
-        exit(1);
-      }
+      std::string service_instance_id = "CrazyIvan";
 
       // Set up our configuration manager with the CLI
       cm = new ConfigurationManager(cli, service_instance_id);
