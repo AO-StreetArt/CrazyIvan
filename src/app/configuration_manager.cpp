@@ -227,7 +227,7 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
     internal_address = ip;
   }
 
-  OMQ_IBConnStr = internal_address + port;
+  OMQ_IBConnStr = "tcp://" + internal_address + ":" + port;
 
   // Step 1b: Register the Service with Consul
 
