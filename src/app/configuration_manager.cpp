@@ -222,12 +222,12 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   // Step 1a: Generate new connectivity information for the inbound
   // service from command line arguments
   if (ip == "localhost") {
-    internal_address = "tcp://*:";
+    internal_address = "*";
   } else {
-    internal_address = "tcp://" + ip + ":";
+    internal_address = ip;
   }
 
-  OMQ_IBConnStr = internal_address + port;
+  OMQ_IBConnStr = "tcp://" + internal_address + ":" + port;
 
   // Step 1b: Register the Service with Consul
 
