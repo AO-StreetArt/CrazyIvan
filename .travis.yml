@@ -47,55 +47,61 @@ before_script:
 - docker logs database
 - docker logs registry
 script:
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/ping.xml
+- tail $TRAVIS_BUILD_DIR/ping.log
+- docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
 - tail $TRAVIS_BUILD_DIR/scene_crt.log
 - docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_get.xml
 - tail $TRAVIS_BUILD_DIR/scene_get.log
 - docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_update.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_update.xml
 - tail $TRAVIS_BUILD_DIR/scene_update.log
 - docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_get.xml
 - tail $TRAVIS_BUILD_DIR/scene_get.log
 - docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/query.xml
 - tail $TRAVIS_BUILD_DIR/scene_query.log
 - docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_register.xml
 - tail $TRAVIS_BUILD_DIR/device_register.log
 - docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_deregister.xml
 - tail $TRAVIS_BUILD_DIR/device_deregister.log
 - docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/scene_del.xml
 - tail $TRAVIS_BUILD_DIR/scene_del.log
 - docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_crt_bad.xml
 - tail $TRAVIS_BUILD_DIR/scene_crt.log
 - docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_get_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_get_bad.xml
 - tail $TRAVIS_BUILD_DIR/scene_get.log
 - docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_upd_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_upd_bad.xml
 - tail $TRAVIS_BUILD_DIR/scene_upd.log
 - docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_del_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_del_bad.xml
 - tail $TRAVIS_BUILD_DIR/scene_del.log
 - docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/query_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/query_bad.xml
 - tail $TRAVIS_BUILD_DIR/scene_query.log
 - docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_deregister_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_deregister_bad.xml
 - tail $TRAVIS_BUILD_DIR/device_deregister.log
 - docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/scene_crt.xml
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_register.xml
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_register.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_align.xml
 - tail $TRAVIS_BUILD_DIR/device_align.log
 - docker logs --tail 150 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/dev_align_bad.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_align_bad.xml
 - tail $TRAVIS_BUILD_DIR/device_align.log
+- docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt_nokey.xml
+- tail $TRAVIS_BUILD_DIR/scene_crt_nokey.log
 - docker logs --tail 75 crazyivan
 after_success:
 - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN
