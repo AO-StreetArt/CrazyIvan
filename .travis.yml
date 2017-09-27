@@ -71,7 +71,7 @@ script:
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_deregister.xml
 - tail $TRAVIS_BUILD_DIR/device_deregister.log
 - docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/scene_del.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_del.xml
 - tail $TRAVIS_BUILD_DIR/scene_del.log
 - docker logs --tail 75 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_crt_bad.xml
