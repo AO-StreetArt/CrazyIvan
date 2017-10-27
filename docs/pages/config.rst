@@ -10,7 +10,7 @@ Crazy Ivan can be configured via a properties file, which has a few
 command line options:
 
 -  ``./crazy_ivan`` - This will start Crazy Ivan with the default
-   properties file, app.properties
+   properties file, ivan.properties
 -  ``./crazy_ivan -config-file=file.properties`` - This will start Crazy
    Ivan with the properties file, file.properties. Can be combined with
    -log-conf.
