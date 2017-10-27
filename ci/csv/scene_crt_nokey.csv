@@ -1,0 +1,11 @@
+MSG_TYPE,ERR_CODE,ERR_MSG,TRANSACTION_ID,SCN_NAME,LATITUDE,LONGITUDE,DISTANCE,REGION,ASSET,TAG
+0,100,Test,123456,Scene1,124,122,100,TestRegion1,TestAsset1,Testing1
+0,100,Test,123457,Scene2,124,122,100,TestRegion1,TestAsset2,Testing1
+0,100,Test,123458,Scene3,124,122,100,TestRegion2,TestAsset3,Testing1
+0,100,Test,123459,Scene4,124,122,100,TestRegion2,TestAsset4,Testing1
+0,100,Test,123460,Scene5,124,122,100,TestRegion3,TestAsset5,Testing1
+0,100,Test,123461,Scene6,124,122,100,TestRegion3,TestAsset6,Testing2
+0,100,Test,123462,Scene7,124,122,100,TestRegion4,TestAsset7,Testing2
+0,100,Test,123463,Scene8,124,122,100,TestRegion4,TestAsset8,Testing2
+0,100,Test,123464,Scene9,124,122,100,TestRegion5,TestAsset9,Testing2
+0,100,Test,123465,Scene10,124,122,100,TestRegion5,TestAsset10,Testing2

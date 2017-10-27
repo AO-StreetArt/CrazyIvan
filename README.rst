@@ -12,6 +12,8 @@ of objects in 3-space within a geographic area.  Devices can register/de-registe
 from scenes as they move through the world, and as they do we build a network of
 relationships that can be used to determine the transformations needed for other devices.
 
+Detailed documentation can be found on `ReadTheDocs <http://crazyivan.readthedocs.io/en/latest/index.html>`__.
+
 Features
 --------
 

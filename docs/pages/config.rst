@@ -10,7 +10,7 @@ Crazy Ivan can be configured via a properties file, which has a few
 command line options:
 
 -  ``./crazy_ivan`` - This will start Crazy Ivan with the default
-   properties file, lyman.properties
+   properties file, ivan.properties
 -  ``./crazy_ivan -config-file=file.properties`` - This will start Crazy
    Ivan with the properties file, file.properties. Can be combined with
    -log-conf.
@@ -68,6 +68,18 @@ log file of any given module, or shift any given module to a different
 appender or pattern entirely. These modules should always be present
 within configuration files, but can be configured to suit the particular
 deployment needs.
+
+Startup
+-------
+
+Crazy Ivan can be started with an option to wait for a specified number of
+seconds prior to looking for configuration values and opening up for requests.
+This is particularly useful when used with orchestration providers, in order
+to ensure that other components are properly started (in particular, in order
+to allow time for Consul to be populated with default configuration values).
+
+-  ``./crazy_ivan -wait=5`` - This will start Crazy Ivan with the default
+   properties file, and wait 5 seconds before starting.
 
 Configuration Key-Value Variables
 ---------------------------------
