@@ -145,6 +145,18 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
       if (!(key.empty())) {
         ud->set_key(key);
       }
+      std::string dev_conn_str = SceneList::get_scene(a)->get_device(b)->get_connection_string();
+      if (!(dev_conn_str.empty())) {
+        ud->set_connection_string(dev_conn_str);
+      }
+      std::string dev_hostname = SceneList::get_scene(a)->get_device(b)->get_hostname();
+      if (!(dev_hostname.empty())) {
+        ud->set_hostname(dev_hostname);
+      }
+      int dev_port = SceneList::get_scene(a)->get_device(b)->get_port();
+      if (dev_port > -1) {
+        ud->set_port(dev_port);
+      }
 
       if (SceneList::get_scene(a)->get_device(b)->has_transform()) {
         protoScene::SceneList_Transformation *trn = ud->mutable_transform();

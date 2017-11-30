@@ -259,8 +259,10 @@ SceneListInterface* \
 }
 
 // Create a registration link in the DB
+// TO-DO: Add connectivity information to the Device
 void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
-  std::string scene_id, TransformInterface *transform) {
+  std::string scene_id, TransformInterface *transform, bool device_exists, \
+  std::string ud_conn_str, std::string ud_host, int ud_port) {
   processor_logging->debug("Creating Device Registration link");
   ResultsIteratorInterface *results = NULL;
   Neo4jQueryParameterInterface *skey_param = NULL;
@@ -271,15 +273,26 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   Neo4jQueryParameterInterface *rotx_param = NULL;
   Neo4jQueryParameterInterface *roty_param = NULL;
   Neo4jQueryParameterInterface *rotz_param = NULL;
+  Neo4jQueryParameterInterface *conns_param = NULL;
+  Neo4jQueryParameterInterface *host_param = NULL;
+  Neo4jQueryParameterInterface *port_param = NULL;
 
   // Create the query string
-  std::string udq_string =
-    "MATCH (scn:Scene {key: {inp_key}}) "
-    "CREATE (scn)-[trans:TRANSFORM {translation_x: {loc_x}, "
+  std::string udq_string = "MATCH (scn:Scene {key: {inp_key}})";
+  if (device_exists) {
+    udq_string = udq_string + ", (ud:UserDevice {key: {inp_ud_key}})"
+    " CREATE (scn)-[trans:TRANSFORM {translation_x: {loc_x}, "
       "translation_y: {loc_y}, translation_z: {loc_z}, rotation_x: {rot_x}, "
-      "rotation_y: {rot_y}, rotation_z: {rot_z}}]->(ud:UserDevice "
-      "{key: {inp_ud_key}}) "
-    "RETURN scn, trans, ud";
+      "rotation_y: {rot_y}, rotation_z: {rot_z}}]->(ud) ";
+  } else {
+    udq_string = udq_string +
+      " CREATE (scn)-[trans:TRANSFORM {translation_x: {loc_x}, "
+        "translation_y: {loc_y}, translation_z: {loc_z}, rotation_x: {rot_x}, "
+        "rotation_y: {rot_y}, rotation_z: {rot_z}}]->(ud:UserDevice "
+        "{key: {inp_ud_key}, connection_string: {ud_conn_str}, "
+        "hostname: {ud_host}, port: {ud_port}}) ";
+  }
+  udq_string = udq_string + "RETURN scn, trans, ud";
 
   // Set up the query parameters for query
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
@@ -320,14 +333,26 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
 
+  // Insert connectivity information
+  conns_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(ud_conn_str);
+  host_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(ud_host);
+  port_param = BaseQueryHelper::get_neo4j_factory()->\
+    get_neo4j_query_parameter(ud_port);
+  q_params.emplace("ud_conn_str", conns_param);
+  q_params.emplace("ud_host", host_param);
+  q_params.emplace("ud_port", port_param);
+
   // Execute the query
+  processor_logging->error("Executing Registration Query:");
+  processor_logging->error(udq_string);
   try {
     results = \
       BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
     processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
     processor_logging->error(e.what());
   }
 
@@ -344,6 +369,9 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   if (rotx_param) delete rotx_param;
   if (roty_param) delete roty_param;
   if (rotz_param) delete rotz_param;
+  if (conns_param) delete conns_param;
+  if (host_param) delete host_param;
+  if (port_param) delete port_param;
 }
 
 // Remove a registration link in the DB between the specified device and scene

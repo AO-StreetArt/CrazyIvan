@@ -76,9 +76,10 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
 
   // Create a registration link in the DB
   void register_device_to_scene(std::string device_id, \
-    std::string scene_id, TransformInterface *transform) \
-    {DeviceQueryHelper::register_device_to_scene(device_id, \
-    scene_id, transform);}
+    std::string scene_id, TransformInterface *transform, bool device_exists, \
+    std::string ud_conn_str, std::string ud_host, int ud_port) \
+    {DeviceQueryHelper::register_device_to_scene(device_id, scene_id, \
+      transform, device_exists, ud_conn_str,ud_host, ud_port);}
 
   // Remove a device from a scene
   void remove_device_from_scene(std::string device_id, std::string scene_id) \
@@ -118,6 +119,11 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
   void assign_scene_properties(DbObjectInterface *db_scene, \
     SceneInterface *data) \
     {BaseQueryHelper::assign_scene_properties(db_scene, data);}
+
+  void assign_device_properties(DbObjectInterface *db_device, \
+      UserDeviceInterface *data) {
+    BaseQueryHelper::assign_device_properties(db_device, data);
+  }
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_ALGORITHM_QUERY_HELPER_H_

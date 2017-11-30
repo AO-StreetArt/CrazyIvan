@@ -165,7 +165,10 @@ ProcessResult* \
     try {
       BaseMessageProcessor::get_query_helper()->register_device_to_scene(\
         obj_msg->get_scene(0)->get_device(0)->get_key(), \
-        obj_msg->get_scene(0)->get_key(), new_transform);
+        obj_msg->get_scene(0)->get_key(), new_transform, previously_registered,\
+        obj_msg->get_scene(0)->get_device(0)->get_connection_string(), \
+        obj_msg->get_scene(0)->get_device(0)->get_hostname(), \
+        obj_msg->get_scene(0)->get_device(0)->get_port());
     }
     catch (std::exception& e) {
       processor_logging->error("Error Registering Device");

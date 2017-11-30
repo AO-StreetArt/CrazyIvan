@@ -43,6 +43,15 @@ class UserDeviceInterface {
   // Keys
   virtual void set_key(std::string new_key) = 0;
   virtual std::string get_key() const = 0;
+
+  // Connectivity Information
+  virtual std::string get_connection_string() const = 0;
+  virtual std::string get_hostname() const = 0;
+  virtual int get_port() const = 0;
+  virtual void set_connection_string(std::string new_string) = 0;
+  virtual void set_hostname(std::string new_host) = 0;
+  virtual void set_port(int new_port) = 0;
+
   // Print
   virtual void print() = 0;
 };

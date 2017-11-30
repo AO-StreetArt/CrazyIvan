@@ -42,6 +42,9 @@ class UserDevice : public UserDeviceInterface {
   bool trns_flag = false;
   const rapidjson::Value *key_val;
   const rapidjson::Value *transform_val;
+  std::string connection_string = "";
+  std::string hostname = "";
+  int port = -1;
 
  public:
   // Constructors
@@ -86,6 +89,16 @@ class UserDevice : public UserDeviceInterface {
   // Keys
   void set_key(std::string new_key) {key = new_key;}
   std::string get_key() const {return key;}
+
+  // Connectivity Information
+  std::string get_connection_string() const {return connection_string;}
+  std::string get_hostname() const {return hostname;}
+  int get_port() const {return port;}
+  void set_connection_string(std::string new_string) \
+    {connection_string = new_string;}
+  void set_hostname(std::string new_host) {hostname = new_host;}
+  void set_port(int new_port) {port = new_port;}
+
   // Print
   inline void print() {
     obj_logging->debug("User Device");

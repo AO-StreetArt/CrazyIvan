@@ -85,7 +85,8 @@ class QueryHelperInterface {
 
   // Create a registration link in the DB
   virtual void register_device_to_scene(std::string device_id, \
-    std::string scene_id, TransformInterface *transform) = 0;
+    std::string scene_id, TransformInterface *transform, bool device_exists, \
+    std::string ud_conn_str, std::string ud_host, int ud_port) = 0;
 
   // Remove a device from a scene
   virtual void remove_device_from_scene(std::string device_id, \
@@ -123,6 +124,8 @@ class QueryHelperInterface {
 // --------------------------Helper Methods---------------------------------- //
   virtual void assign_scene_properties(DbObjectInterface *db_scene, \
     SceneInterface *data) = 0;
+  virtual void assign_device_properties(DbObjectInterface *db_device, \
+      UserDeviceInterface *data) = 0;
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_

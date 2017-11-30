@@ -63,7 +63,8 @@ class DeviceQueryHelper : public BaseQueryHelper {
 
   // Create a registration link in the DB
   void register_device_to_scene(std::string device_id, std::string scene_id, \
-    TransformInterface *transform);
+    TransformInterface *transform, bool device_exists, \
+    std::string ud_conn_str, std::string ud_host, int ud_port);
 
   // Remove a device from a scene
   void remove_device_from_scene(std::string device_id, std::string scene_id);
