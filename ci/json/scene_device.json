@@ -13,6 +13,9 @@
       "devices":[
         {
           "key":"$UD_KEY@",
+          "connection_string":"$UD_CONNECTION@",
+          "hostname":"$UD_HOST@",
+          "port":$UD_PORT@,
           "transform":{
             "translation":[$UD_TRN_X@,$UD_TRN_Y@,$UD_TRN_Z@],
             "rotation":[$UD_ROT_X@,$UD_ROT_Y@,$UD_ROT_Z@]
