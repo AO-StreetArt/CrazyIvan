@@ -69,7 +69,7 @@ script:
 - tail $TRAVIS_BUILD_DIR/device_register.log
 - docker logs --tail 100 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_retrieve.xml
-- tail $TRAVIS_BUILD_DIR/dev_retrieve.log
+- tail $TRAVIS_BUILD_DIR/device_retrieve.log
 - docker logs --tail 100 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_deregister.xml
 - tail $TRAVIS_BUILD_DIR/device_deregister.log
@@ -101,7 +101,7 @@ script:
 - tail $TRAVIS_BUILD_DIR/device_align.log
 - docker logs --tail 150 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_retrieve_bad.xml
-- tail $TRAVIS_BUILD_DIR/dev_retrieve.log
+- tail $TRAVIS_BUILD_DIR/device_retrieve.log
 - docker logs --tail 100 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_align_bad.xml
 - tail $TRAVIS_BUILD_DIR/device_align.log
