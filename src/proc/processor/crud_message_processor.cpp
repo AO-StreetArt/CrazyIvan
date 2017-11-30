@@ -589,6 +589,7 @@ ProcessResult* \
           } else {
             response->set_error(NOT_FOUND, "Document not found");
           }
+          if (sc) delete sc;
         }
       }
       catch (std::exception& e) {
@@ -743,17 +744,18 @@ ProcessResult* \
             // Log an error if we don't have a node in this result tree
             if (!(obj->is_node())) {
               processor_logging->error("Non-node returned from query");
+              response->set_error(NOT_FOUND, "Unable to find Device");
+            } else {
+              UserDeviceInterface *data = \
+                BaseMessageProcessor::get_udfactory().build_device(device_key);
+
+              // Pull the node properties and assign them to the new
+              // Scene object
+              BaseMessageProcessor::get_query_helper()->assign_device_properties(\
+                obj, data);
+
+              empty_scene->add_device(data);
             }
-
-            UserDeviceInterface *data = \
-              BaseMessageProcessor::get_udfactory().build_device(device_key);
-
-            // Pull the node properties and assign them to the new
-            // Scene object
-            BaseMessageProcessor::get_query_helper()->assign_device_properties(\
-              obj, data);
-
-            empty_scene->add_device(data);
             sc->add_scene(empty_scene);
 
             // Set our return string
@@ -767,6 +769,7 @@ ProcessResult* \
           }
           delete tree;
         }
+        if (sc) delete sc;
       }
     }
     if (results) delete results;
