@@ -771,6 +771,9 @@ ProcessResult* \
             response->set_error(NOT_FOUND, "Unable to find Device");
           }
           delete tree;
+        } else {
+          processor_logging->error("No results returned from Query");
+          response->set_error(NOT_FOUND, "Unable to find Device");
         }
         if (sc) delete sc;
       }
