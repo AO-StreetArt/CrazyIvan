@@ -394,7 +394,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           writer.String(get_scene(a)->get_device(b)->get_hostname().c_str(), \
           (rapidjson::SizeType)get_scene(a)->get_device(b)->get_hostname().length());
         }
-        if (!(get_scene(a)->get_device(b)->get_port() > -1)) {
+        if (get_scene(a)->get_device(b)->get_port() < 999999) {
           writer.Key("port");
           writer.Uint(get_scene(a)->get_device(b)->get_port());
         }

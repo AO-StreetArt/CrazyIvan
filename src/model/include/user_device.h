@@ -44,7 +44,7 @@ class UserDevice : public UserDeviceInterface {
   const rapidjson::Value *transform_val;
   std::string connection_string = "";
   std::string hostname = "";
-  int port = -1;
+  int port = 999999;
 
  public:
   // Constructors
