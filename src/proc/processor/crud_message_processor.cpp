@@ -766,6 +766,9 @@ ProcessResult* \
             response->set_return_string(msg_string);
 
             delete obj;
+          } else {
+            processor_logging->error("No results returned from Query");
+            response->set_error(NOT_FOUND, "Unable to find Device");
           }
           delete tree;
         }
