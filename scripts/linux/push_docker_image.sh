@@ -14,5 +14,5 @@ if [ $BRANCH_NAME != "master" ]; then
   TAG_NAME=$BRANCH_NAME
 fi
 
-cd $DIR && docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+cd $DIR && docker login -u $DOCKER_USER -p $DOCKER_PASS
 cd $DIR && docker push aostreetart/crazyivan:$TAG_NAME
