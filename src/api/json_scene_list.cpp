@@ -204,77 +204,77 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     obj_logging->debug("UD Key found");
                     UserDeviceInterface *new_device = \
                       SceneList::create_device(ud_key_iter->value.GetString());
-                  }
 
-                  // Process device connectivity information
-                  rapidjson::Value::ConstMemberIterator ud_conn_iter = \
-                    device_itr.FindMember("connection_string");
-                  if (ud_conn_iter != device_itr.MemberEnd()) {
-                    if (!(ud_conn_iter->value.IsNull())) {
-                      new_device->set_connection_string(ud_conn_iter->value.GetString());
+                    // Process device connectivity information
+                    rapidjson::Value::ConstMemberIterator ud_conn_iter = \
+                      device_itr.FindMember("connection_string");
+                    if (ud_conn_iter != device_itr.MemberEnd()) {
+                      if (!(ud_conn_iter->value.IsNull())) {
+                        new_device->set_connection_string(ud_conn_iter->value.GetString());
+                      }
                     }
-                  }
 
-                  rapidjson::Value::ConstMemberIterator ud_host_iter = \
-                    device_itr.FindMember("hostname");
-                  if (ud_host_iter != device_itr.MemberEnd()) {
-                    if (!(ud_host_iter->value.IsNull())) {
-                      new_device->set_hostname(ud_host_iter->value.GetString());
+                    rapidjson::Value::ConstMemberIterator ud_host_iter = \
+                      device_itr.FindMember("hostname");
+                    if (ud_host_iter != device_itr.MemberEnd()) {
+                      if (!(ud_host_iter->value.IsNull())) {
+                        new_device->set_hostname(ud_host_iter->value.GetString());
+                      }
                     }
-                  }
 
-                  rapidjson::Value::ConstMemberIterator ud_port_iter = \
-                    device_itr.FindMember("port");
-                  if (ud_port_iter != device_itr.MemberEnd()) {
-                    if (!(ud_port_iter->value.IsNull())) {
-                      new_device->set_port(ud_port_iter->value.GetInt());
+                    rapidjson::Value::ConstMemberIterator ud_port_iter = \
+                      device_itr.FindMember("port");
+                    if (ud_port_iter != device_itr.MemberEnd()) {
+                      if (!(ud_port_iter->value.IsNull())) {
+                        new_device->set_port(ud_port_iter->value.GetInt());
+                      }
                     }
-                  }
 
-                  // Process the device transform
-                  if (device_itr.HasMember("transform")) {
-                    obj_logging->debug("UD Transform found");
-                    TransformInterface *new_ud_transform = \
-                      SceneList::create_transform();
-                    const rapidjson::Value& ud_trn_val = device_itr["transform"];
-                    if (!(ud_trn_val.IsNull())) {
-                      for (rapidjson::Value::ConstMemberIterator ud_trns_itr = \
-                        ud_trn_val.MemberBegin(); \
-                        ud_trns_itr != ud_trn_val.MemberEnd(); ++ud_trns_itr) {
-                          const char * udname_cstring = \
-                            ud_trns_itr->name.GetString();
-                          obj_logging->debug("Processing Transform Member:");
-                          obj_logging->debug(udname_cstring);
-                          if (strcmp(udname_cstring, "translation") == 0) {
-                            obj_logging->debug("Translation found");
-                            const rapidjson::Value& udtranslation_val = \
-                              ud_trns_itr->value;
-                            if (!(udtranslation_val.IsNull())) {
-                              int i = 0;
-                              for (auto& translation_itr : \
-                                udtranslation_val.GetArray()) {
-                                new_ud_transform->translate(i, \
-                                  translation_itr.GetDouble());
-                                ++i;
+                    // Process the device transform
+                    if (device_itr.HasMember("transform")) {
+                      obj_logging->debug("UD Transform found");
+                      TransformInterface *new_ud_transform = \
+                        SceneList::create_transform();
+                      const rapidjson::Value& ud_trn_val = device_itr["transform"];
+                      if (!(ud_trn_val.IsNull())) {
+                        for (rapidjson::Value::ConstMemberIterator ud_trns_itr = \
+                          ud_trn_val.MemberBegin(); \
+                          ud_trns_itr != ud_trn_val.MemberEnd(); ++ud_trns_itr) {
+                            const char * udname_cstring = \
+                              ud_trns_itr->name.GetString();
+                            obj_logging->debug("Processing Transform Member:");
+                            obj_logging->debug(udname_cstring);
+                            if (strcmp(udname_cstring, "translation") == 0) {
+                              obj_logging->debug("Translation found");
+                              const rapidjson::Value& udtranslation_val = \
+                                ud_trns_itr->value;
+                              if (!(udtranslation_val.IsNull())) {
+                                int i = 0;
+                                for (auto& translation_itr : \
+                                  udtranslation_val.GetArray()) {
+                                  new_ud_transform->translate(i, \
+                                    translation_itr.GetDouble());
+                                  ++i;
+                                }
                               }
-                            }
-                          } else if (strcmp(udname_cstring, "rotation") == 0) {
-                            obj_logging->debug("Rotation found");
-                            const rapidjson::Value& udrotation_val = \
-                            ud_trns_itr->value;
-                            if (!(udrotation_val.IsNull())) {
-                              int i = 0;
-                              for (auto& rotation_itr : udrotation_val.GetArray()) {
-                                new_ud_transform->rotate(i, rotation_itr.GetDouble());
-                                ++i;
+                            } else if (strcmp(udname_cstring, "rotation") == 0) {
+                              obj_logging->debug("Rotation found");
+                              const rapidjson::Value& udrotation_val = \
+                              ud_trns_itr->value;
+                              if (!(udrotation_val.IsNull())) {
+                                int i = 0;
+                                for (auto& rotation_itr : udrotation_val.GetArray()) {
+                                  new_ud_transform->rotate(i, rotation_itr.GetDouble());
+                                  ++i;
+                                }
                               }
                             }
                           }
                         }
+                        new_device->set_transform(new_ud_transform);
                       }
-                      new_device->set_transform(new_ud_transform);
+                      scd->add_device(new_device);
                     }
-                    scd->add_device(new_device);
                   }
                 }
               }
