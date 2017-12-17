@@ -115,6 +115,9 @@ A single device is represented by a single element of the array from the
 “devices” key of the scene.
 
 -  key – Device Key value (UUID)
+-  hostname - The hostname of the device, for use in UDP communications
+-  port - The port of the device, for use in UDP communications
+-  connection_string - An optional additional connectivity string for UDP Communications
 -  transform – A transformation object which represents the
    transformation from the scene coordinate system to the device
    coordinate system.
@@ -163,6 +166,12 @@ Field Mapping
 | tags              | Array - String   | \*       | \*       | \*         |               | \*       |       |       |
 +-------------------+------------------+----------+----------+------------+---------------+----------+-------+-------+
 | key (device)      | String           |          |          |            |               | X        | X     | X     |
++-------------------+------------------+----------+----------+------------+---------------+----------+-------+-------+
+| connection_string | String           |          |          |            |               | \*       |       |       |
++-------------------+------------------+----------+----------+------------+---------------+----------+-------+-------+
+| hostname          | String           |          |          |            |               | \*       |       |       |
++-------------------+------------------+----------+----------+------------+---------------+----------+-------+-------+
+| port              | Integer          |          |          |            |               | \*       |       |       |
 +-------------------+------------------+----------+----------+------------+---------------+----------+-------+-------+
 | translation       | Array - Double   |          |          |            |               | \*       | \*    | \*    |
 +-------------------+------------------+----------+----------+------------+---------------+----------+-------+-------+
@@ -219,6 +228,11 @@ Device Align
 
 Apply a correction to the transformation currently stored between a
 scene and user device.
+
+Device Retrieve
+---------------
+
+Retrieve the connectivity information of a user device.
 
 Appendix A: JSON Message Samples
 ================================
@@ -388,6 +402,25 @@ Device Alignment
   ]
 }
 
+Device Retrieval
+~~~~~~~~~~~~~~~~
+
+{
+  "msg_type":7,
+  "err_code":100,
+  "err_msg":"Test",
+  "transaction_id":"123465",
+  "scenes":[
+    {
+      "devices":[
+        {
+          "key":"Ud_132"
+        }
+      ]
+    }
+  ]
+}
+
 Response
 --------
 
@@ -541,6 +574,11 @@ Device Alignment
     }
   ]
 }
+
+Device Retrieval
+~~~~~~~~~~~~~~~~
+
+
 
 Appendix B: Error Codes
 =======================

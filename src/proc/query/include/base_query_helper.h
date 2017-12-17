@@ -133,6 +133,23 @@ class BaseQueryHelper {
     }
     delete map;
   }
+
+  // Assign the properties from a DB Device in a scene to a Device Interface
+  inline void assign_device_properties(DbObjectInterface *db_device, \
+      UserDeviceInterface *data) {
+    processor_logging->debug("Assigning Device Properties");
+    DbMapInterface* map = db_device->properties();
+    if (map->element_exists("connection_string")) {
+      data->set_connection_string(map->get_string_element("connection_string"));
+    }
+    if (map->element_exists("hostname")) {
+      data->set_hostname(map->get_string_element("hostname"));
+    }
+    if (map->element_exists("port")) {
+      data->set_port(map->get_int_element("port"));
+    }
+    delete map;
+  }
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_BASE_QUERY_HELPER_H_

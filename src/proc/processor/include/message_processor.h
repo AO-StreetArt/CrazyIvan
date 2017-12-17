@@ -102,6 +102,8 @@ class MessageProcessor : public CrudMessageProcessor, \
       return process_deregistration_message(obj_msg);
     } else if (msg_type == DEVICE_ALIGN) {
       return process_device_alignment_message(obj_msg);
+    } else if (msg_type == DEVICE_GET) {
+      return CrudMessageProcessor::process_device_get_message(obj_msg);
     } else if (msg_type == KILL) {
       return BaseMessageProcessor::process_kill_message(obj_msg);
     } else if (msg_type == PING) {

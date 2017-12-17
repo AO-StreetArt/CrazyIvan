@@ -60,6 +60,8 @@ class CrudMessageProcessor : public BaseMessageProcessor {
   // Delete a scene
   ProcessResult* process_delete_message(SceneListInterface *obj_msg);
 
+  ProcessResult* process_device_get_message(SceneListInterface *obj_msg);
+
   // Constructor
   CrudMessageProcessor(Neo4jComponentFactory *nf, Neo4jInterface *neo4j, \
     RedisInterface *rd, ConfigurationManager *con, uuidInterface *u) : \

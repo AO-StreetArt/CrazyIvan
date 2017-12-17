@@ -589,6 +589,7 @@ ProcessResult* \
           } else {
             response->set_error(NOT_FOUND, "Document not found");
           }
+          if (sc) delete sc;
         }
       }
       catch (std::exception& e) {
@@ -654,7 +655,7 @@ ProcessResult* \
       }
       if (!results) {
         processor_logging->error("No results returned from delete query");
-        response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
+        response->set_error(PROCESSING_ERROR, "Error processing Scene Delete");
       } else {
         response->set_return_string(qkey);
         tree = results->next();
@@ -675,5 +676,112 @@ ProcessResult* \
     return response;
   }
   response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
+  return response;
+}
+
+ProcessResult* \
+    CrudMessageProcessor::process_device_get_message(SceneListInterface *msg) {
+  ProcessResult *response = new ProcessResult;
+  if (msg->num_scenes() > 0) {
+    processor_logging->debug("Processing Device Retrieval message");
+    ResultsIteratorInterface *results = NULL;
+    Neo4jQueryParameterInterface *key_param = NULL;
+
+    if (msg->get_scene(0)->num_devices() < 1) {
+      processor_logging->error("No fields found in device retreival message");
+      response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message");
+    } else {
+      // Set up the Cypher Query for device retrieval
+      std::string scene_query = "MATCH (ud:UserDevice {key: {inp_key}}) RETURN ud";
+      processor_logging->debug("Executing Retreival Query");
+
+      // Set up the query parameters for scene delete
+      std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
+        scene_params;
+      std::string device_key = msg->get_scene(0)->get_device(0)->get_key();
+      key_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(device_key);
+      processor_logging->debug("Key:");
+      processor_logging->debug(device_key);
+      scene_params.emplace("inp_key", key_param);
+
+      // Execute the query
+      ResultTreeInterface *tree = NULL;
+      DbObjectInterface* obj = NULL;
+      try {
+        results = \
+          BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
+          scene_params);
+      }
+      catch (std::exception& e) {
+        processor_logging->error("Error running Query:");
+        processor_logging->error(e.what());
+        response->set_error(PROCESSING_ERROR, e.what());
+      }
+      if (!results) {
+        processor_logging->error("No results returned from device get query");
+        response->set_error(PROCESSING_ERROR, "Error processing Device Get");
+      } else {
+        // Build the response scene list
+        SceneListInterface *sc = NULL;
+        if (BaseMessageProcessor::get_config_manager()->get_formattype() == \
+          PROTO_FORMAT) \
+          {sc = BaseMessageProcessor::get_slfactory().build_protobuf_scene();}
+        else {sc = BaseMessageProcessor::get_slfactory().build_json_scene();}
+        sc->set_err_code(NO_ERROR);
+        sc->set_msg_type(DEVICE_GET);
+        sc->set_transaction_id(msg->get_transaction_id());
+        SceneInterface *empty_scene = BaseMessageProcessor::get_sfactory().build_scene();
+
+        // Process the response
+        tree = results->next();
+        if (tree) {
+          obj = tree->get(0);
+          if (obj) {
+            processor_logging->debug("Query Result:");
+            processor_logging->debug(obj->to_string());
+
+            // Log an error if we don't have a node in this result tree
+            if (!(obj->is_node())) {
+              processor_logging->error("Non-node returned from query");
+              response->set_error(NOT_FOUND, "Unable to find Device");
+            } else {
+              UserDeviceInterface *data = \
+                BaseMessageProcessor::get_udfactory().build_device(device_key);
+
+              // Pull the node properties and assign them to the new
+              // Scene object
+              BaseMessageProcessor::get_query_helper()->assign_device_properties(\
+                obj, data);
+
+              empty_scene->add_device(data);
+            }
+            sc->add_scene(empty_scene);
+
+            // Set our return string
+            processor_logging->debug("Response Scene List:");
+            sc->print();
+            std::string msg_string;
+            sc->to_msg_string(msg_string);
+            response->set_return_string(msg_string);
+
+            delete obj;
+          } else {
+            processor_logging->error("No results returned from Query");
+            response->set_error(NOT_FOUND, "Unable to find Device");
+          }
+          delete tree;
+        } else {
+          processor_logging->error("No results returned from Query");
+          response->set_error(NOT_FOUND, "Unable to find Device");
+        }
+        if (sc) delete sc;
+      }
+    }
+    if (results) delete results;
+    if (key_param) delete key_param;
+    return response;
+  }
+  response->set_error(PROCESSING_ERROR, "No Device Data recieved");
   return response;
 }

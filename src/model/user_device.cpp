@@ -35,6 +35,9 @@ UserDevice::UserDevice(protoScene::SceneList_UserDevice ud_data) {
 // Copy Constructor
 UserDevice::UserDevice(const UserDevice &ud) {
   key = ud.get_key();
+  port = ud.get_port();
+  connection_string = ud.get_connection_string();
+  hostname = ud.get_hostname();
   trns_flag = false;
   if (ud.has_transform()) {
     trns_flag = true;

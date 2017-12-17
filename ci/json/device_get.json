@@ -1,0 +1,15 @@
+{
+  "msg_type":$MSG_TYPE@,
+  "err_code":$ERR_CODE@,
+  "err_msg":"$ERR_MSG@",
+  "transaction_id":"$TRANSACTION_ID@",
+  "scenes":[
+    {
+      "devices":[
+        {
+          "key":"$UD_KEY@"
+        }
+      ]
+    }
+  ]
+}

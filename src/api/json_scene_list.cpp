@@ -175,6 +175,25 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                 UserDeviceInterface *new_device = \
                 SceneList::create_device(ud_key_iter->value.GetString());
 
+                // Process device connectivity information
+                rapidjson::Value::ConstMemberIterator ud_conn_iter = \
+                  device_itr.FindMember("connection_string");
+                if (ud_conn_iter != device_itr.MemberEnd()) {
+                  new_device->set_connection_string(ud_conn_iter->value.GetString());
+                }
+
+                rapidjson::Value::ConstMemberIterator ud_host_iter = \
+                  device_itr.FindMember("hostname");
+                if (ud_host_iter != device_itr.MemberEnd()) {
+                  new_device->set_hostname(ud_host_iter->value.GetString());
+                }
+
+                rapidjson::Value::ConstMemberIterator ud_port_iter = \
+                  device_itr.FindMember("port");
+                if (ud_port_iter != device_itr.MemberEnd()) {
+                  new_device->set_port(ud_port_iter->value.GetInt());
+                }
+
                 // Process the device transform
                 if (device_itr.HasMember("transform")) {
                   obj_logging->debug("UD Transform found");
@@ -363,6 +382,21 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           writer.Key("key");
           writer.String(get_scene(a)->get_device(b)->get_key().c_str(), \
           (rapidjson::SizeType)get_scene(a)->get_device(b)->get_key().length());
+        }
+        // Add the connectivity information
+        if (!(get_scene(a)->get_device(b)->get_connection_string().empty())) {
+          writer.Key("connection_string");
+          writer.String(get_scene(a)->get_device(b)->get_connection_string().c_str(), \
+          (rapidjson::SizeType)get_scene(a)->get_device(b)->get_connection_string().length());
+        }
+        if (!(get_scene(a)->get_device(b)->get_hostname().empty())) {
+          writer.Key("hostname");
+          writer.String(get_scene(a)->get_device(b)->get_hostname().c_str(), \
+          (rapidjson::SizeType)get_scene(a)->get_device(b)->get_hostname().length());
+        }
+        if (get_scene(a)->get_device(b)->get_port() < 999999) {
+          writer.Key("port");
+          writer.Uint(get_scene(a)->get_device(b)->get_port());
         }
         // Add the device transform
         if (get_scene(a)->get_device(b)->has_transform()) {
