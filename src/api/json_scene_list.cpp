@@ -199,28 +199,36 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                 // Process the device key
                 rapidjson::Value::ConstMemberIterator ud_key_iter = \
                 device_itr.FindMember("key");
-                if (ud_key_iter != device_itr.MemberEnd() && (!(ud_key_iter->value.IsNull()))) {
-                  obj_logging->debug("UD Key found");
-                  UserDeviceInterface *new_device = \
-                  SceneList::create_device(ud_key_iter->value.GetString());
+                if (ud_key_iter != device_itr.MemberEnd()) {
+                  if (!(ud_key_iter->value.IsNull())) {
+                    obj_logging->debug("UD Key found");
+                    UserDeviceInterface *new_device = \
+                      SceneList::create_device(ud_key_iter->value.GetString());
+                  }
 
                   // Process device connectivity information
                   rapidjson::Value::ConstMemberIterator ud_conn_iter = \
                     device_itr.FindMember("connection_string");
-                  if (ud_conn_iter != device_itr.MemberEnd() && (!(ud_conn_iter->value.IsNull()))) {
-                    new_device->set_connection_string(ud_conn_iter->value.GetString());
+                  if (ud_conn_iter != device_itr.MemberEnd()) {
+                    if (!(ud_conn_iter->value.IsNull())) {
+                      new_device->set_connection_string(ud_conn_iter->value.GetString());
+                    }
                   }
 
                   rapidjson::Value::ConstMemberIterator ud_host_iter = \
                     device_itr.FindMember("hostname");
-                  if (ud_host_iter != device_itr.MemberEnd() && (!(ud_host_iter->value.IsNull()))) {
-                    new_device->set_hostname(ud_host_iter->value.GetString());
+                  if (ud_host_iter != device_itr.MemberEnd()) {
+                    if (!(ud_host_iter->value.IsNull())) {
+                      new_device->set_hostname(ud_host_iter->value.GetString());
+                    }
                   }
 
                   rapidjson::Value::ConstMemberIterator ud_port_iter = \
                     device_itr.FindMember("port");
-                  if (ud_port_iter != device_itr.MemberEnd() && (!(ud_port_iter->value.IsNull()))) {
-                    new_device->set_port(ud_port_iter->value.GetInt());
+                  if (ud_port_iter != device_itr.MemberEnd()) {
+                    if (!(ud_port_iter->value.IsNull())) {
+                      new_device->set_port(ud_port_iter->value.GetInt());
+                    }
                   }
 
                   // Process the device transform
