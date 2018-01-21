@@ -148,18 +148,24 @@ void my_signal_handler(int s) {
       // The configuration manager will  look at any command line arguments,
       // configuration files, and Consul connections to try and determine the
       // correct configuration for the service
-
       bool config_success = false;
-      try {
-        config_success = cm->configure();
-      }
-      catch (std::exception& e) {
-        main_logging->error("Exception encountered during Configuration");
-        shutdown();
-        exit(1);
-      }
-      if (!config_success) {
-        main_logging->error("Configuration Failed, defaults kept");
+      bool config_tried = false;
+      // If we fail configuration, we should sleep for 5 seconds and try again
+      while (!config_success) {
+        if (config_tried) {
+          main_logging->error("Configuration Failed, trying again in 5 seconds");
+          usleep(5000000);
+        } else {
+          config_tried = true;
+        }
+        try {
+          config_success = cm->configure();
+        }
+        catch (std::exception& e) {
+          main_logging->error("Exception encountered during Configuration");
+          shutdown();
+          exit(1);
+        }
       }
 
       // Set up our Redis Connection List, which is passed to the Redis Admin

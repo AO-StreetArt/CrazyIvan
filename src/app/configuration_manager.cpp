@@ -160,7 +160,7 @@ std::vector<std::string> ConfigurationManager::split(std::string inp_string, \
 }
 
 std::string ConfigurationManager::get_consul_config_value(std::string key) {
-  std::string resp_str;
+  config_resp_str = "__NULLSTR__";
   // Get a JSON List of the responses
   std::string config_json = "";
   std::string query_key = "ivan/" + key;
@@ -194,18 +194,18 @@ std::string ConfigurationManager::get_consul_config_value(std::string key) {
   } else {
     config_logging->error("Configuration Value not found");
     config_logging->error(key);
-    return resp_str;
+    return config_resp_str;
   }
 
   // Get the object out of the array
   const rapidjson::Value& v = d[0];
   const rapidjson::Value& resp = v["Value"];
   if (resp.IsString()) {
-    resp_str = resp.GetString();
+    config_resp_str = resp.GetString();
     // Transform the object from base64
-    return ca->base64_decode(resp_str);
+    return ca->base64_decode(config_resp_str);
   }
-  return "";
+  return config_resp_str;
 }
 
 // Configure based on the Services List and Key/Value store from Consul
@@ -245,7 +245,7 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   catch (std::exception& e) {
     config_logging->error("Exception encountered during Service Registration");
     config_logging->error(e.what());
-    throw e;
+    return false;
   }
 
   if (!register_success) {
@@ -258,10 +258,12 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   DB_ConnStr = get_consul_config_value("DB_ConnectionString");
   config_logging->debug("Database Connection String:");
   config_logging->debug(DB_ConnStr);
+  if (DB_ConnStr == "__NULLSTR__") return false;
 
   std::string tran_ids_active = get_consul_config_value("StampTransactionId");
   config_logging->debug("Transaction IDs Enabled:");
   config_logging->debug(tran_ids_active);
+  if (tran_ids_active == "__NULLSTR__") return false;
   if (tran_ids_active == "True") {
     StampTransactionId = true;
   } else {
@@ -271,6 +273,7 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   std::string atomic = get_consul_config_value("AtomicTransactions");
   config_logging->debug("Atomic Transactions Enabled:");
   config_logging->debug(atomic);
+  if (atomic == "__NULLSTR__") return false;
   if (atomic == "True") {
     AtomicTransactions = true;
   } else {
@@ -280,6 +283,7 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   std::string format_type_str = get_consul_config_value("Data_Format_Type");
   config_logging->debug("Data Format:");
   config_logging->debug(format_type_str);
+  if (format_type_str == "__NULLSTR__") return false;
   if (format_type_str == "JSON" || format_type_str == "Json" \
     || format_type_str == "json" || format_type_str == "1") {
     format_type = JSON_FORMAT;
@@ -293,6 +297,7 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   // This value is stored the same way as in a properties file, but is stored in
   // one key and are delimited by the character ';'
   std::string redis_conn_str = get_consul_config_value("RedisConnectionString");
+  if (redis_conn_str == "__NULLSTR__") return false;
   char delim(';');
   std::vector<std::string> redis_chains = split(redis_conn_str,  delim);
   std::string var_value;

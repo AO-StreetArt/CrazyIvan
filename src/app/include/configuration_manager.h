@@ -79,6 +79,9 @@ class ConfigurationManager {
   // The Current Node ID
   std::string node_id;
 
+  // Response string for ensuring valid response values
+  std::string config_resp_str;
+
   // String Manipulations
 
   // Split a string, based on python's split method
@@ -109,6 +112,7 @@ class ConfigurationManager {
     consul_factory = new ConsulComponentFactory;
     props_factory = new PropertyReaderFactory;
     format_type = -1;
+    config_resp_str = "__NULLSTR__";
   }
   ~ConfigurationManager();
 
