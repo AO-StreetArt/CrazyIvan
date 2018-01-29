@@ -56,6 +56,11 @@ bool ConfigurationManager::configure_from_file(std::string file_path) {
     config_logging->info("Inbound 0MQ Hostname:");
     config_logging->info(hostname);
   }
+  if (props->opt_exist("KafkaBrokerAddress")) {
+    kafka_addr = props->get_opt("KafkaBrokerAddress");
+    config_logging->info("Kafka Address:");
+    config_logging->info(kafka_addr);
+  }
   if (props->opt_exist("0MQ_Port")) {
     port = props->get_opt("0MQ_Port");
     config_logging->info("Inbound 0MQ Port:");
@@ -259,6 +264,11 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   config_logging->debug("Database Connection String:");
   config_logging->debug(DB_ConnStr);
   if (DB_ConnStr == "__NULLSTR__") return false;
+
+  kafka_addr = get_consul_config_value("KafkaBrokerAddress");
+  config_logging->debug("Kafka Address:");
+  config_logging->debug(kafka_addr);
+  if (kafka_addr == "__NULLSTR__") return false;
 
   std::string tran_ids_active = get_consul_config_value("StampTransactionId");
   config_logging->debug("Transaction IDs Enabled:");

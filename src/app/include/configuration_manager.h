@@ -72,6 +72,7 @@ class ConfigurationManager {
   std::string hostname;
   std::string port;
   std::vector<RedisConnChain> RedisConnectionList;
+  std::string kafka_addr;
   int format_type;
   bool StampTransactionId;
   bool AtomicTransactions;
@@ -113,6 +114,7 @@ class ConfigurationManager {
     props_factory = new PropertyReaderFactory;
     format_type = -1;
     config_resp_str = "__NULLSTR__";
+    kafka_addr = "localhost:9092";
   }
   ~ConfigurationManager();
 
@@ -123,6 +125,7 @@ class ConfigurationManager {
   std::string get_dbconnstr() {return DB_ConnStr;}
   std::string get_ibconnstr() {return OMQ_IBConnStr;}
   std::vector<RedisConnChain> get_redisconnlist() {return RedisConnectionList;}
+  std::string get_kafkabroker() {return kafka_addr;}
   bool get_transactionidsactive() {return StampTransactionId;}
   bool get_atomictransactions() {return AtomicTransactions;}
   int get_formattype() {return format_type;}
