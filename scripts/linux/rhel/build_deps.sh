@@ -20,7 +20,27 @@ sudo yum install openssl-devel
 #Update the Ubuntu Server
 sudo yum -y update
 
-#Build the dependencies and place them in the correct places
+#Build & Install the Shared Service Library
+
+if [ ! -d /usr/local/include/aossl ]; then
+
+  #Create the folder to clone into
+  mkdir $PRE/aossl
+
+  #Pull the code down
+  git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git $PRE/aossl
+
+  #Build the dependencies for the shared service library
+  mkdir $PRE/aossl_deps
+  cp $PRE/aossl/scripts/rhel/build_deps.sh $PRE/aossl_deps/
+  cd $PRE/aossl_deps && sudo ./build_deps.sh
+  cd ../$RETURN
+
+  #Build the shared service library
+  cd $PRE/aossl && make && sudo make install
+  sudo ldconfig
+
+fi
 
 #Determine if we Need RapidJSON
 if [ ! -d /usr/local/include/rapidjson ]; then
@@ -44,25 +64,25 @@ if [ ! -d /usr/local/include/dvs_interface ]; then
   cd $PRE/interfaces && sudo make install
 fi
 
-#Build & Install the Shared Service Library
+# Install librdkafka
+if [ ! -d /usr/local/include/librdkafka ]; then
+  wget https://github.com/edenhill/librdkafka/archive/v0.11.3.tar.gz
+  tar -xvzf v0.11.3.tar.gz
+  cd librdkafka-0.11.3 && ./configure && make && make install
+  cd ..
+fi
 
-if [ ! -d /usr/local/include/aossl ]; then
+# Here we look to install cppkafka
+if [ ! -d /usr/local/include/cppkafka ]; then
+  printf "Cloning CppKafka\n"
 
-  #Create the folder to clone into
-  mkdir $PRE/aossl
+  mkdir $PRE/cppkafka
 
-  #Pull the code down
-  git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git $PRE/aossl
+  #Get the CppKafka Dependency
+  git clone https://github.com/mfontanini/cppkafka.git $PRE/cppkafka
 
-  #Build the dependencies for the shared service library
-  mkdir $PRE/aossl_deps
-  cp $PRE/aossl/scripts/rhel/build_deps.sh $PRE/aossl_deps/
-  cd $PRE/aossl_deps && sudo ./build_deps.sh
-  cd ../$RETURN
-
-  #Build the shared service library
-  cd $PRE/aossl && make && sudo make install
-  sudo ldconfig
+  # Build and install
+  mkdir $PRE/cppkafka/build && cd $PRE/cppkafka/build && cmake .. && make && make install
 
 fi
 
