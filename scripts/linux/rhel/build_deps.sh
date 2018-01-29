@@ -87,7 +87,7 @@ if [ ! -d /usr/local/include/cppkafka ]; then
 fi
 
 #Install python, pyzmq, protobuf, and the protobuf compiler
-sudo yum install -y python-pip python-devel protobuf-devel protobuf-compiler
+sudo yum install -y python-pip python-devel protobuf-devel protobuf-compiler boost-devel
 sudo pip install pyzmq
 
 printf "Finished installing dependencies"

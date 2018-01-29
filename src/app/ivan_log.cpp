@@ -41,35 +41,41 @@ void shutdown_logging_submodules() {
   } else {
     logging->debug("UUID Logging Module delete called");
     delete uuid_logging;
+    uuid_logging = NULL;
   }
   if (!config_logging) {
     logging->debug("Configuration Logging Module delete called without object");
   } else {
     logging->debug("Configuration Logging Module delete called");
     delete config_logging;
+    config_logging = NULL;
   }
   if (!obj_logging) {
     logging->debug("Object3 Logging Module delete called without object");
   } else {
     logging->debug("Object3 Logging Module delete called");
     delete obj_logging;
+    obj_logging = NULL;
   }
   if (!redis_logging) {
     logging->debug("Redis Logging Module delete called without object");
   } else {
     logging->debug("Redis Logging Module delete called");
     delete redis_logging;
+    redis_logging = NULL;
   }
   if (!main_logging) {
     logging->debug("Main Logging Module delete called without object");
   } else {
     logging->debug("Main Logging Module delete called");
     delete main_logging;
+    main_logging = NULL;
   }
   if (!processor_logging) {
     logging->debug("Processor Logging Module delete called without object");
   } else {
     logging->debug("Processor Logging Module delete called");
     delete processor_logging;
+    processor_logging = NULL;
   }
 }

@@ -13,7 +13,7 @@ PROC_OBJS = src/proc/processor/base_message_processor.o src/proc/processor/crud_
 OBJS = $(MODEL_OBJS) $(API_OBJS) $(APP_OBJS) $(QUERY_OBJS) $(PROC_OBJS) main.o
 TESTS = log_test utils_test configuration_test transform_test device_test scene_test scene_list_test
 LIBS = -lpthread -llog4cpp
-FULL_LIBS = -laossl -lcurl -lpthread -lzmq -lneo4j-client -lssl -lcrypto -lm -llog4cpp -luuid -lhiredis -lrdkafka -lcppkafka `pkg-config --cflags --libs protobuf`
+FULL_LIBS = -laossl -lcurl -lpthread -lzmq -lneo4j-client -lssl -lcrypto -lm -llog4cpp -luuid -lhiredis -lrdkafka -lcppkafka -lboost_system `pkg-config --cflags --libs protobuf`
 PROTOC = protoc
 PROTO_OPTS = -I=/usr/local/include/dvs_interface
 INCL_DIRS = -I. -I$(CURDIR)/src/app/ -I$(CURDIR)/src/api/ -I$(CURDIR)/src/api/include -I$(CURDIR)/src/model/ -I$(CURDIR)/src/proc/processor/ -I$(CURDIR)/src/proc/query

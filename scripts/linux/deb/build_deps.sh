@@ -14,7 +14,7 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git
+apt-get install -y git libboost-all-dev
 
 #Build & Install the Shared Service Library
 
@@ -87,8 +87,8 @@ if [ ! -d /usr/local/include/cppkafka ]; then
 
 fi
 
-#Install python, pyzmq, protobuf, and the protobuf compiler
-apt-get install -y python-pip python-dev libprotobuf-dev protobuf-compiler
+#Install python, pyzmq, protobuf, boost, and the protobuf compiler
+apt-get install -y python-pip python-dev libprotobuf-dev protobuf-compiler libboost-all-dev
 pip install pyzmq
 
 printf "Finished installing dependencies"
