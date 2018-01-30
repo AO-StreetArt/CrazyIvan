@@ -106,8 +106,8 @@ void send_device_messages(std::string inp_string, std::string inbound_msg, boost
   std::string qkey = inp_string;
   key_param = \
     neo4j_factory->get_neo4j_query_parameter(qkey);
-  processor_logging->debug("Key:");
-  processor_logging->debug(qkey);
+  main_logging->debug("Key:");
+  main_logging->debug(qkey);
   q_params.emplace("inp_key", key_param);
 
   // Execute the query
@@ -117,23 +117,22 @@ void send_device_messages(std::string inp_string, std::string inbound_msg, boost
       neo->execute(q_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(q_string);
-    processor_logging->error(e.what());
+    main_logging->error("Error running Query:");
+    main_logging->error(q_string);
+    main_logging->error(e.what());
   }
 
   if (!results) {
-    processor_logging->debug("User Device not found registered to scene");
+    main_logging->debug("User Device not found registered to scene");
     // If we are registering the first device, then we may have a created scene
   } else {
     // Check if the registering user device is already registered
-    processor_logging->debug("User Devices detected");
     tree = results->next();
     while (tree) {
       // Get the first DB Object (Node)
       obj = tree->get(0);
-      processor_logging->debug("Query Result:");
-      processor_logging->debug(obj->to_string());
+      main_logging->debug("Query Result:");
+      main_logging->debug(obj->to_string());
 
       if (!(obj->is_node())) break;
 
