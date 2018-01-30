@@ -105,6 +105,11 @@ Redis Connection
 -  RedisConnectionString - We have a list of Redis Connections in our
    cluster in the format "ip--port--password--poolsize--timeout--role"
 
+Kafka Connection
+~~~~~~~~~~~~~~~~
+
+-  KafkaBrokerAddress - The address of the Kafka connection to monitor
+
 Behavior
 ~~~~~~~~
 
