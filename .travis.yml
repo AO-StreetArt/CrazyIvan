@@ -114,8 +114,8 @@ script:
 - docker logs --tail 75 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_register.xml
-- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < ../../cpp/dvs/CrazyIvan/ci/json/change_stream_1.json
-- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < ../../cpp/dvs/CrazyIvan/ci/json/change_stream_2.json
+- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_1.json
+- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_2.json
 - docker logs --tail 100 crazyivan
 - docker logs --tail 30 udp-listener
 after_success:
