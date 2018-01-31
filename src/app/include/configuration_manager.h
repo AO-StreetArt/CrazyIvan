@@ -76,6 +76,7 @@ class ConfigurationManager {
   int format_type;
   bool StampTransactionId;
   bool AtomicTransactions;
+  bool resolve_hosts;
 
   // The Current Node ID
   std::string node_id;
@@ -115,6 +116,7 @@ class ConfigurationManager {
     format_type = -1;
     config_resp_str = "__NULLSTR__";
     kafka_addr = "localhost:9092";
+    resolve_hosts = false;
   }
   ~ConfigurationManager();
 
@@ -128,6 +130,7 @@ class ConfigurationManager {
   std::string get_kafkabroker() {return kafka_addr;}
   bool get_transactionidsactive() {return StampTransactionId;}
   bool get_atomictransactions() {return AtomicTransactions;}
+  bool get_resolvehosts() {return resolve_hosts;}
   int get_formattype() {return format_type;}
 
   // Get the Current Node ID

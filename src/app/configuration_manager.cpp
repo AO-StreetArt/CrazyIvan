@@ -96,6 +96,15 @@ bool ConfigurationManager::configure_from_file(std::string file_path) {
       config_logging->info("Sending Outbound Failure Messages Disabled");
     }
   }
+  if (props->opt_exist("ResolveHostnames")) {
+    if (props->get_opt("ResolveHostnames") == "True") {
+      resolve_hosts = true;
+      config_logging->info("Hostname Resolution Enabled");
+    } else {
+      resolve_hosts = false;
+      config_logging->info("Hostname Resolution Disabled");
+    }
+  }
 
   if (props->list_exist("RedisConnectionString")) {
     std::vector<std::string> conn_list = \
@@ -269,6 +278,15 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
   config_logging->debug("Kafka Address:");
   config_logging->debug(kafka_addr);
   if (kafka_addr == "__NULLSTR__") return false;
+
+  std::string resolve_hosts_str = get_consul_config_value("ResolveHostnames");
+  config_logging->debug("Hostname Resolution Enabled:");
+  config_logging->debug(resolve_hosts_str);
+  if (resolve_hosts_str == "True" || resolve_hosts_str == "true") {
+    resolve_hosts = true;
+  } else {
+    resolve_hosts = false;
+  }
 
   std::string tran_ids_active = get_consul_config_value("StampTransactionId");
   config_logging->debug("Transaction IDs Enabled:");

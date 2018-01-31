@@ -90,7 +90,7 @@ void my_signal_handler(int s) {
 }
 
 // Send messages to User Devices registered to scene specified by input
-void send_device_messages(std::string inp_string, std::string inbound_msg, boost::asio::ip::udp::socket &sock) {
+void send_device_messages(std::string inp_string, std::string inbound_msg, boost::asio::ip::udp::socket &sock, boost::asio::io_service &io_service, bool resolve_hostnames) {
   ResultsIteratorInterface *results = NULL;
   ResultTreeInterface *tree = NULL;
   DbObjectInterface *obj = NULL;
@@ -151,7 +151,13 @@ void send_device_messages(std::string inp_string, std::string inbound_msg, boost
       // Send a UDP Message to the specified device
       try {
         boost::asio::ip::udp::endpoint remote_endpoint;
-        remote_endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(dev_host), dev_port);
+        if (resolve_hostnames) {
+          boost::asio::ip::udp::resolver resolver(io_service);
+          boost::asio::ip::udp::resolver::query query(boost::asio::ip::udp::v6(), dev_host, std::to_string(dev_port));
+          remote_endpoint = *resolver.resolve(query);
+        } else {
+          remote_endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(dev_host), dev_port);
+        }
         boost::system::error_code err;
         sock.send_to(boost::asio::buffer(inbound_msg, inbound_msg.size()), remote_endpoint, 0, err);
       } catch (std::exception& e) {
@@ -173,10 +179,12 @@ void send_device_messages(std::string inp_string, std::string inbound_msg, boost
 }
 
 // Start up monitoring on a Kafka Queue for Object Change Streams
-void monitor_kafka_queue(std::string kafka_address) {
+void monitor_kafka_queue(std::string kafka_address, bool resolve_hostnames) {
   main_logging->debug("Starting Kafka Monitoring Thread");
   boost::asio::io_service io_service;
   boost::asio::ip::udp::socket socket(io_service);
+  boost::asio::ip::v6_only option(false);
+  socket.set_option(option);
   socket.open(boost::asio::ip::udp::v4());
   // Create Consumer config
   cppkafka::Configuration config = {
@@ -258,7 +266,7 @@ void monitor_kafka_queue(std::string kafka_address) {
         // Query Neo4j for User Devices registered to the scene of the
         // update, then send UDP message to all (each on their own threads)
         if (!(scene_id.empty())) {
-          send_device_messages(scene_id, inbound_msg, socket);
+          send_device_messages(scene_id, inbound_msg, socket, io_service, resolve_hostnames);
         }
       }
     }
@@ -409,7 +417,7 @@ int main(int argc, char** argv) {
     processor_factory->build_processor(neo4j_factory, neo, xRedis, cm, ua);
 
   // Start and detach a thread to monitor the Kafka Queue
-  std::thread km_thread(monitor_kafka_queue, cm->get_kafkabroker());
+  std::thread km_thread(monitor_kafka_queue, cm->get_kafkabroker(), cm->get_resolvehosts());
   km_thread.detach();
 
   // Main Request Loop
