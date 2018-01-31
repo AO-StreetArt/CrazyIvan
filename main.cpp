@@ -183,9 +183,7 @@ void monitor_kafka_queue(std::string kafka_address, bool resolve_hostnames) {
   main_logging->debug("Starting Kafka Monitoring Thread");
   boost::asio::io_service io_service;
   boost::asio::ip::udp::socket socket(io_service);
-  boost::asio::ip::v6_only option(false);
-  socket.set_option(option);
-  socket.open(boost::asio::ip::udp::v4());
+  socket.open(boost::asio::ip::udp::v6());
   // Create Consumer config
   cppkafka::Configuration config = {
         { "metadata.broker.list", kafka_address },
