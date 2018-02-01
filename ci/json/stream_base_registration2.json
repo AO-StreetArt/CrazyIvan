@@ -1,0 +1,27 @@
+{
+  "msg_type":4,
+  "err_code":100,
+  "err_msg":"Test",
+  "transaction_id":"123456",
+  "scenes":[
+    {
+      "key":"bcdefgh",
+      "name":"TestName2",
+      "latitude":124,
+      "longitude":122,
+      "distance":100,
+      "devices":[
+        {
+          "key":"Ud_123",
+          "connection_string":"$IP_ADDRESS@:5005",
+          "hostname":"$IP_ADDRESS@",
+          "port":5005,
+          "transform":{
+            "translation":[3,1,2],
+            "rotation":[1,2,3]
+          }
+        }
+      ]
+    }
+  ]
+}
