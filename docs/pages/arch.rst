@@ -38,4 +38,11 @@ these scenes, they will apply corrections.  As they apply corrections, we will
 build a set of known mappings between scenes which should allow users to move without
 needing any corrections by returning the pre-calculated differences.
 
+Object Change Streams
+=====================
+Object Change Streams ensure that all registered User Devices remain up to date about
+objects within their scenes.  Crazy Ivan monitors a Kafka Topic, which is populated by
+CLyman upon receipt of Object Updates.  Crazy Ivan picks up these messages and sends
+them out to the registered devices via UDP.
+
 :ref:`Go Home <index>`

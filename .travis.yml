@@ -10,6 +10,7 @@ addons:
     - libssl-dev
     - protobuf-compiler
     - libprotobuf-dev
+    - net-tools
 services:
 - docker
 before_install:
@@ -30,17 +31,23 @@ install:
   --network=dvs --name=database neo4j
 - docker pull redis
 - docker run --network=dvs --name=cache -d redis
+- docker run -i -t -d -p 2181:2181 -p 9092:9092 --env ADVERTISED_PORT=9092 --env ADVERTISED_HOST=queue --name=queue --network=dvs spotify/kafka
+- docker run -d -p 0.0.0.0:5005:5005 -p 0.0.0.0:5005:5005/udp --name udp-listener mendhak/udp-listener
 - docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString
 - docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
+- docker exec -t registry curl -X PUT -d 'queue:9092' http://localhost:8500/v1/kv/ivan/KafkaBrokerAddress
 - docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
 - docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions
 - docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type
+- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/ResolveHostnames
 - cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH
   $TRAVIS_BUILD_DIR
 - cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500
   localhost 5555
 before_script:
 - sleep 5
+- /sbin/ifconfig
+- ip addr show eth0 | grep -Po 'inet \K[\d.]+' >> $TRAVIS_BUILD_DIR/ci/csv/ip_addr.csv
 - docker ps -a
 - docker logs crazyivan
 - docker logs cache
@@ -109,6 +116,15 @@ script:
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt_nokey.xml
 - tail $TRAVIS_BUILD_DIR/scene_crt_nokey.log
 - docker logs --tail 75 crazyivan
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/stream_base_registration.xml
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/stream_base_registration2.xml
+- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_1.json
+- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_2.json
+- sleep 2
+- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/ping.xml
+- docker logs --tail 100 crazyivan
+- docker logs --tail 30 udp-listener
 after_success:
 - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN
   $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR

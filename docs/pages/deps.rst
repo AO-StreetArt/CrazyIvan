@@ -10,6 +10,13 @@ on all of the libraries and components that CrazyIvan uses to be successful.
 
 Licenses for all dependencies can be found in the licenses folder within the repository.
 
+CppKafka
+--------
+`CppKafka <https://github.com/mfontanini/cppkafka>`__ is a wrapper on top of librdkafka,
+which provides quick and easy access to pushing Kafka messages.
+
+`CppKafka <https://github.com/mfontanini/cppkafka>`__ is released under a BSD License.
+
 ZeroMQ
 ------
 `Zero MQ <http://zeromq.org/>`__ is a lightweight messaging library that CrazyIvan uses to communicate.  It is

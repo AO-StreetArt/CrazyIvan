@@ -25,12 +25,16 @@ Luckily, these can all be setup with Docker as well:
 
 ``docker run --network=dvs --name=cache -d redis``
 
-This will start up a single instance each of Neo4j, Redis, and Consul.  Consul stores our configuration values, so we'll need to set those up.
+``docker run -i -t -d -p 2181:2181 -p 9092:9092 --env ADVERTISED_PORT=9092 --env ADVERTISED_HOST=queue --name=queue --network=dvs spotify/kafka``
+
+This will start up a single instance each of Neo4j, Redis, Kafka, and Consul.  Consul stores our configuration values, so we'll need to set those up.
 You can either view the `Consul Documentation <https://www.consul.io/intro/getting-started/ui.html>`__ for information on starting the container with a Web UI, or you can use the commands below for a quick-and-dirty setup:
 
 ``docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString``
 
 ``docker exec -t registry curl -X PUT -d 'neo4j://graph-db:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString``
+
+``docker exec -t registry curl -X PUT -d 'queue:9092' http://localhost:8500/v1/kv/ivan/KafkaBrokerAddress``
 
 ``docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId``
 
