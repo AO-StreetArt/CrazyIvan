@@ -46,6 +46,7 @@ install:
   localhost 5555
 before_script:
 - sleep 5
+- ip addr show enp2s0 | grep -Po 'inet \K[\d.]+' >> ci/csv/ip_addr.csv
 - docker ps -a
 - docker logs crazyivan
 - docker logs cache
@@ -115,7 +116,6 @@ script:
 - tail $TRAVIS_BUILD_DIR/scene_crt_nokey.log
 - docker logs --tail 75 crazyivan
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
-- ip addr show enp2s0 | grep -Po 'inet \K[\d.]+' >> ci/csv/ip_addr.csv
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/stream_base_registration.xml
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/stream_base_registration2.xml
 - docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_1.json
