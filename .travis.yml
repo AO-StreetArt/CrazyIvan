@@ -46,6 +46,7 @@ install:
   localhost 5555
 before_script:
 - sleep 5
+- /sbin/ifconfig
 - ip addr show enp2s0 | grep -Po 'inet \K[\d.]+' >> $TRAVIS_BUILD_DIR/ci/csv/ip_addr.csv
 - docker ps -a
 - docker logs crazyivan
