@@ -15,7 +15,7 @@ mkdir $PRE
 
 printf "Calling apt-get update"
 
-sudo yum install openssl-devel
+sudo yum -y install openssl-devel
 
 #Update the Ubuntu Server
 sudo yum -y update
