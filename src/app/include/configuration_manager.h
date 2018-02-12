@@ -96,7 +96,7 @@ class ConfigurationManager {
   // Consul Config
   std::string get_consul_config_value(std::string key);
   bool configure_from_consul(std::string consul_path, std::string ip, \
-    std::string port);
+    std::string port, std::string advertised_host);
 
  public:
   // Constructor
