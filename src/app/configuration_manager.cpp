@@ -215,7 +215,7 @@ std::string ConfigurationManager::get_consul_config_value(std::string key) {
 
 // Configure based on the Services List and Key/Value store from Consul
 bool ConfigurationManager::configure_from_consul(std::string consul_path, \
-  std::string ip, std::string port) {
+  std::string ip, std::string port, std::string advertised_host) {
   ca = consul_factory->get_consul_interface(consul_path);
   config_logging->info("Connecting to Consul");
   config_logging->info(consul_path);
@@ -238,8 +238,11 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
 
   // Build a new service definition for this currently running instance of ivan
   std::string name = "Ivan";
+  std::string advertised_addr;
+  if (!(advertised_host.empty())) {advertised_addr.assign(advertised_host);}
+  else {advertised_addr.assign(internal_address);}
   s = consul_factory->get_service_interface(node_id, name, \
-    internal_address, port);
+    advertised_addr, port);
   s->add_tag("ZMQ");
 
   // Register the service
@@ -394,6 +397,7 @@ bool ConfigurationManager::configure() {
     std::string env_ip_str = "";
     std::string env_port_str = "";
     std::string env_consul_addr_str = "";
+    std::string advertised_host = "";
 
     // Pull any command line and env variables for ip, port, and consul address
     if (env_consul_addr) env_consul_addr_str.assign(env_consul_addr);
@@ -403,6 +407,9 @@ bool ConfigurationManager::configure() {
     if (cli->opt_exist("-port")) env_port_str.assign(cli->get_opt("-port"));
     if (cli->opt_exist("-consul-addr")) {
       env_consul_addr_str.assign(cli->get_opt("-consul-addr"));
+    }
+    if (cli->opt_exist("-advertised-host")) {
+      advertised_host.assign(cli->get_opt("-advertised-host"));
     }
 
     // If we had a hostname and port specified in the configuration file,
@@ -414,7 +421,7 @@ bool ConfigurationManager::configure() {
     if (!(env_consul_addr_str.empty() || env_ip_str.empty() \
       || env_port_str.empty()))  {
       ret_val = \
-        configure_from_consul(env_consul_addr_str, env_ip_str, env_port_str);
+        configure_from_consul(env_consul_addr_str, env_ip_str, env_port_str, advertised_host);
       if (ret_val) {
         isConsulActive = true;
         configured = true;
