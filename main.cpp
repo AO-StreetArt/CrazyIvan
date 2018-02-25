@@ -175,98 +175,107 @@ void send_device_messages(std::string inp_string, std::string inbound_msg, boost
 // Start up monitoring on a Kafka Queue for Object Change Streams
 void monitor_kafka_queue(std::string kafka_address) {
   main_logging->debug("Starting Kafka Monitoring Thread");
+  bool connected_to_kafka = false;
+  int connection_attempts = 0;
   boost::asio::io_service io_service;
   boost::asio::ip::udp::socket socket(io_service);
   socket.open(boost::asio::ip::udp::v4());
-  // Create Consumer config
-  cppkafka::Configuration config = {
-        { "metadata.broker.list", kafka_address },
-        { "group.id", "_dvs_consumers" },
-        { "enable.auto.commit", false }
-  };
-  try {
-    // Create the consumer
-    cppkafka::Consumer consumer(config);
+  while ((!connected_to_kafka) && connection_attempts < 50) {
+    try {
+      // Create the consumer
+      cppkafka::Configuration config = {
+            { "metadata.broker.list", kafka_address },
+            { "group.id", "_dvs_consumers" },
+            { "enable.auto.commit", false }
+      };
+      cppkafka::Consumer consumer(config);
+      connected_to_kafka = true;
 
-    // Print the assigned partitions on assignment
-    consumer.set_assignment_callback([](const cppkafka::TopicPartitionList& partitions) {
-        if (main_logging) {
-          main_logging->debug("Assigned to Kafka Partition");
-        }
-    });
-
-    // Print the revoked partitions on revocation
-    consumer.set_revocation_callback([](const cppkafka::TopicPartitionList& partitions) {
-        if (main_logging) {
-          main_logging->debug("Revoked from Kafka Partition");
-        }
-    });
-
-    // Subscribe to the topic
-    consumer.subscribe({ "_dvs" });
-
-    main_logging->info("Subscribed to Kafka Topic _dvs");
-
-    while (running) {
-      cppkafka::Message msg = consumer.poll();
-      if (msg) {
-        // If we managed to get a message
-        if (msg.get_error()) {
-          // Ignore EOF notifications from rdkafka
-          if (!msg.is_eof()) {
-            main_logging->debug("Recieved Kafka EOF Error");
-            main_logging->debug(msg.get_error().to_string());
-          } else {
-            main_logging->debug("Recieved Kafka Error");
-            main_logging->debug(msg.get_error().to_string());
+      // Print the assigned partitions on assignment
+      consumer.set_assignment_callback([](const cppkafka::TopicPartitionList& partitions) {
+          if (main_logging) {
+            main_logging->debug("Assigned to Kafka Partition");
           }
-        } else {
-          main_logging->info("Recieved Kafka Message");
-          main_logging->debug(msg.get_key());
-          main_logging->debug(msg.get_payload());
-          std::string inbound_msg = msg.get_payload();
-          // Now commit the message
-          consumer.commit(msg);
-          main_logging->debug(inbound_msg);
-          // Parse message
-          std::string scene_id;
-          try {
-            rapidjson::Document d;
-            d.Parse<rapidjson::kParseStopWhenDoneFlag>(inbound_msg.c_str());
-            if (d.HasParseError()) {
-              main_logging->error("Parsing Error: ");
-              main_logging->error(GetParseError_En(d.GetParseError()));
+      });
+
+      // Print the revoked partitions on revocation
+      consumer.set_revocation_callback([](const cppkafka::TopicPartitionList& partitions) {
+          if (main_logging) {
+            main_logging->debug("Revoked from Kafka Partition");
+          }
+      });
+
+      // Subscribe to the topic
+      consumer.subscribe({ "_dvs" });
+
+      main_logging->info("Subscribed to Kafka Topic _dvs");
+
+      while (running) {
+        cppkafka::Message msg = consumer.poll();
+        if (msg) {
+          // If we managed to get a message
+          if (msg.get_error()) {
+            // Ignore EOF notifications from rdkafka
+            if (!msg.is_eof()) {
+              main_logging->debug("Recieved Kafka EOF Error");
+              main_logging->debug(msg.get_error().to_string());
             } else {
-              // Pull the scene from the document
-              if (d.IsObject()) {
-                // Message Type
-                rapidjson::Value::ConstMemberIterator scene_iter = \
-                  d.FindMember("scene");
-                if (scene_iter != d.MemberEnd()) {
-                  obj_logging->debug("Scene found");
-                  if (!(scene_iter->value.IsNull())) {
-                    scene_id = scene_iter->value.GetString();
+              main_logging->debug("Recieved Kafka Error");
+              main_logging->debug(msg.get_error().to_string());
+            }
+          } else {
+            main_logging->info("Recieved Kafka Message");
+            main_logging->debug(msg.get_key());
+            main_logging->debug(msg.get_payload());
+            std::string inbound_msg = msg.get_payload();
+            // Now commit the message
+            consumer.commit(msg);
+            main_logging->debug(inbound_msg);
+            // Parse message
+            std::string scene_id;
+            try {
+              rapidjson::Document d;
+              d.Parse<rapidjson::kParseStopWhenDoneFlag>(inbound_msg.c_str());
+              if (d.HasParseError()) {
+                main_logging->error("Parsing Error: ");
+                main_logging->error(GetParseError_En(d.GetParseError()));
+              } else {
+                // Pull the scene from the document
+                if (d.IsObject()) {
+                  // Message Type
+                  rapidjson::Value::ConstMemberIterator scene_iter = \
+                    d.FindMember("scene");
+                  if (scene_iter != d.MemberEnd()) {
+                    obj_logging->debug("Scene found");
+                    if (!(scene_iter->value.IsNull())) {
+                      scene_id = scene_iter->value.GetString();
+                    }
                   }
                 }
               }
             }
-          }
-          // Catch a possible error and write to logs
-          catch (std::exception& e) {
-            main_logging->error("Exception while parsing inbound document:");
-            main_logging->error(e.what());
-          }
-          // Query Neo4j for User Devices registered to the scene of the
-          // update, then send UDP message to all (each on their own threads)
-          if (!(scene_id.empty())) {
-            send_device_messages(scene_id, inbound_msg, socket, io_service);
+            // Catch a possible error and write to logs
+            catch (std::exception& e) {
+              main_logging->error("Exception while parsing inbound document:");
+              main_logging->error(e.what());
+            }
+            // Query Neo4j for User Devices registered to the scene of the
+            // update, then send UDP message to all (each on their own threads)
+            if (!(scene_id.empty())) {
+              send_device_messages(scene_id, inbound_msg, socket, io_service);
+            }
           }
         }
       }
+    } catch (std::exception& e) {
+      main_logging->error("Exception during Kafka Monitoring");
+      main_logging->error(e.what());
+      connection_attempts++;
+      usleep(5000000);
     }
-  } catch (std::exception& e) {
-    main_logging->error("Exception during Kafka Monitoring");
-    main_logging->error(e.what());
+  }
+  if (connection_attempts >= 50) {
+    main_logging->error("Failed the max attempts to connect to Kafka");
   }
   socket.close();
   finished_running = true;
@@ -345,8 +354,14 @@ int main(int argc, char** argv) {
   // correct configuration for the service
   bool config_success = false;
   bool config_tried = false;
+  int config_attempts = 0;
   // If we fail configuration, we should sleep for 5 seconds and try again
   while (!config_success) {
+    if (config_attempts > 50) {
+      main_logging->error("Max Config Attempts failed, exiting");
+      shutdown();
+      exit(1);
+    }
     if (config_tried) {
       main_logging->error("Configuration Failed, trying again in 5 seconds");
       usleep(5000000);
@@ -358,8 +373,7 @@ int main(int argc, char** argv) {
     }
     catch (std::exception& e) {
       main_logging->error("Exception encountered during Configuration");
-      shutdown();
-      exit(1);
+      config_attempts++;
     }
   }
 
