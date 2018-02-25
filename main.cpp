@@ -271,6 +271,7 @@ void monitor_kafka_queue(std::string kafka_address) {
       main_logging->error("Exception during Kafka Monitoring");
       main_logging->error(e.what());
       connection_attempts++;
+      usleep(5000000);
     }
   }
   if (connection_attempts >= 50) {
@@ -353,8 +354,14 @@ int main(int argc, char** argv) {
   // correct configuration for the service
   bool config_success = false;
   bool config_tried = false;
+  int config_attempts = 0;
   // If we fail configuration, we should sleep for 5 seconds and try again
   while (!config_success) {
+    if (config_attempts > 50) {
+      main_logging->error("Max Config Attempts failed, exiting");
+      shutdown();
+      exit(1);
+    }
     if (config_tried) {
       main_logging->error("Configuration Failed, trying again in 5 seconds");
       usleep(5000000);
@@ -366,8 +373,7 @@ int main(int argc, char** argv) {
     }
     catch (std::exception& e) {
       main_logging->error("Exception encountered during Configuration");
-      shutdown();
-      exit(1);
+      config_attempts++;
     }
   }
 
