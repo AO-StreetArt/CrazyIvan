@@ -57,6 +57,7 @@ script:
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/ping.xml
 - tail $TRAVIS_BUILD_DIR/ping.log
 - docker logs --tail 50 crazyivan
+- cd $TRAVIS_BUILD_DIR && python ci/py/basicIvanFlow.py
 - cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
 - tail $TRAVIS_BUILD_DIR/scene_crt.log
 - docker logs --tail 75 crazyivan
