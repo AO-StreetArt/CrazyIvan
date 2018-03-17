@@ -131,7 +131,7 @@ def update_test(socket, test_data):
 def delete_test(socket, test_data):
     logging.info("Delete Test")
     delete_response = base_test(socket, {"key":test_data["key"]}, 3)
-    validate_success(delete_response, test_data)
+    validate_success(delete_response)
 
 # CRUD Flow
 def execute_crud_flow(socket, test_data, updated_test_data):
