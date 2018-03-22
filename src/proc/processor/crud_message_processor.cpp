@@ -258,7 +258,7 @@ ProcessResult* \
         if (is_started) {
           scene_query = scene_query + ", ";
         }
-        scene_query = scene_query + "scn.assets = scn.assets + {inp_assets}";
+        scene_query = scene_query + "scn.assets = coalesce(scn.assets, []) + {inp_assets}";
         is_started = true;
       }
       // Tags
@@ -266,7 +266,7 @@ ProcessResult* \
         if (is_started) {
           scene_query = scene_query + ", ";
         }
-        scene_query = scene_query + "scn.tags = scn.tags + {inp_tags}";
+        scene_query = scene_query + "scn.tags = coalesce(scn.tags, []) + {inp_tags}";
         is_started = true;
       }
 
