@@ -35,6 +35,12 @@ updated_test_data = {
     "tags":["upatedTag"]
 }
 
+removal_test_data = {
+    "name":"updatedName",
+    "asset_ids":["basicAsset"],
+    "tags":["basicTag"]
+}
+
 # Validation Methods
 def parse_response(response):
     logging.debug("Parsing Response: %s" % response)
@@ -91,9 +97,8 @@ def validate_get_response(get_response, validation_data):
         for i in range(0, len(parsed_data['tags'])):
             assert(parsed_data["tags"][i] == validation_data["tags"][i])
 
-def validate_update_response(update_response, test_data):
+def validate_update_response(update_response):
     logging.info("Validating Update Response")
-    logging.debug("Validating against: %s" % test_data)
     parsed_json = parse_response(update_response)
 
     if parsed_json is not None:
@@ -101,11 +106,13 @@ def validate_update_response(update_response, test_data):
         assert(parsed_json["num_records"] == 1)
 
 # Tests
-def base_test(socket, test_data, msg_type):
+def base_test(socket, test_data, msg_type, op_type=None):
     msg_data = {
         "msg_type": msg_type,
         "scenes": [test_data]
     }
+    if op_type is not None:
+        msg_data['operation'] = op_type
     message = json.dumps(msg_data)
     logging.debug(message)
     socket.send_string(message + "\n")
@@ -126,12 +133,17 @@ def get_test(socket, test_data):
 def update_test(socket, test_data):
     logging.info("Update Test")
     update_response = base_test(socket, test_data, 1)
-    validate_update_response(update_response, test_data)
+    validate_update_response(update_response)
 
 def delete_test(socket, test_data):
     logging.info("Delete Test")
     delete_response = base_test(socket, {"key":test_data["key"]}, 3)
     validate_success(delete_response)
+
+def update_removal_test(socket, test_data):
+    logging.info("Update Test")
+    remove_response = base_test(socket, removal_test_data, 1, op_type=11)
+    validate_update_response(remove_response)
 
 # CRUD Flow
 def execute_crud_flow(socket, test_data, updated_test_data):
@@ -142,6 +154,10 @@ def execute_crud_flow(socket, test_data, updated_test_data):
     update_test(socket, updated_test_data)
     updated_test_data['asset_ids'].insert(0, test_data['asset_ids'][0])
     updated_test_data['tags'].insert(0, test_data['tags'][0])
+    get_test(socket, updated_test_data)
+    update_removal_test(socket, removal_test_data)
+    del updated_test_data['asset_ids'][0]
+    del updated_test_data['tags'][0]
     get_test(socket, updated_test_data)
     delete_test(socket, updated_test_data)
 

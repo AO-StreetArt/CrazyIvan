@@ -258,7 +258,11 @@ ProcessResult* \
         if (is_started) {
           scene_query = scene_query + ", ";
         }
-        scene_query = scene_query + "scn.assets = coalesce(scn.assets, []) + {inp_assets}";
+        if (obj_msg->get_op_type() == APPEND) {
+          scene_query = scene_query + "scn.assets = coalesce(scn.assets, []) + {inp_assets}";
+        } else if (obj_msg->get_op_type() == REMOVE) {
+          scene_query = scene_query + "scn.assets = FILTER(asset IN scn.assets WHERE NOT (asset IN {inp_assets}))";
+        }
         is_started = true;
       }
       // Tags
@@ -266,7 +270,11 @@ ProcessResult* \
         if (is_started) {
           scene_query = scene_query + ", ";
         }
+        if (obj_msg->get_op_type() == APPEND) {
         scene_query = scene_query + "scn.tags = coalesce(scn.tags, []) + {inp_tags}";
+        } else if (obj_msg->get_op_type() == REMOVE) {
+          scene_query = scene_query + "scn.tags = FILTER(tag IN scn.tags WHERE NOT (tag IN {inp_tags}))";
+        }
         is_started = true;
       }
 

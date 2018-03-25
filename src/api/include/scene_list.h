@@ -26,6 +26,7 @@ limitations under the License.
 #include "include/user_device_factory.h"
 #include "include/transform_factory.h"
 #include "include/scene_list_interface.h"
+#include "include/ivan_utils.h"
 
 #ifndef SRC_API_INCLUDE_SCENE_LIST_H_
 #define SRC_API_INCLUDE_SCENE_LIST_H_
@@ -33,6 +34,7 @@ limitations under the License.
 // A single scene message, may include data for multiple scene objects
 class SceneList : public SceneListInterface {
   int msg_type = -1;
+  int operation = APPEND;
   std::string err_msg = "";
   int err_code = 100;
   std::string transaction_id = "";
@@ -70,6 +72,7 @@ class SceneList : public SceneListInterface {
   virtual void to_msg_string(std::string &out_string) = 0;
   // Setters
   void set_msg_type(int new_msg_type) {msg_type = new_msg_type;}
+  void set_op_type(int new_operation) {operation = new_operation;}
   void set_err_msg(std::string new_err) {err_msg = new_err;}
   void set_transaction_id(std::string new_tran_id) \
     {transaction_id = new_tran_id;}
@@ -78,6 +81,7 @@ class SceneList : public SceneListInterface {
   void set_num_records(int new_num) {num_records = new_num;}
   // Getters
   int get_msg_type() {return msg_type;}
+  int get_op_type() {return operation;}
   std::string get_err() {return err_msg;}
   std::string get_transaction_id() {return transaction_id;}
   int get_err_code() {return err_code;}
@@ -91,6 +95,7 @@ class SceneList : public SceneListInterface {
   inline void print() {
     obj_logging->debug("Scene List");
     obj_logging->debug(msg_type);
+    obj_logging->debug(operation);
     obj_logging->debug(err_msg);
     obj_logging->debug(err_code);
     obj_logging->debug(transaction_id);

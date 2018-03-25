@@ -30,6 +30,15 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         set_msg_type(msgtype_iter->value.GetInt());
       }
     }
+    // Operation Type
+    rapidjson::Value::ConstMemberIterator optype_iter = \
+      d.FindMember("operation");
+    if (optype_iter != d.MemberEnd()) {
+      obj_logging->debug("Operation Type found");
+      if (!(optype_iter->value.IsNull())) {
+        set_op_type(optype_iter->value.GetInt());
+      }
+    }
     // Transaction ID
     rapidjson::Value::ConstMemberIterator tranid_iter = \
       d.FindMember("transaction_id");

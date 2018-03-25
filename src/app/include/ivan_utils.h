@@ -50,6 +50,10 @@ const int BAD_MSG_TYPE_ERROR = 121;
 const int INSUFF_DATA_ERROR = 122;
 const int DEVICE_LOCK = 130;
 
+// Operation Types
+const int APPEND = 10;
+const int REMOVE = 11;
+
 // Trim Strings
 
 // remove non-ascii characters
