@@ -155,6 +155,7 @@ def execute_crud_flow(socket, test_data, updated_test_data):
     updated_test_data['asset_ids'].insert(0, test_data['asset_ids'][0])
     updated_test_data['tags'].insert(0, test_data['tags'][0])
     get_test(socket, updated_test_data)
+    removal_test_data['key'] = test_data['key']
     update_removal_test(socket, removal_test_data)
     del updated_test_data['asset_ids'][0]
     del updated_test_data['tags'][0]
