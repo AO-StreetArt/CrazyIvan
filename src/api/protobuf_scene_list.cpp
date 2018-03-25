@@ -26,6 +26,10 @@ ProtobufSceneList::ProtobufSceneList(protoScene::SceneList buffer) {
     set_msg_type(buffer.message_type());
     obj_logging->debug(get_msg_type());
   } else {set_msg_type(-1);}
+  if (buffer.has_op_type()) {
+    set_op_type(buffer.op_type());
+    obj_logging->debug(get_op_type());
+  }
   if (buffer.has_transaction_id()) {
     set_transaction_id(buffer.transaction_id());
     obj_logging->debug(get_transaction_id());
