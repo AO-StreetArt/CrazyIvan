@@ -97,6 +97,9 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
       scn->set_name(name);
     }
 
+    // Active flag
+    scn->set_active(SceneList::get_scene(a)->active());
+
     // Region
     std::string reg = SceneList::get_scene(a)->get_region();
     if (!(reg.empty())) {

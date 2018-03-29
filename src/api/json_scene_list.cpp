@@ -100,6 +100,15 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
               scd->set_name(name_iter->value.GetString());
             }
           }
+          // Is Scene Active
+          rapidjson::Value::ConstMemberIterator active_iter = \
+            itr.FindMember("active");
+          if (active_iter != itr.MemberEnd()) {
+            obj_logging->debug("Active flag found");
+            if (!(active_iter->value.IsNull())) {
+              scd->set_active(name_iter->value.GetBool());
+            }
+          }
           rapidjson::Value::ConstMemberIterator region_iter = \
             itr.FindMember("region");
           if (region_iter != itr.MemberEnd()) {
@@ -365,6 +374,9 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         writer.Key("latitude");
         writer.Double(get_scene(a)->get_latitude());
       }
+      // Add the active flag
+      writer.Key("active");
+      writer.Bool(get_scene(a)->active());
       // Add the longitude
       if (get_scene(a)->get_longitude() > -9999.0) {
         writer.Key("longitude");
