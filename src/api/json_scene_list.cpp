@@ -106,7 +106,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           if (active_iter != itr.MemberEnd()) {
             obj_logging->debug("Active flag found");
             if (!(active_iter->value.IsNull())) {
-              scd->set_active(name_iter->value.GetBool());
+              scd->set_active(active_iter->value.GetBool());
             }
           }
           rapidjson::Value::ConstMemberIterator region_iter = \
