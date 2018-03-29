@@ -239,7 +239,7 @@ ProcessResult* \
         is_started = true;
       }
       // Is Active
-      scene_query = scene_query + ", active: {inp_active}";
+      scene_query = scene_query + ", scn.active = {inp_active}";
       // Latitude
       if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
         if (is_started) {
