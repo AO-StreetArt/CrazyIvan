@@ -49,6 +49,7 @@ ProcessResult* \
     } else {
       new_id = obj_msg->get_scene(0)->get_key();
     }
+    response->set_return_string(new_id);
 
     // Set up the Cypher Query for scene creation
     std::string scene_query;
