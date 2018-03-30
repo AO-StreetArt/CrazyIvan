@@ -16,6 +16,7 @@ limitations under the License.
 */
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <sstream>
 #include <string>
 #include <cstdlib>
@@ -59,7 +60,7 @@ RedisInterface *redis = NULL;
         // Another instance of Clyman has a lock on the redis mutex
         // Block until the lock is cleared
         redis_logging->error("Existing Redis Mutex Lock Detected");
-        while (redis->exists(key)) {}
+        while (redis->exists(key)) {usleep(100000);}
       }
 
       // Try to establish a lock on the Redis Mutex
