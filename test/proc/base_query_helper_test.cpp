@@ -147,12 +147,12 @@ int main() {
   // Build & validate lists of query parameters
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
     scene_params;
-  qh.generate_scene_query_parameters(sk, scene, scene_params);
+  qh.generate_scene_query_parameters(sk, CREATE_QUERY_TYPE, scene, scene_params);
   assert(scene_params.size() == 8);
 
   std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
     scene_params2;
-  qh.generate_scene_query_parameters(sk, NULL, scene_params2);
+  qh.generate_scene_query_parameters(sk, CREATE_QUERY_TYPE, NULL, scene_params2);
   assert(scene_params2.size() == 1);
 
   for (std::pair<std::string, Neo4jQueryParameterInterface*> element : scene_params) {

@@ -281,7 +281,8 @@ class BaseQueryHelper {
   }
 
   // Generate a map of query parameters from a scene
-  inline void generate_scene_query_parameters(std::string key, SceneInterface *scn, \
+  inline void generate_scene_query_parameters(std::string key, int crud_op, \
+      SceneInterface *scn, \
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> &scene_params) {
     // Key
     if (!(key.empty())) {
@@ -313,6 +314,12 @@ class BaseQueryHelper {
         double qlong = scn->get_longitude();
         Neo4jQueryParameterInterface *long_param = neo_factory->get_neo4j_query_parameter(qlong);
         scene_params.emplace("inp_long", long_param);
+      }
+      // Distance
+      if (scn->get_distance() > 0.01 && crud_op == GET_QUERY_TYPE && key.empty()) {
+        double dlong = scn->get_distance();
+        Neo4jQueryParameterInterface *long_param = neo_factory->get_neo4j_query_parameter(dlong);
+        scene_params.emplace("inp_distance", long_param);
       }
       // Region
       if (!(scn->get_region().empty())) {

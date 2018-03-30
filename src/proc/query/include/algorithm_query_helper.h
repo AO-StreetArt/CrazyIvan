@@ -128,9 +128,9 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
       int op_type, SceneInterface *scn, std::string &query_str) {
     BaseQueryHelper::generate_scene_crud_query(key, crud_op, op_type, scn, query_str);
   }
-  inline void generate_scene_query_parameters(std::string key, SceneInterface *scn, \
+  inline void generate_scene_query_parameters(std::string key, int crud_op, SceneInterface *scn, \
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> &scene_params) {
-    BaseQueryHelper::generate_scene_query_parameters(key, scn, scene_params);
+    BaseQueryHelper::generate_scene_query_parameters(key, crud_op, scn, scene_params);
   }
 };
 

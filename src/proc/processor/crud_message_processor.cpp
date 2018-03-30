@@ -62,7 +62,7 @@ ProcessResult* \
     // Set up the query parameters for scene creation
     std::unordered_map<std::string, Neo4jQueryParameterInterface*> scene_params;
     BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(new_id, \
-      obj_msg->get_scene(0), scene_params);
+      CREATE_QUERY_TYPE, obj_msg->get_scene(0), scene_params);
 
     // Execute the query
     try {
@@ -143,7 +143,7 @@ ProcessResult* \
 
       // Set up the query parameters for scene update
       BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(obj_msg->get_scene(0)->get_key(), \
-        obj_msg->get_scene(0), scene_params);
+        UPDATE_QUERY_TYPE, obj_msg->get_scene(0), scene_params);
 
       // Execute the query
       ResultTreeInterface *tree = NULL;
@@ -227,7 +227,7 @@ ProcessResult* \
 
       // Set up the query parameters for scene retrieval
       BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(obj_msg->get_scene(0)->get_key(), \
-        obj_msg->get_scene(0), scene_params);
+        GET_QUERY_TYPE, obj_msg->get_scene(0), scene_params);
 
       // Execute the query
       try {
@@ -324,7 +324,7 @@ ProcessResult* \
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
         scene_params;
       BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(obj_msg->get_scene(0)->get_key(), \
-        NULL, scene_params);
+        DELETE_QUERY_TYPE, NULL, scene_params);
 
       // Execute the query
       ResultTreeInterface *tree = NULL;

@@ -128,7 +128,7 @@ class QueryHelperInterface {
       UserDeviceInterface *data) = 0;
   virtual void generate_scene_crud_query(std::string key, int crud_op, \
       int op_type, SceneInterface *scn, std::string &query_str) = 0;
-  virtual void generate_scene_query_parameters(std::string key, SceneInterface *scn, \
+  virtual void generate_scene_query_parameters(std::string key, int crud_op, SceneInterface *scn, \
       std::unordered_map<std::string, Neo4jQueryParameterInterface*> &scene_params) = 0;
 };
 
