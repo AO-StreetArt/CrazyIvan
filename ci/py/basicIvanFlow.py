@@ -16,6 +16,7 @@ log_level = logging.DEBUG
 test_data = {
     "key":"",
     "name":"basicFlowName",
+    "active":False,
     "latitude":124.0,
     "longitude":122.0,
     "distance":100.0,
@@ -27,6 +28,7 @@ test_data = {
 updated_test_data = {
     "key":"",
     "name":"updatedName",
+    "active": True,
     "latitude":128.0,
     "longitude":112.0,
     "distance":100.0,

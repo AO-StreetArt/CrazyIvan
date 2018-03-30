@@ -37,6 +37,7 @@ ProcessResult* \
     Neo4jQueryParameterInterface *region_param = NULL;
     Neo4jQueryParameterInterface *asset_param = NULL;
     Neo4jQueryParameterInterface *tag_param = NULL;
+    Neo4jQueryParameterInterface *active_param = NULL;
     ResultTreeInterface *tree = NULL;
     DbObjectInterface* obj = NULL;
     double qlat;
@@ -92,6 +93,12 @@ ProcessResult* \
       scene_params.emplace("inp_lat", lat_param);
       scene_query = scene_query + ", latitude: {inp_lat}";
     }
+    // Is Active
+    bool active_value = obj_msg->get_scene(0)->active();
+    active_param = BaseMessageProcessor::get_neo4j_factory()->\
+      get_neo4j_query_parameter(active_value);
+    scene_params.emplace("inp_active", active_param);
+    scene_query = scene_query + ", active: {inp_active}";
     // Longitude
     if (!(obj_msg->get_scene(0)->get_longitude() == -9999.0)) {
       qlong = obj_msg->get_scene(0)->get_longitude();
@@ -182,6 +189,7 @@ ProcessResult* \
     if (asset_param) delete asset_param;
     if (tag_param) delete tag_param;
     if (region_param) delete region_param;
+    if (active_param) delete active_param;
     return response;
   }
   response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
@@ -209,6 +217,7 @@ ProcessResult* \
     Neo4jQueryParameterInterface *region_param = NULL;
     Neo4jQueryParameterInterface *asset_param = NULL;
     Neo4jQueryParameterInterface *tag_param = NULL;
+    Neo4jQueryParameterInterface *active_param = NULL;
     processor_logging->debug("Processing Scene Update message");
 
     // Ensure that we have fields in the query
@@ -229,6 +238,8 @@ ProcessResult* \
         scene_query = scene_query + "scn.name = {inp_name}";
         is_started = true;
       }
+      // Is Active
+      scene_query = scene_query + ", scn.active = {inp_active}";
       // Latitude
       if (!(obj_msg->get_scene(0)->get_latitude() == -9999.0)) {
         if (is_started) {
@@ -293,6 +304,11 @@ ProcessResult* \
       processor_logging->debug("Key:");
       processor_logging->debug(qkey);
       scene_params.emplace("inp_key", key_param);
+      // Active
+      bool active_value = obj_msg->get_scene(0)->active();
+      active_param = BaseMessageProcessor::get_neo4j_factory()->\
+        get_neo4j_query_parameter(active_value);
+      scene_params.emplace("inp_active", active_param);
       // Name
       if (!(obj_msg->get_scene(0)->get_name().empty())) {
         std::string qname = obj_msg->get_scene(0)->get_name();
@@ -393,6 +409,7 @@ ProcessResult* \
     if (asset_param) delete asset_param;
     if (tag_param) delete tag_param;
     if (region_param) delete region_param;
+    if (active_param) delete active_param;
 
     // Release the Redis Mutex Lock
     if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {

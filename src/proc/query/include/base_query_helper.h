@@ -114,6 +114,9 @@ class BaseQueryHelper {
     if (map->element_exists("latitude")) {
       data->set_latitude(map->get_float_element("latitude"));
     }
+    if (map->element_exists("active")) {
+      data->set_active(map->get_bool_element("active"));
+    }
     if (map->element_exists("longitude")) {
       data->set_longitude(map->get_float_element("longitude"));
     }

@@ -26,6 +26,7 @@ SceneDocument::SceneDocument(const SceneDocument& sd) {
   SceneData::set_latitude(sd.get_latitude());
   SceneData::set_longitude(sd.get_longitude());
   distance = sd.get_distance();
+  is_active = sd.active();
   trns_flag = false;
   //Scene Assets
   for (int i = 0; i < sd.num_assets(); i++) {
@@ -94,6 +95,10 @@ SceneDocument::SceneDocument(protoScene::SceneList_Scene scn_data) {
   if (scn_data.has_name()) {
     name = scn_data.name();
     obj_logging->debug(name);
+  }
+  if (scn_data.has_active()) {
+    is_active = scn_data.active();
+    obj_logging->debug(is_active);
   }
   if (scn_data.has_transform()) {
     scene_transform = SceneData::create_transform(scn_data.transform());

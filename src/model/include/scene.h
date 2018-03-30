@@ -47,6 +47,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   std::string name = "";
   std::string region = "";
   double distance = 0.0;
+  bool is_active = true;
   bool trns_flag = false;
   TransformInterface* scene_transform;
   std::vector<std::string> tag_vect;
@@ -69,6 +70,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   void set_latitude(double new_lat) {SceneData::set_latitude(new_lat);}
   void set_longitude(double new_long) {SceneData::set_longitude(new_long);}
   void set_distance(double new_dist) {distance = new_dist;}
+  void set_active(bool new_active) {is_active = new_active;}
 
   // Getters
   std::string get_key() const {return key;}
@@ -77,6 +79,7 @@ class SceneDocument : public SceneData, public SceneInterface {
   double get_latitude() const {return SceneData::get_latitude();}
   double get_longitude() const {return SceneData::get_longitude();}
   double get_distance() const {return distance;}
+  bool active() const {return is_active;}
 
   // List
   void add_device(UserDeviceInterface *d) {SceneData::add_device(d);}

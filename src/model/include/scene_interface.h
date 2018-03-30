@@ -38,6 +38,7 @@ class SceneInterface {
   virtual void set_latitude(double new_lat) = 0;
   virtual void set_longitude(double new_long) = 0;
   virtual void set_distance(double new_dist) = 0;
+  virtual void set_active(bool new_active) = 0;
 
   // Getters
   virtual std::string get_key() const = 0;
@@ -46,6 +47,7 @@ class SceneInterface {
   virtual double get_latitude() const = 0;
   virtual double get_longitude() const = 0;
   virtual double get_distance() const = 0;
+  virtual bool active() const = 0;
 
   // DeviceList
   virtual void add_device(UserDeviceInterface *d) = 0;
