@@ -153,6 +153,194 @@ class BaseQueryHelper {
     }
     delete map;
   }
+
+  // Generate a scene Crud query
+  inline void generate_scene_crud_query(std::string key, int crud_op, \
+      int op_type, SceneInterface *scn, std::string &query_str) {
+    bool key_query = false;
+    // Start the query
+    if (crud_op == CREATE_QUERY_TYPE) {
+      query_str.append("CREATE (scn:Scene");
+    } else {
+      query_str.append("MATCH (scn:Scene");
+    }
+    // Add the key
+    if (!(key.empty())) {
+      query_str.append(" {key: {inp_key}");
+      key_query = true;
+      if (crud_op == GET_QUERY_TYPE) {query_str.append("})");}
+    }
+
+    // Build an update query
+    if (crud_op == UPDATE_QUERY_TYPE) {
+      query_str.append("}) SET scn.active = {inp_active}");
+      if (!(scn->get_name().empty())) {
+        query_str.append(", scn.name = {inp_name}");
+      }
+      if (!(scn->get_latitude() == -9999.0)) {
+        query_str.append(", scn.latitude = {inp_lat}");
+      }
+      if (!(scn->get_longitude() == -9999.0)) {
+        query_str.append(", scn.longitude = {inp_long}");
+      }
+      if (!(scn->get_region().empty())) {
+        query_str.append(", scn.region = {inp_region}");
+      }
+      if (op_type == APPEND) {
+        query_str.append(", scn.assets = coalesce(scn.assets, []) + {inp_assets}");
+      } else if (op_type == REMOVE) {
+        query_str.append(", scn.assets = FILTER(asset IN scn.assets WHERE NOT (asset IN {inp_assets}))");
+      }
+      if (op_type == APPEND) {
+        query_str.append(", scn.tags = coalesce(scn.tags, []) + {inp_tags}");
+      } else if (op_type == REMOVE) {
+        query_str.append(", scn.tags = FILTER(tag IN scn.tags WHERE NOT (tag IN {inp_tags}))");
+      }
+
+    // Build a delete query
+    } else if (crud_op == DELETE_QUERY_TYPE) {
+      query_str.append("}) DETACH DELETE scn");
+
+    // Build a get query
+    } else if (crud_op == GET_QUERY_TYPE && !key_query) {
+      bool inp_name_empty = scn->get_name().empty();
+      bool inp_region_empty = scn->get_region().empty();
+      if ((!inp_name_empty) || (!inp_region_empty)) {
+        query_str.append(" {");
+        // Start by checking for a name
+        if (!inp_name_empty) {
+          query_str.append("name: {inp_name}");
+        }
+        if ((!inp_name_empty) && (!inp_region_empty)) {
+          query_str.append(", ");
+        }
+        // Check for Region
+        if (!inp_region_empty) {
+          query_str.append("region: {inp_region}");
+        }
+        query_str.append("}");
+      }
+      query_str.append(")");
+      bool is_started = false;
+      // Check for Tags
+      // We will only query for the first tag supplied
+      if (scn->num_tags() > 0) {
+        query_str.append(" WHERE {inp_tag} in scn.tags");
+        is_started = true;
+      }
+      // Check for a distance-based query
+      if (!(scn->get_latitude() == -9999.0 || \
+        scn->get_longitude() == -9999.0 || \
+        scn->get_distance() < 0.0)) {
+        if (is_started) {query_str.append(" AND");}
+        else {query_str.append(" WHERE");}
+        // Query for distance
+        // Assumes distance supplied is in meters
+        // Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula)
+        std::string where_clause = \
+              " ( "
+                "12742000 * asin("
+                  "sqrt("
+                    "haversin(radians({inp_lat} - scn.latitude)) + "
+                    "cos(radians({inp_lat})) * cos(radians(scn.latitude)) * "
+                      "haversin(radians(scn.longitude - {inp_long}))"
+                  ")"
+                ")"
+              ") < {inp_distance}";
+        query_str.append(where_clause);
+      }
+
+    // Build a create query
+    } else if (crud_op == CREATE_QUERY_TYPE) {
+      query_str.append(", active: {inp_active}");
+      if (!(scn->get_name().empty())) {
+        query_str.append(", name: {inp_name}");
+      }
+      if (!(scn->get_latitude() == -9999.0)) {
+        query_str.append(", latitude: {inp_lat}");
+      }
+      if (!(scn->get_longitude() == -9999.0)) {
+        query_str.append(", longitude: {inp_long}");
+      }
+      if (!(scn->get_region().empty())) {
+        query_str.append(", region: {inp_region}");
+      }
+      if (scn->num_assets() > 0) {
+        query_str.append(", assets: {inp_assets}");
+      }
+      if (scn->num_tags() > 0) {
+        query_str.append(", tags: {inp_tags}");
+      }
+      query_str.append("})");
+    }
+    query_str.append(" RETURN scn");
+  }
+
+  // Generate a map of query parameters from a scene
+  inline void generate_scene_query_parameters(std::string key, SceneInterface *scn, \
+      std::unordered_map<std::string, Neo4jQueryParameterInterface*> &scene_params) {
+    // Key
+    if (!(key.empty())) {
+      Neo4jQueryParameterInterface *key_param = neo_factory->get_neo4j_query_parameter(key);
+      processor_logging->debug("Key:");
+      processor_logging->debug(key);
+      scene_params.emplace("inp_key", key_param);
+    }
+    if (scn) {
+      // Active
+      Neo4jQueryParameterInterface *active_param = neo_factory->get_neo4j_query_parameter(scn->active());
+      scene_params.emplace("inp_active", active_param);
+      // Name
+      if (!(scn->get_name().empty())) {
+        std::string qname = scn->get_name();
+        Neo4jQueryParameterInterface *name_param = neo_factory->get_neo4j_query_parameter(qname);
+        processor_logging->debug("Name:");
+        processor_logging->debug(qname);
+        scene_params.emplace("inp_name", name_param);
+      }
+      // Latitude
+      if (!(scn->get_latitude() == -9999.0)) {
+        double qlat = scn->get_latitude();
+        Neo4jQueryParameterInterface *lat_param = neo_factory->get_neo4j_query_parameter(qlat);
+        scene_params.emplace("inp_lat", lat_param);
+      }
+      // Longitude
+      if (!(scn->get_longitude() == -9999.0)) {
+        double qlong = scn->get_longitude();
+        Neo4jQueryParameterInterface *long_param = neo_factory->get_neo4j_query_parameter(qlong);
+        scene_params.emplace("inp_long", long_param);
+      }
+      // Region
+      if (!(scn->get_region().empty())) {
+        Neo4jQueryParameterInterface *region_param = neo_factory->get_neo4j_query_parameter(scn->get_region());
+        processor_logging->debug("Region:");
+        processor_logging->debug(scn->get_region());
+        scene_params.emplace("inp_region", region_param);
+      }
+      // Assets
+      if (scn->num_assets() > 0) {
+        Neo4jQueryParameterInterface *asset_param = neo_factory->get_neo4j_query_parameter();
+        // Add the assets from the object message to the parameter
+        for (int i = 0; i < scn->num_assets(); i++) {
+          asset_param->add_value(scn->get_asset(i));
+          processor_logging->debug("Asset:");
+          processor_logging->debug(scn->get_asset(i));
+        }
+        scene_params.emplace("inp_assets", asset_param);
+      }
+      // Tags
+      if (scn->num_tags() > 0) {
+        Neo4jQueryParameterInterface *tag_param = neo_factory->get_neo4j_query_parameter();
+        // Add the assets from the object message to the parameter
+        for (int j = 0; j < scn->num_tags(); j++) {
+          tag_param->add_value(scn->get_tag(j));
+          processor_logging->debug("Tag:");
+          processor_logging->debug(scn->get_tag(j));
+        }
+        scene_params.emplace("inp_tags", tag_param);
+      }
+    }
+  }
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_BASE_QUERY_HELPER_H_

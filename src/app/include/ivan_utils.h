@@ -54,6 +54,12 @@ const int DEVICE_LOCK = 130;
 const int APPEND = 10;
 const int REMOVE = 11;
 
+// Query Types
+const int CREATE_QUERY_TYPE = 0;
+const int GET_QUERY_TYPE = 1;
+const int UPDATE_QUERY_TYPE = 2;
+const int DELETE_QUERY_TYPE = 3;
+
 // Trim Strings
 
 // remove non-ascii characters
