@@ -186,15 +186,19 @@ class BaseQueryHelper {
       if (!(scn->get_region().empty())) {
         query_str.append(", scn.region = {inp_region}");
       }
-      if (op_type == APPEND) {
-        query_str.append(", scn.assets = coalesce(scn.assets, []) + {inp_assets}");
-      } else if (op_type == REMOVE) {
-        query_str.append(", scn.assets = FILTER(asset IN scn.assets WHERE NOT (asset IN {inp_assets}))");
+      if (scn->num_assets() > 0) {
+        if (op_type == APPEND) {
+          query_str.append(", scn.assets = coalesce(scn.assets, []) + {inp_assets}");
+        } else if (op_type == REMOVE) {
+          query_str.append(", scn.assets = FILTER(asset IN scn.assets WHERE NOT (asset IN {inp_assets}))");
+        }
       }
-      if (op_type == APPEND) {
-        query_str.append(", scn.tags = coalesce(scn.tags, []) + {inp_tags}");
-      } else if (op_type == REMOVE) {
-        query_str.append(", scn.tags = FILTER(tag IN scn.tags WHERE NOT (tag IN {inp_tags}))");
+      if (scn->num_tags() > 0) {
+        if (op_type == APPEND) {
+          query_str.append(", scn.tags = coalesce(scn.tags, []) + {inp_tags}");
+        } else if (op_type == REMOVE) {
+          query_str.append(", scn.tags = FILTER(tag IN scn.tags WHERE NOT (tag IN {inp_tags}))");
+        }
       }
 
     // Build a delete query
