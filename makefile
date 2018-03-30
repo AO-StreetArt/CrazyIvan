@@ -11,7 +11,7 @@ APP_OBJS = src/app/ivan_log.o src/app/configuration_manager.o src/app/globals.o
 QUERY_OBJS = src/proc/query/device_query_helper.o src/proc/query/scene_query_helper.o src/proc/query/algorithm_query_helper.o
 PROC_OBJS = src/proc/processor/base_message_processor.o src/proc/processor/crud_message_processor.o src/proc/processor/message_processor.o
 OBJS = $(MODEL_OBJS) $(API_OBJS) $(APP_OBJS) $(QUERY_OBJS) $(PROC_OBJS) main.o
-TESTS = log_test utils_test configuration_test transform_test device_test scene_test scene_list_test
+TESTS = log_test utils_test configuration_test transform_test device_test scene_test scene_list_test base_query_helper_test
 LIBS = -lpthread -llog4cpp
 FULL_LIBS = -laossl -lcurl -lpthread -lzmq -lneo4j-client -lssl -lcrypto -lm -llog4cpp -luuid -lhiredis -lrdkafka -lcppkafka -lboost_system `pkg-config --cflags --libs protobuf`
 PROTOC = protoc
@@ -47,6 +47,7 @@ test: mktest $(TESTS)
 	./device_test
 	./scene_test
 	./scene_list_test
+	./base_query_helper_test
 
 mktest:
 	@$(MAKE) -C test
@@ -70,6 +71,9 @@ scene_test: src/app/ivan_log.o src/model/transform.o src/model/user_device.o src
 	$(CC) $(CFLAGS) -o $@ $^ $(FULL_LIBS) $(STD) $(INCL_DIRS)
 
 scene_list_test: src/app/ivan_log.o src/model/transform.o src/model/user_device.o src/api/Scene.pb.cc src/model/scene.o src/api/protobuf_scene_list.o src/api/json_scene_list.o test/api/scene_list_test.o
+	$(CC) $(CFLAGS) -o $@ $^ $(FULL_LIBS) $(STD) $(INCL_DIRS)
+
+base_query_helper_test: src/app/ivan_log.o src/model/transform.o src/model/user_device.o src/api/Scene.pb.cc src/model/scene.o test/proc/base_query_helper_test.o
 	$(CC) $(CFLAGS) -o $@ $^ $(FULL_LIBS) $(STD) $(INCL_DIRS)
 
 # --------------------------- Clean Project ---------------------------------- #

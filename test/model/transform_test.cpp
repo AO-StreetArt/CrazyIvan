@@ -32,7 +32,7 @@ int main() {
   // Initial Setup
   LoggingComponentFactory *factory = new LoggingComponentFactory;
 
-  std::string initFileName = "log4cpp.properties";
+  std::string initFileName = "test/log4cpp.properties";
   logging = factory->get_logging_interface(initFileName);
 
   start_logging_submodules();

@@ -1,6 +1,6 @@
-.PHONY: mkapp mkmodel mkapi
+.PHONY: mkapp mkmodel mkapi mkproc
 
-all: mkapp mkmodel mkapi
+all: mkapp mkmodel mkapi mkproc
 
 mkapp:
 	@$(MAKE) -C app
@@ -10,3 +10,6 @@ mkmodel:
 
 mkapi:
 	@$(MAKE) -C api
+
+mkproc:
+	@$(MAKE) -C proc
