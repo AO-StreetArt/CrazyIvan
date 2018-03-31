@@ -21,7 +21,7 @@ test_data = {
     "longitude":122.0,
     "distance":100.0,
     "region":"basicFlowRegion",
-    "asset_ids":["basicAsset"],
+    "assets":["basicAsset"],
     "tags":["basicTag"]
 }
 
@@ -33,13 +33,13 @@ updated_test_data = {
     "longitude":112.0,
     "distance":100.0,
     "region":"updatedRegion",
-    "asset_ids":["updatedAsset"],
+    "assets":["updatedAsset"],
     "tags":["upatedTag"]
 }
 
 removal_test_data = {
     "name":"updatedName",
-    "asset_ids":["basicAsset"],
+    "assets":["basicAsset"],
     "tags":["basicTag"]
 }
 
@@ -92,10 +92,10 @@ def validate_get_response(get_response, validation_data):
         assert(parsed_data["longitude"] - validation_data["longitude"] < 0.01)
         assert(parsed_data["distance"] - validation_data["distance"] < 0.01)
         assert(parsed_data["region"] == validation_data["region"])
-        assert(len(parsed_data['asset_ids']) > 0)
+        assert(len(parsed_data['assets']) > 0)
         assert(len(parsed_data['tags']) > 0)
-        for i in range(0, len(parsed_data['asset_ids'])):
-            assert(parsed_data["asset_ids"][i] == validation_data["asset_ids"][i])
+        for i in range(0, len(parsed_data['assets'])):
+            assert(parsed_data["assets"][i] == validation_data["assets"][i])
         for i in range(0, len(parsed_data['tags'])):
             assert(parsed_data["tags"][i] == validation_data["tags"][i])
 
@@ -154,12 +154,12 @@ def execute_crud_flow(socket, test_data, updated_test_data):
     get_test(socket, test_data)
     updated_test_data["key"] = test_data["key"]
     update_test(socket, updated_test_data)
-    updated_test_data['asset_ids'].insert(0, test_data['asset_ids'][0])
+    updated_test_data['assets'].insert(0, test_data['assets'][0])
     updated_test_data['tags'].insert(0, test_data['tags'][0])
     get_test(socket, updated_test_data)
     removal_test_data['key'] = test_data['key']
     update_removal_test(socket, removal_test_data)
-    del updated_test_data['asset_ids'][0]
+    del updated_test_data['assets'][0]
     del updated_test_data['tags'][0]
     get_test(socket, updated_test_data)
     delete_test(socket, updated_test_data)

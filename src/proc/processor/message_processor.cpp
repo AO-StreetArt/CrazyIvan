@@ -72,6 +72,22 @@ ProcessResult* \
     }
   }
 
+  // Build a new device key, if necessary
+  std::string new_id;
+  if (obj_msg->get_scene(0)->get_device(0)->get_key().empty()) {
+    // Generate a new key
+    BaseMessageProcessor::create_uuid(new_id);
+    if (new_id.empty()) {
+      processor_logging->error("Unknown error generating new key for scene");
+      current_err_msg = "Error generating key for device";
+      current_err_code = PROCESSING_ERROR;
+    }
+    processor_logging->info("Key Generated:");
+    processor_logging->info(new_id);
+  } else {
+    new_id = obj_msg->get_scene(0)->get_device(0)->get_key();
+  }
+
   // Determine if this is the first device being registered to the scene
   if (current_err_code == NO_ERROR) {
     if (!(does_scene_exist)) {
@@ -89,8 +105,7 @@ ProcessResult* \
       try {
         already_registered = \
           BaseMessageProcessor::get_query_helper()->\
-            is_ud_registered(obj_msg->get_scene(0)->get_key(), \
-            obj_msg->get_scene(0)->get_device(0)->get_key());
+            is_ud_registered(obj_msg->get_scene(0)->get_key(), new_id);
       }
       catch (std::exception& e) {
         processor_logging->error("Error checking if User Device is registered");
@@ -107,7 +122,7 @@ ProcessResult* \
     try {
       registered_scenes = \
         BaseMessageProcessor::get_query_helper()->\
-          get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
+          get_registrations(new_id);
     }
     catch (std::exception& e) {
       processor_logging->error("Error getting registrations");
@@ -164,7 +179,7 @@ ProcessResult* \
     processor_logging->debug("Registering Device in the DB");
     try {
       BaseMessageProcessor::get_query_helper()->register_device_to_scene(\
-        obj_msg->get_scene(0)->get_device(0)->get_key(), \
+        new_id, \
         obj_msg->get_scene(0)->get_key(), new_transform, previously_registered,\
         obj_msg->get_scene(0)->get_device(0)->get_connection_string(), \
         obj_msg->get_scene(0)->get_device(0)->get_hostname(), \
@@ -200,7 +215,7 @@ ProcessResult* \
   UserDeviceInterface *ud_interface = NULL;
   if (new_transform && current_err_code == NO_ERROR) {
     ud_interface = BaseMessageProcessor::get_udfactory().build_device( \
-      obj_msg->get_scene(0)->get_device(0)->get_key(), new_transform);
+      new_id, new_transform);
 
     resp_interface->get_scene(0)->add_device(ud_interface);
   }

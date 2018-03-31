@@ -147,7 +147,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
 
           // Scene Assets
           rapidjson::Value::ConstMemberIterator assets_itr = \
-            itr.FindMember("asset_ids");
+            itr.FindMember("assets");
           if (assets_itr != itr.MemberEnd()) {
             obj_logging->debug("Scene Assets found");
             if (!(assets_itr->value.IsNull())) {
@@ -389,7 +389,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       }
 
       // Asset IDs
-      writer.Key("asset_ids");
+      writer.Key("assets");
       writer.StartArray();
 
       for (int m = 0; m < get_scene(a)->num_assets(); m++) {

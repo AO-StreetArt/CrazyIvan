@@ -437,7 +437,7 @@ Scene Create
       "latitude":0.0,
       "longitude":0.0,
       "distance":0.0,
-      "asset_ids":[],
+      "assets":[],
       "tags":[],
       "devices":[]
     }
@@ -460,7 +460,7 @@ Scene Retrieve
       "latitude":124.0,
       "longitude":122.0,
       "distance":0.0,
-      "asset_ids":[],
+      "assets":[],
       "tags":["Testing2"],
       "devices":[]
     }
