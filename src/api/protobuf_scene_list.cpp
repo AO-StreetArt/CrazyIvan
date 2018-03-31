@@ -117,7 +117,7 @@ void ProtobufSceneList::to_msg_string(std::string &out_string) {
 
     // Asset IDs
     for (int m = 0; m < SceneList::get_scene(a)->num_assets(); m++) {
-      scn->add_asset_ids(SceneList::get_scene(a)->get_asset(m));
+      scn->add_assets(SceneList::get_scene(a)->get_asset(m));
     }
 
     // Tags

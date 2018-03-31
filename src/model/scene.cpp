@@ -112,8 +112,8 @@ SceneDocument::SceneDocument(protoScene::SceneList_Scene scn_data) {
       obj_logging->debug("User Device added");
     }
   }
-  for (int m = 0; m < scn_data.asset_ids_size(); m++) {
-    SceneData::add_asset(scn_data.asset_ids(m));
+  for (int m = 0; m < scn_data.assets_size(); m++) {
+    SceneData::add_asset(scn_data.assets(m));
   }
   for (int n = 0; n < scn_data.tags_size(); n++) {
     add_tag(scn_data.tags(n));
