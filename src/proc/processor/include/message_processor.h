@@ -72,7 +72,7 @@ class MessageProcessor : public CrudMessageProcessor, \
   // Constructor
   MessageProcessor(Neo4jComponentFactory *nf, Neo4jInterface *neo4j, \
     ConfigurationManager *con, uuidInterface *u) : \
-    CrudMessageProcessor(nf, neo4j, rd, con, u) {}
+    CrudMessageProcessor(nf, neo4j, con, u) {}
 
   // Destructor
   ~MessageProcessor() {}

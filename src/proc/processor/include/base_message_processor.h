@@ -95,7 +95,6 @@ class BaseMessageProcessor {
     Neo4jInterface *neo4j, \
     ConfigurationManager *con, uuidInterface *u) {
     n = neo4j;
-    r = rd;
     config = con;
     ugen = u;
     neo_factory = nf;
