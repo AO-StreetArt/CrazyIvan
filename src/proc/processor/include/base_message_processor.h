@@ -21,7 +21,6 @@ limitations under the License.
 
 #include "include/ivan_log.h"
 #include "include/ivan_utils.h"
-#include "include/redis_locking.h"
 #include "include/configuration_manager.h"
 
 #include "include/transform_interface.h"
@@ -39,7 +38,6 @@ limitations under the License.
 #include "include/processor_interface.h"
 
 #include "aossl/neo4j/include/neo4j_interface.h"
-#include "aossl/redis/include/redis_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 
 #ifndef SRC_PROC_PROCESSOR_INCLUDE_BASE_MESSAGE_PROCESSOR_H_
@@ -51,9 +49,7 @@ class BaseMessageProcessor {
   // Internal Variables
   Neo4jInterface *n = NULL;
   Neo4jComponentFactory *neo_factory = NULL;
-  RedisInterface *r = NULL;
   ConfigurationManager *config = NULL;
-  RedisLocker *redis_locks = NULL;
   uuidInterface *ugen = NULL;
   QueryHelperInterface *qh = NULL;
   SceneListFactory slfactory;
@@ -76,10 +72,6 @@ class BaseMessageProcessor {
   // Helper Methods
   // Generate a new UUID
   void create_uuid(std::string &out_string);
-  // Obtain a Redis Mutex Lock for use with Atomic Transactions
-  void get_mutex_lock(std::string obj_key);
-  // Release a Redis Mutex Lock for use with Atomic Transactions
-  void release_mutex_lock(std::string obj_key);
   // Create a response in the form of a scene
   SceneListInterface* build_response_scene(int msg_type, int err_code, \
     std::string err_msg, std::string tran_id, std::string scene_id);
@@ -100,12 +92,10 @@ class BaseMessageProcessor {
 
   // Constructor
   inline BaseMessageProcessor(Neo4jComponentFactory *nf, \
-    Neo4jInterface *neo4j, RedisInterface *rd, \
+    Neo4jInterface *neo4j, \
     ConfigurationManager *con, uuidInterface *u) {
     n = neo4j;
-    r = rd;
     config = con;
-    redis_locks = new RedisLocker(rd);
     ugen = u;
     neo_factory = nf;
     qh = qfactory.build_query_helper(n, neo_factory, con);
@@ -113,7 +103,6 @@ class BaseMessageProcessor {
 
   // Destructor
   virtual inline ~BaseMessageProcessor() {
-    delete redis_locks;
     delete qh;
   }
 };

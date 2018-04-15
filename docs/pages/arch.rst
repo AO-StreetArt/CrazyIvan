@@ -14,7 +14,7 @@ build\_deps script), which can be used to communicate via protocol
 buffers.
 
 Please note that running Crazy Ivan requires an instance of both
-`Neo4j <http://www.neo4j.com/>`__ and `Redis 3.2.0 <http://redis.io/>`__
+`Neo4j <http://www.neo4j.com/>`__ and `Kafka <http://kafka.apache.org/>`__
 to connect to in order to run.
 
 Crazy Ivan can also be deployed with `Consul <https://www.consul.io/>`__

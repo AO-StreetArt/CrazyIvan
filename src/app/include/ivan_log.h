@@ -23,7 +23,6 @@ limitations under the License.
 extern LoggingCategoryInterface *uuid_logging;
 extern LoggingCategoryInterface *config_logging;
 extern LoggingCategoryInterface *obj_logging;
-extern LoggingCategoryInterface *redis_logging;
 extern LoggingCategoryInterface *main_logging;
 extern LoggingCategoryInterface *processor_logging;
 

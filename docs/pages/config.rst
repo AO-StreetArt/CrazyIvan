@@ -99,12 +99,6 @@ DB
 -  0MQ\_InboundConnectionString - The connectivity string for the
    inbound 0MQ Port
 
-Redis Connection
-~~~~~~~~~~~~~~~~
-
--  RedisConnectionString - We have a list of Redis Connections in our
-   cluster in the format "ip--port--password--poolsize--timeout--role"
-
 Kafka Connection
 ~~~~~~~~~~~~~~~~
 
@@ -116,8 +110,6 @@ Behavior
 -  StampTransactionId - True to stamp Transaction ID's on messages,
    False if not. Transaction ID's are passed on Inbound Responses and
    Outbound messages, in order to link the two together.
--  AtomicTransactions - True to enforce all instances of Crazy Ivan to
-   execute on an individual scene one at a time.
 -  Data_Format_Type - JSON to accept JSON messages, protobuf to
    accept protocol buffer messages
 

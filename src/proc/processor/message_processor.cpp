@@ -44,20 +44,6 @@ ProcessResult* \
     current_err_msg = "Device needed to process registration";
   }
 
-  // Start by getting a mutex lock against the scene
-  processor_logging->debug("Getting mutex lock");
-  if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {
-    try {
-      BaseMessageProcessor::get_mutex_lock(obj_msg->get_scene(0)->get_key());
-    }
-    catch (std::exception& e) {
-      processor_logging->error("Error getting mutex lock");
-      processor_logging->error(e.what());
-      current_err_code = PROCESSING_ERROR;
-      current_err_msg = e.what();
-    }
-  }
-
   // Determine if the scene exists in the DB
   if (current_err_code == NO_ERROR) {
     try {
@@ -226,10 +212,6 @@ ProcessResult* \
   if (registered_scenes) {
     delete registered_scenes;
   }
-
-  if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {
-    BaseMessageProcessor::release_mutex_lock(obj_msg->get_scene(0)->get_key());
-  }
   return new ProcessResult(response_string);
 }
 
@@ -242,18 +224,6 @@ ProcessResult* MessageProcessor::process_deregistration_message(\
   // Current error information
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
-
-  // Start by getting a mutex lock against the scene
-  processor_logging->debug("Getting mutex lock");
-  try {
-    BaseMessageProcessor::get_mutex_lock(obj_msg->get_scene(0)->get_key());
-  }
-  catch (std::exception& e) {
-    processor_logging->error("Error Getting Mutex Lock");
-    processor_logging->error(e.what());
-    current_err_code = PROCESSING_ERROR;
-    current_err_msg = e.what();
-  }
 
   // Remove the User Device
   if (current_err_code == NO_ERROR) {
@@ -277,7 +247,6 @@ ProcessResult* MessageProcessor::process_deregistration_message(\
     current_err_msg, obj_msg->get_transaction_id(), \
     obj_msg->get_scene(0)->get_key(), response_string);
 
-  BaseMessageProcessor::release_mutex_lock(obj_msg->get_scene(0)->get_key());
   return new ProcessResult(response_string);
 }
 
@@ -294,18 +263,6 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   // Current error information
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
-
-  // Start by getting a mutex lock against the scene
-  processor_logging->debug("Getting mutex lock");
-  try {
-    BaseMessageProcessor::get_mutex_lock(obj_msg->get_scene(0)->get_key());
-  }
-  catch (std::exception& e) {
-    processor_logging->error("Error Getting Mutex Lock");
-    processor_logging->error(e.what());
-    current_err_code = PROCESSING_ERROR;
-    current_err_msg = e.what();
-  }
 
   bool registration_found = false;
   // Update the transformation between the scene and user device
@@ -377,6 +334,5 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
     delete registered_scenes;
   }
 
-  BaseMessageProcessor::release_mutex_lock(obj_msg->get_scene(0)->get_key());
   return new ProcessResult(response_string);
 }

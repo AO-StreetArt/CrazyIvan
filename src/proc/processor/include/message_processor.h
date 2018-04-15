@@ -17,7 +17,6 @@ limitations under the License.
 
 #include "include/ivan_log.h"
 #include "include/ivan_utils.h"
-#include "include/redis_locking.h"
 #include "include/configuration_manager.h"
 
 #include "include/transform_interface.h"
@@ -37,7 +36,6 @@ limitations under the License.
 #include "rapidjson/document.h"
 
 #include "aossl/neo4j/include/neo4j_interface.h"
-#include "aossl/redis/include/redis_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 #include "aossl/zmq/include/zmq_interface.h"
 
@@ -49,7 +47,7 @@ limitations under the License.
 // The class containing core logic for CrazyIvan
 // Accepts an Scene (assuming it is an inbound message)
 // And performs any and all processing on it,
-// Includes Redis Locks, DB Interactions, and any necessary calculations
+// Includes DB Interactions, and any necessary calculations
 class MessageProcessor : public CrudMessageProcessor, \
   public ProcessorInterface {
 // -------------------------------------------------------------------------- //
@@ -73,8 +71,8 @@ class MessageProcessor : public CrudMessageProcessor, \
  public:
   // Constructor
   MessageProcessor(Neo4jComponentFactory *nf, Neo4jInterface *neo4j, \
-    RedisInterface *rd, ConfigurationManager *con, uuidInterface *u) : \
-    CrudMessageProcessor(nf, neo4j, rd, con, u) {}
+    ConfigurationManager *con, uuidInterface *u) : \
+    CrudMessageProcessor(nf, neo4j, con, u) {}
 
   // Destructor
   ~MessageProcessor() {}

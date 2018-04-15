@@ -112,10 +112,6 @@ ProcessResult* \
     scene_params;
 
   if (obj_msg->num_scenes() > 0) {
-    // Retrieve a Redis Mutex Lock on the scene
-    if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {
-      get_mutex_lock(obj_msg->get_scene(0)->get_key());
-    }
 
     // Declare base variables
     ResultsIteratorInterface *results = NULL;
@@ -184,11 +180,6 @@ ProcessResult* \
     if (results) delete results;
     for (std::pair<std::string, Neo4jQueryParameterInterface*> element : scene_params) {
       delete element.second;
-    }
-
-    // Release the Redis Mutex Lock
-    if (BaseMessageProcessor::get_config_manager()->get_atomictransactions()) {
-      release_mutex_lock(obj_msg->get_scene(0)->get_key());
     }
     return response;
   }

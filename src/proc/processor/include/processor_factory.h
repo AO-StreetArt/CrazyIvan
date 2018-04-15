@@ -27,10 +27,10 @@ class ProcessorFactory {
   ProcessorFactory() {}
   ~ProcessorFactory() {}
   ProcessorInterface* build_processor(Neo4jComponentFactory *nf, \
-    Neo4jInterface *neo4j, RedisInterface *rd, \
+    Neo4jInterface *neo4j, \
     ConfigurationManager *con, uuidInterface *u) {
     // Build and return a new message processor
-    return new MessageProcessor(nf, neo4j, rd, con, u);
+    return new MessageProcessor(nf, neo4j, con, u);
   }
 };
 

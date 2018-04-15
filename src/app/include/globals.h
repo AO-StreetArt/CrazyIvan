@@ -30,9 +30,6 @@ limitations under the License.
 #include "aossl/logging/include/logging_interface.h"
 #include "aossl/logging/include/factory_logging.h"
 
-#include "aossl/redis/include/redis_interface.h"
-#include "aossl/redis/include/factory_redis.h"
-
 #include "aossl/uuid/include/uuid_interface.h"
 #include "aossl/uuid/include/factory_uuid.h"
 
@@ -60,7 +57,6 @@ extern ProcessorInterface *processor;
 
 // Globals from the AO Shared Service Library
 extern Neo4jInterface *neo;
-extern RedisInterface *xRedis;
 extern uuidInterface *ua;
 extern Zmqio *zmqi;
 extern CommandLineInterface *cli;
@@ -68,7 +64,6 @@ extern CommandLineInterface *cli;
 // Global Factory Objects
 extern CommandLineInterpreterFactory *cli_factory;
 extern Neo4jComponentFactory *neo4j_factory;
-extern RedisComponentFactory *redis_factory;
 extern uuidComponentFactory *uuid_factory;
 extern ZmqComponentFactory *zmq_factory;
 extern LoggingComponentFactory *logging_factory;
@@ -90,9 +85,6 @@ inline void shutdown() {
   // Delete objects off the heap
   if (processor) {
     delete processor;
-  }
-  if (xRedis) {
-    delete xRedis;
   }
   if (neo) {
     delete neo;
@@ -123,9 +115,6 @@ inline void shutdown() {
   }
   if (neo4j_factory) {
     delete neo4j_factory;
-  }
-  if (redis_factory) {
-    delete redis_factory;
   }
   if (uuid_factory) {
     delete uuid_factory;
