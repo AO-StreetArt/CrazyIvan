@@ -97,56 +97,6 @@ bool ConfigurationManager::configure_from_file(std::string file_path) {
     }
   }
 
-  if (props->list_exist("RedisConnectionString")) {
-    std::vector<std::string> conn_list = \
-      props->get_list("RedisConnectionString");
-    for (std::size_t i = 0; i < conn_list.size(); i++) {
-      std::string var_value = conn_list[i];
-      config_logging->info("Redis Connection:");
-      config_logging->debug(var_value);
-
-      // Read a string in the format 127.0.0.1--7000----2--5--0
-      RedisConnChain chain;
-
-      // Retrieve the first value
-      int spacer_position = var_value.find("--", 0);
-      std::string str1 = var_value.substr(0, spacer_position);
-      chain.ip = str1;
-
-      // Retrieve the second value
-      std::string new_value = \
-        var_value.substr(spacer_position+2, var_value.length() - 1);
-      spacer_position = new_value.find("--", 0);
-      str1 = new_value.substr(0, spacer_position);
-      chain.port = std::stoi(str1);
-
-      // Retrieve the third value
-      new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-      spacer_position = new_value.find("--", 0);
-      str1 = new_value.substr(0, spacer_position);
-      chain.password = str1;
-
-      // Retrieve the fourth value
-      new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-      spacer_position = new_value.find("--", 0);
-      str1 = new_value.substr(0, spacer_position);
-      chain.pool_size = std::stoi(str1);
-
-      // Retrieve the fifth value
-      new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-      spacer_position = new_value.find("--", 0);
-      str1 = new_value.substr(0, spacer_position);
-      chain.timeout = std::stoi(str1);
-
-      // Retrieve the final value
-      new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-      spacer_position = new_value.find("--", 0);
-      str1 = new_value.substr(0, spacer_position);
-      chain.role = std::stoi(str1);
-
-      RedisConnectionList.push_back(chain);
-    }
-  }
   delete props;
   return true;
 }
@@ -304,61 +254,6 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
     || format_type_str == "protobuf" || format_type_str == "PROTOBUF" \
     || format_type_str == "0") {
     format_type = PROTO_FORMAT;
-  }
-
-  // Read from a set of global config values in consul
-  // This value is stored the same way as in a properties file, but is stored in
-  // one key and are delimited by the character ';'
-  std::string redis_conn_str = get_consul_config_value("RedisConnectionString");
-  if (redis_conn_str == "__NULLSTR__") return false;
-  char delim(';');
-  std::vector<std::string> redis_chains = split(redis_conn_str,  delim);
-  std::string var_value;
-  config_logging->debug("Redis Connections:");
-  config_logging->debug(redis_conn_str);
-  for (std::size_t i = 0; i < redis_chains.size(); i++) {
-    // Read a string in the format 127.0.0.1--7000----2--5--0
-    RedisConnChain chain;
-
-    var_value = redis_chains[i];
-
-    // Retrieve the first value
-    int spacer_position = var_value.find("--", 0);
-    std::string str1 = var_value.substr(0, spacer_position);
-    chain.ip = str1;
-
-    // Retrieve the second value
-    std::string new_value = \
-      var_value.substr(spacer_position+2, var_value.length() - 1);
-    spacer_position = new_value.find("--", 0);
-    str1 = new_value.substr(0, spacer_position);
-    chain.port = std::stoi(str1);
-
-    // Retrieve the third value
-    new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-    spacer_position = new_value.find("--", 0);
-    str1 = new_value.substr(0, spacer_position);
-    chain.password = str1;
-
-    // Retrieve the fourth value
-    new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-    spacer_position = new_value.find("--", 0);
-    str1 = new_value.substr(0, spacer_position);
-    chain.pool_size = std::stoi(str1);
-
-    // Retrieve the fifth value
-    new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-    spacer_position = new_value.find("--", 0);
-    str1 = new_value.substr(0, spacer_position);
-    chain.timeout = std::stoi(str1);
-
-    // Retrieve the final value
-    new_value = new_value.substr(spacer_position+2, new_value.length() - 1);
-    spacer_position = new_value.find("--", 0);
-    str1 = new_value.substr(0, spacer_position);
-    chain.role = std::stoi(str1);
-
-    RedisConnectionList.push_back(chain);
   }
 
   return true;

@@ -42,7 +42,6 @@ const int JSON_FORMAT = 1;
 #include "aossl/commandline/include/commandline_interface.h"
 #include "aossl/consul/include/consul_interface.h"
 #include "aossl/logging/include/logging_interface.h"
-#include "aossl/redis/include/redis_interface.h"
 
 #include "aossl/consul/include/factory_consul.h"
 #include "aossl/properties/include/properties_reader_interface.h"
@@ -71,7 +70,6 @@ class ConfigurationManager {
   std::string OMQ_IBConnStr;
   std::string hostname;
   std::string port;
-  std::vector<RedisConnChain> RedisConnectionList;
   std::string kafka_addr;
   int format_type;
   bool StampTransactionId;
@@ -124,7 +122,6 @@ class ConfigurationManager {
   // Get configuration values
   std::string get_dbconnstr() {return DB_ConnStr;}
   std::string get_ibconnstr() {return OMQ_IBConnStr;}
-  std::vector<RedisConnChain> get_redisconnlist() {return RedisConnectionList;}
   std::string get_kafkabroker() {return kafka_addr;}
   bool get_transactionidsactive() {return StampTransactionId;}
   bool get_atomictransactions() {return AtomicTransactions;}

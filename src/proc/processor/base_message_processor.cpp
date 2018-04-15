@@ -26,18 +26,6 @@ void BaseMessageProcessor::create_uuid(std::string &out_string) {
   out_string.assign(id_container.id);
 }
 
-void BaseMessageProcessor::get_mutex_lock(std::string obj_key) {
-  std::string key = "IVAN-" + obj_key;
-  std::string val = "IVAN-" + config->get_nodeid();
-  redis_locks->get_lock(key, val);
-}
-
-void BaseMessageProcessor::release_mutex_lock(std::string obj_key) {
-  std::string key = "IVAN-" + obj_key;
-  std::string val = "IVAN-" + config->get_nodeid();
-  redis_locks->release_lock(key, val);
-}
-
 SceneListInterface* BaseMessageProcessor::build_response_scene(int msg_type, \
   int err_code, std::string err_msg, \
   std::string tran_id, std::string scene_id) {

@@ -23,14 +23,11 @@ Luckily, these can all be setup with Docker as well:
 
 ``docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --network=dvs --name=database neo4j``
 
-``docker run --network=dvs --name=cache -d redis``
 
 ``docker run -i -t -d -p 2181:2181 -p 9092:9092 --env ADVERTISED_PORT=9092 --env ADVERTISED_HOST=queue --name=queue --network=dvs spotify/kafka``
 
-This will start up a single instance each of Neo4j, Redis, Kafka, and Consul.  Consul stores our configuration values, so we'll need to set those up.
+This will start up a single instance each of Neo4j, Kafka, and Consul.  Consul stores our configuration values, so we'll need to set those up.
 You can either view the `Consul Documentation <https://www.consul.io/intro/getting-started/ui.html>`__ for information on starting the container with a Web UI, or you can use the commands below for a quick-and-dirty setup:
-
-``docker exec -t registry curl -X PUT -d 'cache--6379----2--5--0' http://localhost:8500/v1/kv/ivan/RedisConnectionString``
 
 ``docker exec -t registry curl -X PUT -d 'neo4j://graph-db:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString``
 
@@ -69,10 +66,9 @@ Using the Latest Release
 ------------------------
 
 In order to use the latest release, you will still need to start up the
-applications used by CrazyIvan, namely Redis, Neo4j, and Consul.  This can be done
+applications used by CrazyIvan, namely Neo4j, Kafka, and Consul.  This can be done
 using the docker instructions above, or by installing each to the system manually.
 Instructions:
-* `Redis <https://redis.io/topics/quickstart>`__
 * `Neo4j <https://neo4j.com/developer/get-started/>`__
 * `Consul <https://www.consul.io/intro/getting-started/install.html>`__
 
@@ -142,9 +138,6 @@ You may also build the test modules with:
 ``make tests``
 
 In order to run CrazyIvan from a properties file, you will need:
-
--  To install and configure a Redis Server locally, instructions can be
-   found at http://redis.io/documentation
 
 -  You will also need to have a Neo4j Server installed locally.  Instructions
    can be found at https://neo4j.com/developer/get-started/

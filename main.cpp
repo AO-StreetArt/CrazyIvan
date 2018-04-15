@@ -65,8 +65,6 @@ limitations under the License.
 #include "aossl/logging/include/logging_interface.h"
 #include "aossl/logging/include/factory_logging.h"
 
-#include "aossl/redis/include/redis_interface.h"
-#include "aossl/redis/include/factory_redis.h"
 
 #include "aossl/uuid/include/uuid_interface.h"
 #include "aossl/uuid/include/factory_uuid.h"
@@ -302,7 +300,6 @@ int main(int argc, char** argv) {
 
   cli_factory = new CommandLineInterpreterFactory;
   neo4j_factory = new Neo4jComponentFactory;
-  redis_factory = new RedisComponentFactory;
   uuid_factory = new uuidComponentFactory;
   zmq_factory = new ZmqComponentFactory;
   logging_factory = new LoggingComponentFactory;
@@ -377,28 +374,6 @@ int main(int argc, char** argv) {
     }
   }
 
-  // Set up our Redis Connection List, which is passed to the Redis Admin
-  // We just pass the first element until cluster support is added
-  std::vector<RedisConnChain> RedisConnectionList = cm->get_redisconnlist();
-  // Set up Redis Connection
-  if (RedisConnectionList.size() > 0) {
-    try {
-      // Currently only support for single Redis instance
-      xRedis = \
-        redis_factory->get_redis_interface(RedisConnectionList[0].ip, \
-        RedisConnectionList[0].port);
-    }
-    catch (std::exception& e) {
-      main_logging->error("Exception during Redis Initialization");
-      main_logging->error(e.what());
-      shutdown();
-      exit(1);
-    }
-    main_logging->info("Connected to Redis");
-  } else {
-    main_logging->error("No Redis Connections found in configuration");
-  }
-
   // Set up the Neo4j Connection
   std::string DBConnStr = cm->get_dbconnstr();
   try {
@@ -425,7 +400,7 @@ int main(int argc, char** argv) {
 
   // Set up the Message Processor
   processor = \
-    processor_factory->build_processor(neo4j_factory, neo, xRedis, cm, ua);
+    processor_factory->build_processor(neo4j_factory, neo, cm, ua);
 
   // Start and detach a thread to monitor the Kafka Queue
   std::thread km_thread(monitor_kafka_queue, cm->get_kafkabroker());

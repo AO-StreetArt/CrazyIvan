@@ -201,10 +201,7 @@ within a certain radius of a given lat/long coordinate.
 Scene Update
 ------------
 
-Scene updates can be used to update scene attributes. If Atomic
-Transactions are enabled, then updates will be processed in the order
-they are received, across all instances of Crazy Ivan connected to the
-same Redis cluster.
+Scene updates can be used to update scene attributes.
 
 Scene Destroy
 -------------

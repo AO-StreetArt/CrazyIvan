@@ -63,7 +63,7 @@ of C++ wrappers on many of the C libraries listed here.
 
 LibHiredis
 ----------
-`LibHiredis <https://github.com/redis/hiredis>`__ is used to communicate with Redis, a distributed key-value store.
+`LibHiredis <https://github.com/redis/hiredis>`__ is used to communicate with Redis, a distributed key-value store, and is a dependency of AOSSL
 
 `LibHiredis <https://github.com/redis/hiredis>`__ is released under a BSD License.
 

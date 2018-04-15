@@ -18,13 +18,11 @@ limitations under the License.
 #include "rapidjson/document.h"
 
 #include "aossl/neo4j/include/neo4j_interface.h"
-#include "aossl/redis/include/redis_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 #include "aossl/zmq/include/zmq_interface.h"
 
 #include "include/ivan_log.h"
 #include "include/ivan_utils.h"
-#include "include/redis_locking.h"
 #include "include/configuration_manager.h"
 
 #include "include/transform_interface.h"
@@ -64,7 +62,7 @@ class CrudMessageProcessor : public BaseMessageProcessor {
 
   // Constructor
   CrudMessageProcessor(Neo4jComponentFactory *nf, Neo4jInterface *neo4j, \
-    RedisInterface *rd, ConfigurationManager *con, uuidInterface *u) : \
+    ConfigurationManager *con, uuidInterface *u) : \
     BaseMessageProcessor(nf, neo4j, rd, con, u) {}
 
   // Destructor
