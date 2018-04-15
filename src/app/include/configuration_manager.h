@@ -73,7 +73,6 @@ class ConfigurationManager {
   std::string kafka_addr;
   int format_type;
   bool StampTransactionId;
-  bool AtomicTransactions;
 
   // The Current Node ID
   std::string node_id;
@@ -106,7 +105,6 @@ class ConfigurationManager {
     OMQ_IBConnStr = "tcp://*:5555";
     isConsulActive = false;
     StampTransactionId = false;
-    AtomicTransactions = false;
     node_id = instance_id;
     consul_factory = new ConsulComponentFactory;
     props_factory = new PropertyReaderFactory;
@@ -124,7 +122,6 @@ class ConfigurationManager {
   std::string get_ibconnstr() {return OMQ_IBConnStr;}
   std::string get_kafkabroker() {return kafka_addr;}
   bool get_transactionidsactive() {return StampTransactionId;}
-  bool get_atomictransactions() {return AtomicTransactions;}
   int get_formattype() {return format_type;}
 
   // Get the Current Node ID

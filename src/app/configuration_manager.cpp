@@ -87,15 +87,6 @@ bool ConfigurationManager::configure_from_file(std::string file_path) {
       config_logging->info("Transaction ID's Disabled");
     }
   }
-  if (props->opt_exist("AtomicTransactions")) {
-    if (props->get_opt("AtomicTransactions") == "True") {
-      AtomicTransactions = true;
-      config_logging->info("Sending Outbound Failure Messages Enabled");
-    } else {
-      AtomicTransactions = false;
-      config_logging->info("Sending Outbound Failure Messages Disabled");
-    }
-  }
 
   delete props;
   return true;
@@ -231,16 +222,6 @@ bool ConfigurationManager::configure_from_consul(std::string consul_path, \
     StampTransactionId = true;
   } else {
     StampTransactionId = false;
-  }
-
-  std::string atomic = get_consul_config_value("AtomicTransactions");
-  config_logging->debug("Atomic Transactions Enabled:");
-  config_logging->debug(atomic);
-  if (atomic == "__NULLSTR__") return false;
-  if (atomic == "True") {
-    AtomicTransactions = true;
-  } else {
-    AtomicTransactions = false;
   }
 
   std::string format_type_str = get_consul_config_value("Data_Format_Type");

@@ -35,8 +35,6 @@ You can either view the `Consul Documentation <https://www.consul.io/intro/getti
 
 ``docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId``
 
-``docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/AtomicTransactions``
-
 ``docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type``
 
 Then, we can start up CrazyIvan:
