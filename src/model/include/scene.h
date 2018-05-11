@@ -15,7 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Message accessor for SceneList Protocol Buffer object access
 // Message creator for SceneList Protcol Buffer object
 
 #include <string>
@@ -26,16 +25,15 @@ limitations under the License.
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
-#include "include/configuration_manager.h"
-#include "include/Scene.pb.h"
+#include "app/include/ivan_utils.h"
 
 #include "scene_interface.h"
 #include "scene_data.h"
 #include "scene_exception.h"
 #include "transform.h"
 #include "user_device.h"
+
+#include "Poco/Logger.h"
 
 #ifndef SRC_MODEL_INCLUDE_SCENE_H_
 #define SRC_MODEL_INCLUDE_SCENE_H_
@@ -55,7 +53,6 @@ class SceneDocument : public SceneData, public SceneInterface {
  public:
   // Constructors
   SceneDocument() {}
-  SceneDocument(protoScene::SceneList_Scene scn_data);
   SceneDocument(const SceneDocument& sd);
 
   // Destructor
@@ -111,14 +108,10 @@ class SceneDocument : public SceneData, public SceneInterface {
 
   // Print
   inline void print() {
-    obj_logging->debug("Scene Data");
-    obj_logging->debug(key);
-    obj_logging->debug(name);
-    obj_logging->debug(get_latitude());
-    obj_logging->debug(get_longitude());
-    obj_logging->debug(distance);
+    Poco::Logger::get("Data").debug("{\"Scene\": {\"key\": \"%s\", \"name\": \"%s\", \"latitude\": %f, \"longitude\": %f, \"distance\": %f}}", \
+      key, name, get_latitude(), get_longitude(), distance);
     for (int i = 0; i < num_devices(); i++) {get_device(i)->print();}
-    for (int j = 0; j < num_assets(); j++) {obj_logging->debug(get_asset(j));}
+    for (int j = 0; j < num_assets(); j++) {Poco::Logger::get("Data").debug(get_asset(j));}
     if (trns_flag) {scene_transform->print();}
   }
 };

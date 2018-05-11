@@ -39,36 +39,6 @@ Transform::Transform() {
   rot.push_back(0.0);
 }
 
-// Create a transform from a Protocol Buffer Transformation
-Transform::Transform(protoScene::SceneList_Transformation data) {
-  obj_logging->debug("Converting Transform Data from Protocol Buffer");
-
-  tran_flag = false;
-  rot_flag = false;
-  tran.push_back(0.0);
-  tran.push_back(0.0);
-  tran.push_back(0.0);
-  rot.push_back(0.0);
-  rot.push_back(0.0);
-  rot.push_back(0.0);
-  if (data.has_translation()) {
-    protoScene::SceneList_Vertex3 ptrans = data.translation();
-    tran[0] = ptrans.x();
-    tran[1] = ptrans.y();
-    tran[2] = ptrans.z();
-    tran_flag = true;
-    obj_logging->debug("Translation added");
-  }
-  if (data.has_rotation()) {
-    protoScene::SceneList_Vertex3 prot = data.rotation();
-    rot[0] = prot.x();
-    rot[1] = prot.y();
-    rot[2] = prot.z();
-    rot_flag = true;
-    obj_logging->debug("Rotation added");
-  }
-}
-
 // Add a Transform together
 void Transform::add_transform(TransformInterface *t, bool inverted) {
   if (t->has_translation()) {

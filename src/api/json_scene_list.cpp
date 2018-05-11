@@ -19,13 +19,13 @@ limitations under the License.
 
 // Create a JSON Scene List from a parsed Rapidjson Document
 JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
-  obj_logging->info("Creating Scene from Rapidjson Document");
+  Poco::Logger::get("Data").information("Creating Scene from Rapidjson Document");
   if (d.IsObject()) {
     // Message Type
     rapidjson::Value::ConstMemberIterator msgtype_iter = \
       d.FindMember("msg_type");
     if (msgtype_iter != d.MemberEnd()) {
-      obj_logging->debug("Message Type found");
+      Poco::Logger::get("Data").debug("Message Type found");
       if (!(msgtype_iter->value.IsNull())) {
         set_msg_type(msgtype_iter->value.GetInt());
       }
@@ -34,7 +34,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     rapidjson::Value::ConstMemberIterator optype_iter = \
       d.FindMember("operation");
     if (optype_iter != d.MemberEnd()) {
-      obj_logging->debug("Operation Type found");
+      Poco::Logger::get("Data").debug("Operation Type found");
       if (!(optype_iter->value.IsNull())) {
         set_op_type(optype_iter->value.GetInt());
       }
@@ -43,7 +43,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     rapidjson::Value::ConstMemberIterator tranid_iter = \
       d.FindMember("transaction_id");
     if (tranid_iter != d.MemberEnd()) {
-      obj_logging->debug("Transaction ID found");
+      Poco::Logger::get("Data").debug("Transaction ID found");
       if (!(tranid_iter->value.IsNull())) {
         set_transaction_id(tranid_iter->value.GetString());
       }
@@ -52,7 +52,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     rapidjson::Value::ConstMemberIterator errcode_iter = \
       d.FindMember("err_code");
     if (errcode_iter != d.MemberEnd()) {
-      obj_logging->debug("Error Code found");
+      Poco::Logger::get("Data").debug("Error Code found");
       if (!(errcode_iter->value.IsNull())) {
         set_err_code(errcode_iter->value.GetInt());
       }
@@ -61,7 +61,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     rapidjson::Value::ConstMemberIterator errmsg_iter = \
       d.FindMember("err_msg");
     if (errmsg_iter != d.MemberEnd()) {
-      obj_logging->debug("Error Message found");
+      Poco::Logger::get("Data").debug("Error Message found");
       if (!(errmsg_iter->value.IsNull())) {
         set_err_msg(errmsg_iter->value.GetString());
       }
@@ -70,14 +70,14 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     rapidjson::Value::ConstMemberIterator maxrcrd_iter = \
       d.FindMember("num_records");
     if (maxrcrd_iter != d.MemberEnd()) {
-      obj_logging->debug("Max Records found");
+      Poco::Logger::get("Data").debug("Max Records found");
       if (!(maxrcrd_iter->value.IsNull())) {
         set_num_records(maxrcrd_iter->value.GetInt());
       }
     }
     // Scene List
     if (d.HasMember("scenes")) {
-      obj_logging->debug("Scene List found");
+      Poco::Logger::get("Data").debug("Scene List found");
       const rapidjson::Value& scenes_val = d["scenes"];
       if (scenes_val.IsArray()) {
         for (auto& itr : scenes_val.GetArray()) {
@@ -86,16 +86,16 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator key_iter = \
           itr.FindMember("key");
           if (key_iter != itr.MemberEnd()) {
-            obj_logging->debug("Key found");
+            Poco::Logger::get("Data").debug("Key found");
             if (!(key_iter->value.IsNull())) {
               scd->set_key(key_iter->value.GetString());
             }
-          } else {obj_logging->debug("Key not found");}
+          } else {Poco::Logger::get("Data").debug("Key not found");}
           // Scene Name
           rapidjson::Value::ConstMemberIterator name_iter = \
             itr.FindMember("name");
           if (name_iter != itr.MemberEnd()) {
-            obj_logging->debug("Name found");
+            Poco::Logger::get("Data").debug("Name found");
             if (!(name_iter->value.IsNull())) {
               scd->set_name(name_iter->value.GetString());
             }
@@ -104,7 +104,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator active_iter = \
             itr.FindMember("active");
           if (active_iter != itr.MemberEnd()) {
-            obj_logging->debug("Active flag found");
+            Poco::Logger::get("Data").debug("Active flag found");
             if (!(active_iter->value.IsNull())) {
               scd->set_active(active_iter->value.GetBool());
             }
@@ -112,7 +112,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator region_iter = \
             itr.FindMember("region");
           if (region_iter != itr.MemberEnd()) {
-            obj_logging->debug("Region found");
+            Poco::Logger::get("Data").debug("Region found");
             if (!(region_iter->value.IsNull())) {
               scd->set_region(region_iter->value.GetString());
             }
@@ -121,7 +121,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator lat_iter = \
           itr.FindMember("latitude");
           if (lat_iter != itr.MemberEnd()) {
-            obj_logging->debug("Latitude found");
+            Poco::Logger::get("Data").debug("Latitude found");
             if (!(lat_iter->value.IsNull())) {
               scd->set_latitude(lat_iter->value.GetDouble());
             }
@@ -130,7 +130,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator long_iter = \
             itr.FindMember("longitude");
           if (long_iter != itr.MemberEnd()) {
-            obj_logging->debug("Longitude found");
+            Poco::Logger::get("Data").debug("Longitude found");
             if (!(long_iter->value.IsNull())) {
               scd->set_longitude(long_iter->value.GetDouble());
             }
@@ -139,7 +139,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator dist_iter = \
             itr.FindMember("distance");
           if (dist_iter != itr.MemberEnd()) {
-            obj_logging->debug("Distance found");
+            Poco::Logger::get("Data").debug("Distance found");
             if (!(dist_iter->value.IsNull())) {
               scd->set_distance(dist_iter->value.GetDouble());
             }
@@ -149,7 +149,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator assets_itr = \
             itr.FindMember("assets");
           if (assets_itr != itr.MemberEnd()) {
-            obj_logging->debug("Scene Assets found");
+            Poco::Logger::get("Data").debug("Scene Assets found");
             if (!(assets_itr->value.IsNull())) {
               for (auto& asset_itr : assets_itr->value.GetArray()) {
                 scd->add_asset(asset_itr.GetString());
@@ -161,7 +161,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           rapidjson::Value::ConstMemberIterator tags_itr = \
             itr.FindMember("tags");
           if (tags_itr != itr.MemberEnd()) {
-            obj_logging->debug("Tags found");
+            Poco::Logger::get("Data").debug("Tags found");
             if (!(tags_itr->value.IsNull())) {
               for (auto& tag_itr : tags_itr->value.GetArray()) {
                 scd->add_tag(tag_itr.GetString());
@@ -171,7 +171,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
 
           // Process Scene Transform
           if (itr.HasMember("transform")) {
-            obj_logging->debug("Transform found");
+            Poco::Logger::get("Data").debug("Transform found");
             TransformInterface *new_scene_transform = \
               SceneList::create_transform();
             const rapidjson::Value& scene_trn_val = itr["transform"];
@@ -183,10 +183,9 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                 ++scn_trns_itr
               ) {
                 const char * name_cstring = scn_trns_itr->name.GetString();
-                obj_logging->debug("Processing Transform Member:");
-                obj_logging->debug(name_cstring);
+                Poco::Logger::get("Data").debug("Processing Transform Member: %s", name_cstring);
                 if (strcmp(name_cstring, "translation") == 0) {
-                  obj_logging->debug("Translation found");
+                  Poco::Logger::get("Data").debug("Translation found");
                   const rapidjson::Value& translation_val = scn_trns_itr->value;
                   int i = 0;
                   for (auto& translation_itr : translation_val.GetArray()) {
@@ -195,7 +194,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     ++i;
                   }
                 } else if (strcmp(name_cstring, "rotation") == 0) {
-                  obj_logging->debug("Rotation found");
+                  Poco::Logger::get("Data").debug("Rotation found");
                   const rapidjson::Value& rotation_val = scn_trns_itr->value;
                   int i = 0;
                   for (auto& rotation_itr : rotation_val.GetArray()) {
@@ -210,7 +209,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
 
           // Process User Device List, including transforms
           if (itr.HasMember("devices")) {
-            obj_logging->debug("Device List found");
+            Poco::Logger::get("Data").debug("Device List found");
             const rapidjson::Value& device_list_val = itr["devices"];
             if (!(device_list_val.IsNull())) {
               for (auto& device_itr : device_list_val.GetArray()) {
@@ -219,7 +218,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                 device_itr.FindMember("key");
                 if (ud_key_iter != device_itr.MemberEnd()) {
                   if (!(ud_key_iter->value.IsNull())) {
-                    obj_logging->debug("UD Key found");
+                    Poco::Logger::get("Data").debug("UD Key found");
                     UserDeviceInterface *new_device = \
                       SceneList::create_device(ud_key_iter->value.GetString());
 
@@ -250,7 +249,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
 
                     // Process the device transform
                     if (device_itr.HasMember("transform")) {
-                      obj_logging->debug("UD Transform found");
+                      Poco::Logger::get("Data").debug("UD Transform found");
                       TransformInterface *new_ud_transform = \
                         SceneList::create_transform();
                       const rapidjson::Value& ud_trn_val = device_itr["transform"];
@@ -260,10 +259,9 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                           ud_trns_itr != ud_trn_val.MemberEnd(); ++ud_trns_itr) {
                             const char * udname_cstring = \
                               ud_trns_itr->name.GetString();
-                            obj_logging->debug("Processing Transform Member:");
-                            obj_logging->debug(udname_cstring);
+                            Poco::Logger::get("Data").debug("Processing Transform Member: %s", udname_cstring);
                             if (strcmp(udname_cstring, "translation") == 0) {
-                              obj_logging->debug("Translation found");
+                              Poco::Logger::get("Data").debug("Translation found");
                               const rapidjson::Value& udtranslation_val = \
                                 ud_trns_itr->value;
                               if (!(udtranslation_val.IsNull())) {
@@ -276,7 +274,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                                 }
                               }
                             } else if (strcmp(udname_cstring, "rotation") == 0) {
-                              obj_logging->debug("Rotation found");
+                              Poco::Logger::get("Data").debug("Rotation found");
                               const rapidjson::Value& udrotation_val = \
                               ud_trns_itr->value;
                               if (!(udrotation_val.IsNull())) {
@@ -302,11 +300,11 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           }
         }
       }
-    } else {obj_logging->error("JSON Message detected that is not an object");}
+    } else {Poco::Logger::get("Data").error("JSON Message detected that is not an object");}
   }
 
   void JsonSceneList::to_msg_string(std::string &out_string) {
-    obj_logging->info("To JSON message Called on Scene");
+    Poco::Logger::get("Data").information("To JSON message Called on Scene");
     // Initialize the string buffer and writer
     rapidjson::StringBuffer s;
     rapidjson::Writer<rapidjson::StringBuffer> writer(s);
@@ -350,9 +348,9 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
 
       // Add the key
       if (!(get_scene(a)->get_key().empty())) {
-        obj_logging->debug("Writing key to JSON");
-        obj_logging->debug(get_scene(a)->get_key());
-        obj_logging->debug(static_cast<int>(get_scene(a)->get_key().length()));
+        Poco::Logger::get("Data").debug("Writing key to JSON: %s -- %d", \
+          get_scene(a)->get_key(), \
+          static_cast<int>(get_scene(a)->get_key().length()));
         writer.Key("key");
         writer.String(get_scene(a)->get_key().c_str(), \
         (rapidjson::SizeType)get_scene(a)->get_key().length());

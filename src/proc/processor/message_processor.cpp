@@ -22,7 +22,7 @@ limitations under the License.
 // and pass it back in the response
 ProcessResult* \
   MessageProcessor::process_registration_message(SceneListInterface *obj_msg) {
-  processor_logging->debug("Processing Registration Message");
+  Poco::Logger::get("MessageProcessor").debug("Processing Registration Message");
   // Is this the first device being registered to the scene
   bool is_first_device = false;
   // Does the scene exist in the DB?
@@ -51,8 +51,7 @@ ProcessResult* \
         scene_exists(obj_msg->get_scene(0)->get_key());
     }
     catch (std::exception& e) {
-      processor_logging->error("Error checking for scene existence");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -64,12 +63,11 @@ ProcessResult* \
     // Generate a new key
     BaseMessageProcessor::create_uuid(new_id);
     if (new_id.empty()) {
-      processor_logging->error("Unknown error generating new key for scene");
+      Poco::Logger::get("MessageProcessor").error("Unknown error generating new key for scene");
       current_err_msg = "Error generating key for device";
       current_err_code = PROCESSING_ERROR;
     }
-    processor_logging->info("Key Generated:");
-    processor_logging->info(new_id);
+    Poco::Logger::get("MessageProcessor").information("Key Generated: %s", new_id);
   } else {
     new_id = obj_msg->get_scene(0)->get_device(0)->get_key();
   }
@@ -79,10 +77,10 @@ ProcessResult* \
     if (!(does_scene_exist)) {
       is_first_device = true;
       // Create the scene
-      processor_logging->debug("Creating Scene in database");
+      Poco::Logger::get("MessageProcessor").debug("Creating Scene in database");
       ProcessResult *response = process_create_message(obj_msg);
       if (!(response->successful())) {
-        processor_logging->error("Scene not found and creation failed");
+        Poco::Logger::get("MessageProcessor").error("Scene not found and creation failed");
         current_err_code = PROCESSING_ERROR;
         current_err_msg = "Scene not found and creation failed";
       }
@@ -94,8 +92,7 @@ ProcessResult* \
             is_ud_registered(obj_msg->get_scene(0)->get_key(), new_id);
       }
       catch (std::exception& e) {
-        processor_logging->error("Error checking if User Device is registered");
-        processor_logging->error(e.what());
+        Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
         current_err_code = PROCESSING_ERROR;
         current_err_msg = e.what();
       }
@@ -111,8 +108,7 @@ ProcessResult* \
           get_registrations(new_id);
     }
     catch (std::exception& e) {
-      processor_logging->error("Error getting registrations");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -136,7 +132,7 @@ ProcessResult* \
   // is registered to other scenes
   if (!(is_first_device) && does_scene_exist && !(already_registered) \
     && current_err_code == NO_ERROR && previously_registered) {
-    processor_logging->debug("Attempting to find UD Transform");
+    Poco::Logger::get("MessageProcessor").debug("Attempting to find UD Transform");
     // Iterate through the scenes the device is already registered to
     // Try to find a path from these scenes to the current one in order
     // to establish a transform
@@ -152,8 +148,7 @@ ProcessResult* \
         }
       }
       catch (std::exception& e) {
-        processor_logging->error("Error calculating Scene-Scene Transform");
-        processor_logging->error(e.what());
+        Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
         current_err_code = PROCESSING_ERROR;
         current_err_msg = e.what();
       }
@@ -162,7 +157,7 @@ ProcessResult* \
 
   if (!(already_registered) && current_err_code == NO_ERROR) {
     // Create the registration link in the DB
-    processor_logging->debug("Registering Device in the DB");
+    Poco::Logger::get("MessageProcessor").debug("Registering Device in the DB");
     try {
       BaseMessageProcessor::get_query_helper()->register_device_to_scene(\
         new_id, \
@@ -172,8 +167,7 @@ ProcessResult* \
         obj_msg->get_scene(0)->get_device(0)->get_port());
     }
     catch (std::exception& e) {
-      processor_logging->error("Error Registering Device");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -190,7 +184,7 @@ ProcessResult* \
   }
 
   // Build a response
-  processor_logging->debug("Creating Response message");
+  Poco::Logger::get("MessageProcessor").debug("Creating Response message");
   std::string response_string;
   SceneListInterface *resp_interface = \
     BaseMessageProcessor::build_response_scene(SCENE_ENTER, current_err_code, \
@@ -220,28 +214,27 @@ ProcessResult* \
 // then remove the scene and try to move any paths that pass through the scene
 ProcessResult* MessageProcessor::process_deregistration_message(\
   SceneListInterface *obj_msg) {
-  processor_logging->debug("Processing Deregistration Message");
+  Poco::Logger::get("MessageProcessor").debug("Processing Deregistration Message");
   // Current error information
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
 
   // Remove the User Device
   if (current_err_code == NO_ERROR) {
-    processor_logging->debug("Removing Device from Scene");
+    Poco::Logger::get("MessageProcessor").debug("Removing Device from Scene");
     try {
       BaseMessageProcessor::get_query_helper()->remove_device_from_scene(\
         obj_msg->get_scene(0)->get_device(0)->get_key(), \
         obj_msg->get_scene(0)->get_key());
     }
     catch (std::exception& e) {
-      processor_logging->error("Error Removing Device From Scene");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
   }
   // Build a response string
-  processor_logging->debug("Creating Response message");
+  Poco::Logger::get("MessageProcessor").debug("Creating Response message");
   std::string response_string;
   BaseMessageProcessor::build_string_response(SCENE_LEAVE, current_err_code, \
     current_err_msg, obj_msg->get_transaction_id(), \
@@ -259,7 +252,7 @@ ProcessResult* MessageProcessor::process_deregistration_message(\
 //  -If a coordinate system transformation exists, then update it
 ProcessResult* MessageProcessor::process_device_alignment_message(\
   SceneListInterface *obj_msg) {
-  processor_logging->debug("Processing Alignment Message");
+  Poco::Logger::get("MessageProcessor").debug("Processing Alignment Message");
   // Current error information
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
@@ -275,8 +268,7 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
         obj_msg->get_scene(0)->get_device(0)->get_transform());
     }
     catch (std::exception& e) {
-      processor_logging->error("Error Updating Device Registration");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -285,7 +277,7 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   // If we could not find an existing registration to update
   // then we want to return a not found error code
   if (!registration_found) {
-    processor_logging->debug("Existing Registration not found");
+    Poco::Logger::get("MessageProcessor").debug("Existing Registration not found");
     current_err_code = NOT_FOUND;
     current_err_msg = "No Existing Registrations Found";
   }
@@ -293,15 +285,14 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   // Find scenes that the object is registered to
   SceneListInterface *registered_scenes = NULL;
   if (current_err_code == NO_ERROR) {
-    processor_logging->debug("Retrieving Scenes already registered to");
+    Poco::Logger::get("MessageProcessor").debug("Retrieving Scenes already registered to");
     try {
       registered_scenes = \
         BaseMessageProcessor::get_query_helper()->\
         get_registrations(obj_msg->get_scene(0)->get_device(0)->get_key());
     }
     catch (std::exception& e) {
-      processor_logging->error("Error Retrieving Device Registrations");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
@@ -310,21 +301,20 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   // Iterate through the scenes the devices is registered with &
   // Correct/Create scene-scene transforms
   if (current_err_code == NO_ERROR) {
-    processor_logging->debug("Updating Scene-Scene Transforms");
+    Poco::Logger::get("MessageProcessor").debug("Updating Scene-Scene Transforms");
     try {
       BaseMessageProcessor::get_query_helper()->\
         process_UDUD_transformation(registered_scenes, obj_msg);
     }
     catch (std::exception& e) {
-      processor_logging->error("Error Updating Scene-Scene Transforms");
-      processor_logging->error(e.what());
+      Poco::Logger::get("MessageProcessor").error("{\"Error\": \"%s\"", e.what());
       current_err_code = PROCESSING_ERROR;
       current_err_msg = e.what();
     }
   }
 
   // Build a protocol buffer response
-  processor_logging->debug("Creating Response message");
+  Poco::Logger::get("MessageProcessor").debug("Creating Response message");
   std::string response_string;
   BaseMessageProcessor::build_string_response(DEVICE_ALIGN, current_err_code, \
     current_err_msg, obj_msg->get_transaction_id(), \

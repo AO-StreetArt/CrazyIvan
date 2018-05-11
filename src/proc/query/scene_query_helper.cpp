@@ -19,22 +19,21 @@ limitations under the License.
 
 bool SceneQueryHelper::scene_exists(std::string inp_key) {
   // Determine if the scene exists
-  processor_logging->debug("Determine if the scene exists");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface *obj = NULL;
-  Neo4jQueryParameterInterface *query_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Determine if the scene exists");
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface *obj = NULL;
+  Neocpp::Neo4jQueryParameterInterface *query_param = NULL;
   // Create the query string
   std::string query_string =
     "MATCH (scn:Scene {key: {inp_key}})"
     " RETURN scn";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> query_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> query_params;
   query_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(inp_key);
-  processor_logging->debug("Key:");
-  processor_logging->debug(inp_key);
+  Poco::Logger::get("MessageProcessor").debug("Key: %s", inp_key);
   query_params.emplace("inp_key", query_param);
 
   // Execute the query
@@ -46,16 +45,14 @@ bool SceneQueryHelper::scene_exists(std::string inp_key) {
       query_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(query_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      query_string, e.what());
     has_exception = true;
-    std::string e_string(e.what());
-    exc_string = e_string;
+    exc_string.assign(e.what());
   }
 
   if (!results) {
-    processor_logging->debug("No Scenes found for the given key");
+    Poco::Logger::get("MessageProcessor").debug("No Scenes found for the given key");
   } else {
     tree = results->next();
     if (tree) {
@@ -79,13 +76,13 @@ bool SceneQueryHelper::scene_exists(std::string inp_key) {
 int SceneQueryHelper::get_scene_link(std::string scene1_key, \
   std::string scene2_key) {
   // Query the DB for an existing connection between the two scenes
-  processor_logging->debug("Querying DB for connections between scenes");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface* obj = NULL;
-  DbMapInterface* map = NULL;
-  Neo4jQueryParameterInterface* skey1_param = NULL;
-  Neo4jQueryParameterInterface* skey2_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Querying DB for connections between scenes %s and %s", scene1_key, scene2_key);
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface* obj = NULL;
+  Neocpp::DbMapInterface* map = NULL;
+  Neocpp::Neo4jQueryParameterInterface* skey1_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* skey2_param = NULL;
 
   // Create the query string
   std::string query_string =
@@ -95,20 +92,16 @@ int SceneQueryHelper::get_scene_link(std::string scene1_key, \
     " RETURN trans";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
 
   // Insert the first scene key into the query list
   skey1_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene1_key);
-  processor_logging->debug("Scene 1 Key:");
-  processor_logging->debug(scene1_key);
   q_params.emplace("inp_key1", skey1_param);
 
   // Insert the second scene key into the query list
   skey2_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene2_key);
-  processor_logging->debug("Scene 2 Key:");
-  processor_logging->debug(scene2_key);
   q_params.emplace("inp_key2", skey2_param);
 
   // Execute the query
@@ -118,19 +111,18 @@ int SceneQueryHelper::get_scene_link(std::string scene1_key, \
       BaseQueryHelper::get_neo4j_interface()->execute(query_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(query_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      query_string, e.what());
   }
   if (results) {
     // Find if the first result is forward or backward
     tree = results->next();
     if (!tree) {
-      processor_logging->debug("No values found in result tree");
+      Poco::Logger::get("MessageProcessor").debug("No values found in result tree");
     } else {
       obj = tree->get(0);
       if (!(obj->is_edge())) {
-        processor_logging->debug("Non-Edge value returned from query");
+        Poco::Logger::get("MessageProcessor").debug("Non-Edge value returned from query");
       } else {
         map = obj->properties();
         if (map->element_exists("key")) {
@@ -157,18 +149,18 @@ int SceneQueryHelper::get_scene_link(std::string scene1_key, \
 // Create the scene-scene link
 void SceneQueryHelper::create_scene_link(std::string s1_key, \
   std::string s2_key, TransformInterface *new_trans) {
-  processor_logging->debug("Creating Device Registration link");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface* obj = NULL;
-  Neo4jQueryParameterInterface* s1key_param = NULL;
-  Neo4jQueryParameterInterface* s2key_param = NULL;
-  Neo4jQueryParameterInterface* locx_param = NULL;
-  Neo4jQueryParameterInterface* locy_param = NULL;
-  Neo4jQueryParameterInterface* locz_param = NULL;
-  Neo4jQueryParameterInterface* rotx_param = NULL;
-  Neo4jQueryParameterInterface* roty_param = NULL;
-  Neo4jQueryParameterInterface* rotz_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Creating link between scenes %s and %s", s1_key, s2_key);
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface* obj = NULL;
+  Neocpp::Neo4jQueryParameterInterface* s1key_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* s2key_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* locx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* locy_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* locz_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* rotx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* roty_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* rotz_param = NULL;
   // Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}}), (scn2:Scene {key: {inp_key2}}) "
@@ -178,20 +170,16 @@ void SceneQueryHelper::create_scene_link(std::string s1_key, \
     "RETURN scn, trans, scn2";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
   s1key_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s1_key);
-  processor_logging->debug("Scene 1 Key:");
-  processor_logging->debug(s1_key);
   q_params.emplace("inp_key1", s1key_param);
 
   // Insert the device key into the query list
   s2key_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s2_key);
-  processor_logging->debug("Scene 2 Key:");
-  processor_logging->debug(s2_key);
   q_params.emplace("inp_key2", s2key_param);
 
   // Insert translation
@@ -224,30 +212,28 @@ void SceneQueryHelper::create_scene_link(std::string s1_key, \
       BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      udq_string, e.what());
     has_exception = true;
-    std::string e_string(e.what());
-    exc_string = e_string;
+    exc_string.assign(e.what());
   }
 
   if (!results) {
-    processor_logging->error("No Links created");
+    Poco::Logger::get("MessageProcessor").error("No Links created");
     std::string exc_str = "No Links created: ";
     exc_string = exc_str + udq_string;
     has_exception = true;
   } else {
     tree = results->next();
     if (!tree) {
-      processor_logging->error("Query Returned no result tree");
+      Poco::Logger::get("MessageProcessor").error("Query Returned no result tree");
       std::string exc_str = "Query Returned no values: ";
       exc_string = exc_str + udq_string;
       has_exception = true;
     } else {
       obj = tree->get(0);
       if (!(obj->is_node())) {
-        processor_logging->debug("Query Returned no values");
+        Poco::Logger::get("MessageProcessor").debug("Query Returned no values");
         std::string exc_str = "Query Returned no values: ";
         exc_string = exc_str + udq_string;
         has_exception = true;
@@ -271,18 +257,18 @@ void SceneQueryHelper::create_scene_link(std::string s1_key, \
 // Update the scene-scene link
 void SceneQueryHelper::update_scene_link(std::string s1_key, \
   std::string s2_key, TransformInterface *new_trans) {
-  processor_logging->debug("Updating Scene link");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface* obj = NULL;
-  Neo4jQueryParameterInterface* s1key_param = NULL;
-  Neo4jQueryParameterInterface* s2key_param = NULL;
-  Neo4jQueryParameterInterface* locx_param = NULL;
-  Neo4jQueryParameterInterface* locy_param = NULL;
-  Neo4jQueryParameterInterface* locz_param = NULL;
-  Neo4jQueryParameterInterface* rotx_param = NULL;
-  Neo4jQueryParameterInterface* roty_param = NULL;
-  Neo4jQueryParameterInterface* rotz_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Updating link between scenes %s and %s", s1_key, s2_key);
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface* obj = NULL;
+  Neocpp::Neo4jQueryParameterInterface* s1key_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* s2key_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* locx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* locy_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* locz_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* rotx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* roty_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* rotz_param = NULL;
   // Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key1}})-[trans:TRANSFORM]->"
@@ -293,20 +279,16 @@ void SceneQueryHelper::update_scene_link(std::string s1_key, \
     "RETURN scn, trans, scn2";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
   s1key_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s1_key);
-  processor_logging->debug("Scene 1 Key:");
-  processor_logging->debug(s1_key);
   q_params.emplace("inp_key1", s1key_param);
 
   // Insert the device key into the query list
   s2key_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(s2_key);
-  processor_logging->debug("Scene 2 Key:");
-  processor_logging->debug(s2_key);
   q_params.emplace("inp_key2", s2key_param);
 
   // Insert translation
@@ -339,30 +321,29 @@ void SceneQueryHelper::update_scene_link(std::string s1_key, \
       BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      udq_string, e.what());
     has_exception = true;
     std::string e_string(e.what());
     exc_string = e_string;
   }
 
   if (!results) {
-    processor_logging->error("No Links created");
+    Poco::Logger::get("MessageProcessor").error("No Links created");
     has_exception = true;
     std::string exc_str = "No Links created: ";
     exc_string = exc_str + udq_string;
   } else {
     tree = results->next();
     if (!tree) {
-      processor_logging->debug("Query Returned no result tree");
+      Poco::Logger::get("MessageProcessor").debug("Query Returned no result tree");
       has_exception = true;
       std::string exc_str = "Query Returned no result tree: ";
       exc_string = exc_str + udq_string;
     } else {
       obj = tree->get(0);
       if (!(obj->is_node())) {
-        processor_logging->debug("Query Returned no values");
+        Poco::Logger::get("MessageProcessor").debug("Query Returned no values");
         has_exception = true;
         std::string exc_str = "Query Returned no values: ";
         exc_string = exc_str + udq_string;

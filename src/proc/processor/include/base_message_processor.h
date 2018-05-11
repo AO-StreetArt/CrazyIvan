@@ -17,27 +17,24 @@ limitations under the License.
 
 #include <string>
 
-#include "rapidjson/document.h"
+#include "model/include/transform_interface.h"
+#include "model/include/transform_factory.h"
+#include "model/include/user_device_interface.h"
+#include "model/include/user_device_factory.h"
+#include "model/include/scene_interface.h"
+#include "model/include/scene_factory.h"
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
-#include "include/configuration_manager.h"
+#include "api/include/scene_list_interface.h"
+#include "api/include/scene_list_factory.h"
 
-#include "include/transform_interface.h"
-#include "include/transform_factory.h"
-#include "include/user_device_interface.h"
-#include "include/user_device_factory.h"
-#include "include/scene_interface.h"
-#include "include/scene_factory.h"
+#include "proc/query/include/query_helper_interface.h"
+#include "proc/query/include/query_helper_factory.h"
+#include "proc/processor/include/processor_interface.h"
 
-#include "include/scene_list_interface.h"
-#include "include/scene_list_factory.h"
+#include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/impl/libneo4j_factory.h"
 
-#include "include/query_helper_interface.h"
-#include "include/query_helper_factory.h"
-#include "include/processor_interface.h"
-
-#include "aossl/neo4j/include/neo4j_interface.h"
+#include "aossl/core/include/kv_store_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 
 #ifndef SRC_PROC_PROCESSOR_INCLUDE_BASE_MESSAGE_PROCESSOR_H_
@@ -47,10 +44,10 @@ limitations under the License.
 // and exposes them for child classes to utilize
 class BaseMessageProcessor {
   // Internal Variables
-  Neo4jInterface *n = NULL;
-  Neo4jComponentFactory *neo_factory = NULL;
-  ConfigurationManager *config = NULL;
-  uuidInterface *ugen = NULL;
+  Neocpp::Neo4jInterface *n = NULL;
+  Neocpp::LibNeo4jFactory *neo_factory = NULL;
+  AOSSL::KeyValueStoreInterface *config = NULL;
+  AOSSL::UuidInterface *ugen = NULL;
   QueryHelperInterface *qh = NULL;
   SceneListFactory slfactory;
   SceneFactory sfactory;
@@ -60,9 +57,9 @@ class BaseMessageProcessor {
 
  public:
   // Access internal components
-  Neo4jInterface* get_neo4j_interface() {return n;}
-  Neo4jComponentFactory* get_neo4j_factory() {return neo_factory;}
-  ConfigurationManager* get_config_manager() {return config;}
+  Neocpp::Neo4jInterface* get_neo4j_interface() {return n;}
+  Neocpp::LibNeo4jFactory* get_neo4j_factory() {return neo_factory;}
+  AOSSL::KeyValueStoreInterface* get_config_manager() {return config;}
   QueryHelperInterface* get_query_helper() {return qh;}
   SceneListFactory get_slfactory() {return slfactory;}
   SceneFactory get_sfactory() {return sfactory;}
@@ -91,9 +88,9 @@ class BaseMessageProcessor {
     {return new ProcessResult;}
 
   // Constructor
-  inline BaseMessageProcessor(Neo4jComponentFactory *nf, \
-    Neo4jInterface *neo4j, \
-    ConfigurationManager *con, uuidInterface *u) {
+  inline BaseMessageProcessor(Neocpp::LibNeo4jFactory *nf, \
+    Neocpp::Neo4jInterface *neo4j, \
+    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) {
     n = neo4j;
     config = con;
     ugen = u;

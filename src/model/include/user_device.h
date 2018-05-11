@@ -19,15 +19,14 @@ limitations under the License.
 #include <vector>
 #include <algorithm>
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
-#include "include/configuration_manager.h"
-#include "include/Scene.pb.h"
+#include "app/include/ivan_utils.h"
 
-#include "include/transform_factory.h"
-#include "include/transform_interface.h"
-#include "include/user_device_interface.h"
-#include "include/scene_exception.h"
+#include "transform_factory.h"
+#include "transform_interface.h"
+#include "user_device_interface.h"
+#include "scene_exception.h"
+
+#include "Poco/Logger.h"
 
 #ifndef SRC_MODEL_INCLUDE_USER_DEVICE_H_
 #define SRC_MODEL_INCLUDE_USER_DEVICE_H_
@@ -48,7 +47,6 @@ class UserDevice : public UserDeviceInterface {
 
  public:
   // Constructors
-  UserDevice(protoScene::SceneList_UserDevice scn_data);
   UserDevice() {trns_flag = false;}
   UserDevice(TransformInterface *transform) \
     {trans = transform; trns_flag = true;}
@@ -101,8 +99,7 @@ class UserDevice : public UserDeviceInterface {
 
   // Print
   inline void print() {
-    obj_logging->debug("User Device");
-    obj_logging->debug(key);
+    Poco::Logger::get("Data").debug("User Device: %s", key);
     if (trns_flag) {trans->print();}
   }
 };

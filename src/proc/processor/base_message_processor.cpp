@@ -18,23 +18,18 @@ limitations under the License.
 #include "include/base_message_processor.h"
 
 void BaseMessageProcessor::create_uuid(std::string &out_string) {
-  UuidContainer id_container;
-  id_container = ugen->generate();
-  if (!id_container.err.empty()) {
-    uuid_logging->error(id_container.err);
+  AOSSL::StringBuffer id_container;
+  ugen->generate(id_container);
+  if (!id_container.err_msg.empty()) {
+    Poco::Logger::get("MessageProcessor").error(id_container.err_msg);
   }
-  out_string.assign(id_container.id);
+  out_string.assign(id_container.val);
 }
 
 SceneListInterface* BaseMessageProcessor::build_response_scene(int msg_type, \
   int err_code, std::string err_msg, \
   std::string tran_id, std::string scene_id) {
-  SceneListInterface *resp_scn = NULL;
-  if (config->get_formattype() == PROTO_FORMAT) {
-    resp_scn = slfactory.build_protobuf_scene();
-  } else {
-    resp_scn = slfactory.build_json_scene();
-  }
+  SceneListInterface *resp_scn = slfactory.build_json_scene();
   // Set up the scene list
   resp_scn->set_msg_type(msg_type);
   resp_scn->set_err_code(err_code);

@@ -15,18 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Message accessor for SceneList Protocol Buffer object access
-// Message creator for SceneList Protcol Buffer object
-
 #include <string>
 #include <vector>
 #include <algorithm>
 
-#include "include/scene_interface.h"
-#include "include/user_device_factory.h"
-#include "include/transform_factory.h"
-#include "include/scene_list_interface.h"
-#include "include/ivan_utils.h"
+#include "model/include/scene_interface.h"
+#include "model/include/user_device_factory.h"
+#include "model/include/transform_factory.h"
+
+#include "scene_list_interface.h"
+
+#include "app/include/ivan_utils.h"
+
+#include "Poco/Logger.h"
 
 #ifndef SRC_API_INCLUDE_SCENE_LIST_H_
 #define SRC_API_INCLUDE_SCENE_LIST_H_
@@ -48,13 +49,7 @@ class SceneList : public SceneListInterface {
  public:
   inline TransformInterface* create_transform() \
     {return tfactory.build_transform();}
-  inline TransformInterface* \
-    create_transform(protoScene::SceneList_Transformation data) \
-    {return tfactory.build_transform(data);}
   inline UserDeviceInterface* create_device() {return udfactory.build_device();}
-  inline UserDeviceInterface* \
-    create_device(protoScene::SceneList_UserDevice ud_data) \
-    {return udfactory.build_device(ud_data);}
   inline UserDeviceInterface* \
     create_device(std::string inp_key, TransformInterface *t) \
     {return udfactory.build_device(inp_key, t);}
@@ -93,13 +88,8 @@ class SceneList : public SceneListInterface {
   int num_scenes() {return data.size();}
   int get_num_records() {return num_records;}
   inline void print() {
-    obj_logging->debug("Scene List");
-    obj_logging->debug(msg_type);
-    obj_logging->debug(operation);
-    obj_logging->debug(err_msg);
-    obj_logging->debug(err_code);
-    obj_logging->debug(transaction_id);
-    obj_logging->debug(num_records);
+    Poco::Logger::get("Data").debug("{\"SceneList\": {\"msg_type\": %d, \"operation\": %d, \"err_msg\": %s, \"err_code\": %d, \"transaction_id\": \"%s\", \"num_records\": %d}}",
+      msg_type, operation, err_msg, err_code, transaction_id, num_records);
     for (unsigned int i = 0; i < data.size(); i++) {data[i]->print();}
   }
 };

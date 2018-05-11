@@ -17,21 +17,6 @@ limitations under the License.
 
 #include "include/user_device.h"
 
-// Create a new user device object from a protocol buffer user device object
-UserDevice::UserDevice(protoScene::SceneList_UserDevice ud_data) {
-  obj_logging->debug("Converting User Device Data from Protocol Buffer");
-
-  if (ud_data.has_key()) {
-    key = ud_data.key();
-    obj_logging->debug(key);
-  }
-  if (ud_data.has_transform()) {
-    trans = new Transform (ud_data.transform());
-    trns_flag = true;
-    obj_logging->debug("Device Transform added");
-  }
-}
-
 // Copy Constructor
 UserDevice::UserDevice(const UserDevice &ud) {
   key = ud.get_key();

@@ -27,8 +27,6 @@ class SceneFactory {
   SceneFactory() {}
   ~SceneFactory() {}
   SceneInterface* build_scene() {return new SceneDocument;}
-  SceneInterface* build_scene(protoScene::SceneList_Scene scn_data) \
-    {return new SceneDocument(scn_data);}
 };
 
 #endif  // SRC_MODEL_INCLUDE_SCENE_FACTORY_H_

@@ -19,12 +19,13 @@ limitations under the License.
 #include <vector>
 #include <algorithm>
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
-#include "include/configuration_manager.h"
+#include "rapidjson/document.h"
 
-#include "include/Scene.pb.h"
-#include "include/transform_interface.h"
+#include "app/include/ivan_utils.h"
+
+#include "transform_interface.h"
+
+#include "Poco/Logger.h"
 
 #ifndef SRC_MODEL_INCLUDE_TRANSFORM_H_
 #define SRC_MODEL_INCLUDE_TRANSFORM_H_
@@ -42,7 +43,6 @@ class Transform : public TransformInterface {
 
  public:
   Transform();
-  Transform(protoScene::SceneList_Transformation data);
   ~Transform() {}
 
   // Translations
@@ -70,18 +70,11 @@ class Transform : public TransformInterface {
   void clear() {tran.clear(); rot.clear(); tran_flag = false; rot_flag = false;}
   // Print the transform to the logs
   inline void print() {
-    obj_logging->debug("Transformation");
     if (tran_flag) {
-      obj_logging->debug("Translation");
-      obj_logging->debug(tran[0]);
-      obj_logging->debug(tran[1]);
-      obj_logging->debug(tran[2]);
+      Poco::Logger::get("Data").debug("{\"Translation\": [%f, %f, %f]}", tran[0], tran[1], tran[2]);
     }
     if (rot_flag) {
-      obj_logging->debug("Rotation");
-      obj_logging->debug(rot[0]);
-      obj_logging->debug(rot[1]);
-      obj_logging->debug(rot[2]);
+      Poco::Logger::get("Data").debug("{\"Rotation\": [%f, %f, %f]}", rot[0], rot[1], rot[2]);
     }
   }
 };

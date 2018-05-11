@@ -17,24 +17,28 @@ limitations under the License.
 
 #include <string>
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
+#include "app/include/ivan_utils.h"
 
-#include "include/transform_interface.h"
-#include "include/transform_factory.h"
-#include "include/user_device_interface.h"
-#include "include/user_device_factory.h"
-#include "include/scene_interface.h"
-#include "include/scene_factory.h"
+#include "model/include/transform_interface.h"
+#include "model/include/transform_factory.h"
+#include "model/include/user_device_interface.h"
+#include "model/include/user_device_factory.h"
+#include "model/include/scene_interface.h"
+#include "model/include/scene_factory.h"
 
-#include "include/scene_list_interface.h"
-#include "include/scene_list_factory.h"
+#include "api/include/scene_list_interface.h"
+#include "api/include/scene_list_factory.h"
 
-#include "aossl/neo4j/include/neo4j_interface.h"
-#include "aossl/neo4j/include/factory_neo4j.h"
+#include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/impl/libneo4j_factory.h"
 
-#include "include/device_query_helper.h"
-#include "include/query_helper_interface.h"
+#include "aossl/core/include/kv_store_interface.h"
+#include "aossl/uuid/include/uuid_interface.h"
+
+#include "device_query_helper.h"
+#include "query_helper_interface.h"
+
+#include "Poco/Logger.h"
 
 #ifndef SRC_PROC_QUERY_INCLUDE_SCENE_QUERY_HELPER_H_
 #define SRC_PROC_QUERY_INCLUDE_SCENE_QUERY_HELPER_H_
@@ -44,8 +48,8 @@ limitations under the License.
 // The Scene Query Helper deals with individual scenes, and links between them
 class SceneQueryHelper : public DeviceQueryHelper {
  public:
-  inline SceneQueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf, \
-    ConfigurationManager *con) : DeviceQueryHelper(neo, nf, con) {}
+  inline SceneQueryHelper(Neocpp::Neo4jInterface *neo, Neocpp::LibNeo4jFactory *nf, \
+    AOSSL::KeyValueStoreInterface *con) : DeviceQueryHelper(neo, nf, con) {}
   virtual ~SceneQueryHelper() {}
 
   // Does the scene exist in the DB?

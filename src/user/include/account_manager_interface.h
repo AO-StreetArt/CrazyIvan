@@ -15,18 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#ifndef SRC_APP_INCLUDE_IVAN_LOG_H_
-#define SRC_APP_INCLUDE_IVAN_LOG_H_
+#include <string>
 
-#include "aossl/logging/include/logging_interface.h"
+#ifndef SRC_USER_INCLUDE_ACCOUNT_MANAGER_INTERFACE_H_
+#define SRC_USER_INCLUDE_ACCOUNT_MANAGER_INTERFACE_H_
 
-extern LoggingCategoryInterface *uuid_logging;
-extern LoggingCategoryInterface *config_logging;
-extern LoggingCategoryInterface *obj_logging;
-extern LoggingCategoryInterface *main_logging;
-extern LoggingCategoryInterface *processor_logging;
+const int IVAN_NO_AUTH = 0;
+const int IVAN_BASIC_AUTH = 1;
 
-void start_logging_submodules();
-void shutdown_logging_submodules();
+// The class responsible for validating a login
+class AccountManagerInterface {
+ public:
+  // Destructor
+  virtual ~AccountManagerInterface() {}
 
-#endif  // SRC_APP_INCLUDE_IVAN_LOG_H_
+  //! Get the type of authentication
+  virtual int auth_type() = 0;
+
+  // Determine if a user is valid or not
+  virtual bool authenticate_user(std::string& user, std::string& passwd) = 0;
+};
+
+#endif  // SRC_USER_INCLUDE_ACCOUNT_MANAGER_INTERFACE_H_

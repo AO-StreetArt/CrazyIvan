@@ -16,7 +16,9 @@ limitations under the License.
 */
 
 #include <string>
-#include "include/scene_list_interface.h"
+
+#include "api/include/scene_list_interface.h"
+#include "api/include/scene_list_factory.h"
 
 #ifndef SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_INTERFACE_H_
 #define SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_INTERFACE_H_
@@ -85,10 +87,29 @@ class ProcessorInterface {
   // Destructor
   virtual ~ProcessorInterface() {}
 
-  // Process a message in the form of an Scene
-  // In the case of a get message, return the retrieved document
-  // In the case of a create message, return the key of the created object
-  virtual ProcessResult* process_message(SceneListInterface *obj_msg) = 0;
+  // Process a batch create message
+  virtual ProcessResult* process_create_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a batch update message
+  virtual ProcessResult* process_update_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a query message
+  virtual ProcessResult* process_query_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a batch delete message
+  virtual ProcessResult* process_delete_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a batch delete message
+  virtual ProcessResult* process_registration_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a batch delete message
+  virtual ProcessResult* process_deregistration_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a batch delete message
+  virtual ProcessResult* process_device_alignment_message(SceneListInterface *obj_msg) = 0;
+
+  // Process a device retrieval message
+  virtual ProcessResult* process_device_get_message(SceneListInterface *obj_msg) = 0;
 };
 
 #endif  // SRC_PROC_PROCESSOR_INCLUDE_PROCESSOR_INTERFACE_H_

@@ -29,8 +29,6 @@ class UserDeviceFactory {
   UserDeviceFactory() {}
   ~UserDeviceFactory() {}
   UserDeviceInterface* build_device() {return new UserDevice;}
-  UserDeviceInterface* build_device(protoScene::SceneList_UserDevice ud_data) \
-    {return new UserDevice(ud_data);}
   UserDeviceInterface* build_device(std::string new_key) \
     {return new UserDevice(new_key);}
   UserDeviceInterface* \

@@ -18,9 +18,9 @@ limitations under the License.
 #include <string>
 #include <vector>
 
-#include "include/transform_interface.h"
-#include "include/transform_factory.h"
-#include "include/scene_exception.h"
+#include "transform_interface.h"
+#include "transform_factory.h"
+#include "scene_exception.h"
 
 #ifndef SRC_MODEL_INCLUDE_USER_DEVICE_INTERFACE_H_
 #define SRC_MODEL_INCLUDE_USER_DEVICE_INTERFACE_H_

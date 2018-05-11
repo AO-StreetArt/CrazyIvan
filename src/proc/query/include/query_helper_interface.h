@@ -17,15 +17,22 @@ limitations under the License.
 
 #include <string>
 
-#include "include/ivan_utils.h"
+#include "app/include/ivan_utils.h"
 
-#include "include/transform_interface.h"
-#include "include/user_device_interface.h"
-#include "include/scene_interface.h"
+#include "model/include/transform_interface.h"
+#include "model/include/transform_factory.h"
+#include "model/include/user_device_interface.h"
+#include "model/include/user_device_factory.h"
+#include "model/include/scene_interface.h"
+#include "model/include/scene_factory.h"
 
-#include "include/scene_list_interface.h"
+#include "api/include/scene_list_interface.h"
+#include "api/include/scene_list_factory.h"
 
-#include "aossl/neo4j/include/neo4j_interface.h"
+#include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/impl/libneo4j_factory.h"
+
+#include "aossl/core/include/kv_store_interface.h"
 
 #ifndef SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_
 #define SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_
@@ -122,14 +129,14 @@ class QueryHelperInterface {
     std::string scene_id2) = 0;
 
 // --------------------------Helper Methods---------------------------------- //
-  virtual void assign_scene_properties(DbObjectInterface *db_scene, \
+  virtual void assign_scene_properties(Neocpp::DbObjectInterface *db_scene, \
     SceneInterface *data) = 0;
-  virtual void assign_device_properties(DbObjectInterface *db_device, \
+  virtual void assign_device_properties(Neocpp::DbObjectInterface *db_device, \
       UserDeviceInterface *data) = 0;
   virtual void generate_scene_crud_query(std::string key, int crud_op, \
       int op_type, SceneInterface *scn, std::string &query_str) = 0;
   virtual void generate_scene_query_parameters(std::string key, int crud_op, SceneInterface *scn, \
-      std::unordered_map<std::string, Neo4jQueryParameterInterface*> &scene_params) = 0;
+      std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> &scene_params) = 0;
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_

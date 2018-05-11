@@ -1,11 +1,8 @@
 # Makefile is defined to call make within the app, api, and model directories
 
-.PHONY: mkapp mkapi mkmodel mkproc
+.PHONY: mkapi mkmodel mkproc
 
-all: mkmodel mkapi mkproc mkapp
-
-mkapp:
-	@$(MAKE) -C app
+all: mkmodel mkapi mkproc
 
 mkapi:
 	@$(MAKE) -C api

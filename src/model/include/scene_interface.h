@@ -15,7 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Message accessor for SceneList Protocol Buffer object access
 // Message creator for SceneList Protcol Buffer object
 
 #include <string>

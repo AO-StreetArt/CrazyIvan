@@ -15,8 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "include/query_helper_interface.h"
-#include "include/algorithm_query_helper.h"
+#include "query_helper_interface.h"
+#include "algorithm_query_helper.h"
+
+#include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/impl/libneo4j_factory.h"
+
+#include "aossl/core/include/kv_store_interface.h"
 
 #ifndef SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_FACTORY_H_
 #define SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_FACTORY_H_
@@ -26,8 +31,8 @@ class QueryHelperFactory {
  public:
   QueryHelperFactory() {}
   ~QueryHelperFactory() {}
-  QueryHelperInterface* build_query_helper(Neo4jInterface *neo4j, \
-    Neo4jComponentFactory *nf, ConfigurationManager *con) {
+  QueryHelperInterface* build_query_helper(Neocpp::Neo4jInterface *neo4j, \
+    Neocpp::LibNeo4jFactory *nf, AOSSL::KeyValueStoreInterface *con) {
     // Build and return a new message processor
     return new AlgorithmQueryHelper(neo4j, nf, con);
   }

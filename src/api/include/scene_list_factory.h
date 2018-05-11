@@ -17,7 +17,6 @@ limitations under the License.
 
 #include "scene_list_interface.h"
 #include "json_scene_list.h"
-#include "protobuf_scene_list.h"
 
 #ifndef SRC_API_INCLUDE_SCENE_LIST_FACTORY_H_
 #define SRC_API_INCLUDE_SCENE_LIST_FACTORY_H_
@@ -28,11 +27,8 @@ class SceneListFactory {
   SceneListFactory() {}
   ~SceneListFactory() {}
   SceneListInterface* build_json_scene() {return new JsonSceneList;}
-  SceneListInterface* build_protobuf_scene() {return new ProtobufSceneList;}
   SceneListInterface* build_scene(const rapidjson::Document& d) \
     {return new JsonSceneList(d);}
-  SceneListInterface* build_scene(protoScene::SceneList buffer) \
-    {return new ProtobufSceneList(buffer);}
 };
 
 #endif  // SRC_API_INCLUDE_SCENE_LIST_FACTORY_H_

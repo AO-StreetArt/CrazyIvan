@@ -4,7 +4,7 @@ CC = g++
 CFLAGS  = -g -Wall
 STD = -std=c++11
 OBJS = base_message_processor.o crud_message_processor.o message_processor.o
-INCL_DIRS = -I. -I$(CURDIR)/../../app/ -I$(CURDIR)/../../api/ -I$(CURDIR)/../../model/ -I$(CURDIR)/../query/
+INCL_DIRS = -I. -I$(CURDIR)/../../
 
 default: $(OBJS)
 

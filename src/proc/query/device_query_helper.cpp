@@ -20,24 +20,22 @@ limitations under the License.
 // Determine if the given user device is registered to the given scene
 bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
   std::string inp_device) {
-  processor_logging->debug("Checking the User Devices registered to the Scene");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface *obj = NULL;
-  DbMapInterface *map = NULL;
-  Neo4jQueryParameterInterface *key_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Checking the User Devices registered to Scene %s", \
+    inp_string);
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface *obj = NULL;
+  Neocpp::DbMapInterface *map = NULL;
+  Neocpp::Neo4jQueryParameterInterface *key_param = NULL;
   // Create the query string
   std::string q_string =
     "MATCH (scn:Scene {key: {inp_key}})-[tr:TRANSFORM]->(ud:UserDevice)"
     " RETURN ud";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
-  std::string qkey = inp_string;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
   key_param = \
-    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(qkey);
-  processor_logging->debug("Key:");
-  processor_logging->debug(qkey);
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(inp_string);
   q_params.emplace("inp_key", key_param);
 
   // Execute the query
@@ -49,27 +47,24 @@ bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
       BaseQueryHelper::get_neo4j_interface()->execute(q_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(q_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      q_string, e.what());
     has_exception = true;
-    std::string e_string(e.what());
-    exc_string = e_string;
+    exc_string.assign(e.what());
   }
 
   if (!results) {
-    processor_logging->debug("User Device not found registered to scene");
+    Poco::Logger::get("MessageProcessor").debug("User Device not found registered to scene");
     return false;
     // If we are registering the first device, then we may have a created scene
   } else {
     // Check if the registering user device is already registered
-    processor_logging->debug("User Devices detected");
+    Poco::Logger::get("MessageProcessor").debug("User Devices detected");
     tree = results->next();
     while (tree) {
       // Get the first DB Object (Node)
       obj = tree->get(0);
-      processor_logging->debug("Query Result:");
-      processor_logging->debug(obj->to_string());
+      Poco::Logger::get("MessageProcessor").debug("Query Result: %s", obj->to_string());
 
       if (!(obj->is_node())) break;
 
@@ -82,7 +77,7 @@ bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
       }
 
       if (db_key == inp_device) {
-        processor_logging->debug("Existing registration detected");
+        Poco::Logger::get("MessageProcessor").debug("Existing registration detected");
         ret_val = true;
       }
 
@@ -105,34 +100,26 @@ bool DeviceQueryHelper::is_ud_registered(std::string inp_string, \
 // Collect the User Device and Transformation within the scenes returned
 SceneListInterface* \
   DeviceQueryHelper::get_registrations(std::string inp_device) {
-  processor_logging->debug("Checking other scenes the device is registered to");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface *obj = NULL;
-  DbObjectInterface *edge = NULL;
-  DbObjectInterface *device = NULL;
-  DbMapInterface *edge_props = NULL;
-  DbMapInterface *dev_props = NULL;
-  Neo4jQueryParameterInterface *udkey_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Checking registrations for device %s", inp_device);
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface *obj = NULL;
+  Neocpp::DbObjectInterface *edge = NULL;
+  Neocpp::DbObjectInterface *device = NULL;
+  Neocpp::DbMapInterface *edge_props = NULL;
+  Neocpp::DbMapInterface *dev_props = NULL;
+  Neocpp::Neo4jQueryParameterInterface *udkey_param = NULL;
   // Create the return object
-  SceneListInterface *sc = NULL;
-  if (BaseQueryHelper::get_config_manager()->get_formattype() == PROTO_FORMAT) {
-    sc = BaseQueryHelper::create_protobuf_scene();
-  } else {
-    sc = BaseQueryHelper::create_json_scene();
-  }
+  SceneListInterface *sc = BaseQueryHelper::create_json_scene();
   // Create the query string
   std::string udq_string =
     "MATCH (scn:Scene)-[tr:TRANSFORM]->(ud:UserDevice {key: {inp_key}})"
     " RETURN scn, tr, ud";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> udq_params;
-  std::string udqkey = inp_device;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> udq_params;
   udkey_param = \
-    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(udqkey);
-  processor_logging->debug("Key:");
-  processor_logging->debug(udqkey);
+    BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(inp_device);
   udq_params.emplace("inp_key", udkey_param);
 
   // Execute the query
@@ -141,23 +128,20 @@ SceneListInterface* \
       BaseQueryHelper::get_neo4j_interface()->execute(udq_string, udq_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      udq_string, e.what());
     return NULL;
   }
 
   int num_records = 0;
   if (!results) {
-    processor_logging->debug("No Scenes found for the given device");
+    Poco::Logger::get("MessageProcessor").debug("No Scenes found for the given device");
     return NULL;
   } else {
     // Iterate through the results
     // Build the scene list
     tree = results->next();
     while (tree) {
-      processor_logging->debug("Record returned from results iterator");
-
       // Get the first DB Object (Node)
       obj = tree->get(0);
       if (!(obj->is_node()) && !(obj->is_edge())) break;
@@ -168,10 +152,8 @@ SceneListInterface* \
 
       SceneInterface *new_data = BaseQueryHelper::create_scene();
       num_records = num_records + 1;
-      processor_logging->debug("Query Result:");
-      processor_logging->debug(obj->to_string());
-      processor_logging->debug(edge->to_string());
-      processor_logging->debug(device->to_string());
+      Poco::Logger::get("MessageProcessor").debug("{\"Query\": \"%s\", Result\": {\"object\": \"%s\", \"edge\": \"%s\", \"device\": \"%s\"}}", \
+        obj->to_string(), edge->to_string(), device->to_string());
 
       // Pull the node properties and assign them to the new Scene object
       BaseQueryHelper::assign_scene_properties(obj, new_data);
@@ -184,7 +166,7 @@ SceneListInterface* \
       double rotation_y = -999.0;
       double rotation_z = -999.0;
       if (edge->is_edge())  {
-        processor_logging->debug("Getting Edge Properties");
+        Poco::Logger::get("MessageProcessor").debug("Getting Edge Properties");
         edge_props = edge->properties();
         // Get the transform attributes
         if (edge_props->element_exists("translation_x")) {
@@ -208,13 +190,13 @@ SceneListInterface* \
       }
 
       if (device->is_node()) {
-        processor_logging->debug("Getting Device Properties");
+        Poco::Logger::get("MessageProcessor").debug("Getting Device Properties");
         // Get the transform and device properties
         dev_props = device->properties();
 
         if (dev_props) {
           if (dev_props->element_exists("key")) {
-            processor_logging->debug("Device Key Found");
+            Poco::Logger::get("MessageProcessor").debug("Device Key Found");
             // Add the device related data to the scene
             TransformInterface *new_transform = \
               BaseQueryHelper::create_transform();
@@ -226,18 +208,18 @@ SceneListInterface* \
             new_dev->set_rotation(0, rotation_x);
             new_dev->set_rotation(1, rotation_y);
             new_dev->set_rotation(2, rotation_z);
-            processor_logging->debug("Adding device to scene data");
+            Poco::Logger::get("MessageProcessor").debug("Adding device to scene data");
             new_data->add_device(new_dev);
           }
         } else {
-          processor_logging->error("Null map returned for device properties");
+          Poco::Logger::get("MessageProcessor").error("Null map returned for device properties");
         }
       }
 
-      processor_logging->debug("Adding Scene data to scene");
+      Poco::Logger::get("MessageProcessor").debug("Adding Scene data to scene");
       sc->add_scene(new_data);
 
-      processor_logging->debug("Cleanup");
+      Poco::Logger::get("MessageProcessor").debug("Cleanup");
       if (edge_props) {delete edge_props; edge_props = NULL;}
       if (dev_props) {delete dev_props; dev_props = NULL;}
       if (obj) {delete obj; obj = NULL;}
@@ -245,14 +227,14 @@ SceneListInterface* \
       if (device) {delete device; device = NULL;}
       if (tree) {delete tree; tree = NULL;}
 
-      processor_logging->debug("Getting next result");
+      Poco::Logger::get("MessageProcessor").debug("Getting next result");
       tree = results->next();
     }
   }
   if (results) delete results;
   if (udkey_param) delete udkey_param;
   if (num_records == 0) {
-    processor_logging->error("No Scenes found for the given device");
+    Poco::Logger::get("MessageProcessor").error("No Scenes found for the given device");
     return NULL;
   }
   return sc;
@@ -263,19 +245,19 @@ SceneListInterface* \
 void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   std::string scene_id, TransformInterface *transform, bool device_exists, \
   std::string ud_conn_str, std::string ud_host, int ud_port) {
-  processor_logging->debug("Creating Device Registration link");
-  ResultsIteratorInterface *results = NULL;
-  Neo4jQueryParameterInterface *skey_param = NULL;
-  Neo4jQueryParameterInterface *udkey_param = NULL;
-  Neo4jQueryParameterInterface *locx_param = NULL;
-  Neo4jQueryParameterInterface *locy_param = NULL;
-  Neo4jQueryParameterInterface *locz_param = NULL;
-  Neo4jQueryParameterInterface *rotx_param = NULL;
-  Neo4jQueryParameterInterface *roty_param = NULL;
-  Neo4jQueryParameterInterface *rotz_param = NULL;
-  Neo4jQueryParameterInterface *conns_param = NULL;
-  Neo4jQueryParameterInterface *host_param = NULL;
-  Neo4jQueryParameterInterface *port_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Creating Device Registration link");
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::Neo4jQueryParameterInterface *skey_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *udkey_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *locx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *locy_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *locz_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *rotx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *roty_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *rotz_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *conns_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *host_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *port_param = NULL;
 
   // Create the query string
   std::string udq_string = "MATCH (scn:Scene {key: {inp_key}})";
@@ -295,20 +277,18 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   udq_string = udq_string + "RETURN scn, trans, ud";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
   skey_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
-  processor_logging->debug("Scene Key:");
-  processor_logging->debug(scene_id);
+  Poco::Logger::get("MessageProcessor").debug("Scene Key: %s", scene_id);
   q_params.emplace("inp_key", skey_param);
 
   // Insert the device key into the query list
   udkey_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(device_id);
-  processor_logging->debug("Device Key:");
-  processor_logging->debug(device_id);
+  Poco::Logger::get("MessageProcessor").debug("Device Key: %s", device_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   // Insert translation
@@ -345,19 +325,18 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
   q_params.emplace("ud_port", port_param);
 
   // Execute the query
-  processor_logging->error("Executing Registration Query:");
-  processor_logging->error(udq_string);
+  Poco::Logger::get("MessageProcessor").debug("Executing Registration Query: %s", udq_string);
   try {
     results = \
       BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      udq_string, e.what());
   }
 
   if (!results) {
-    processor_logging->error("No Links created");
+    Poco::Logger::get("MessageProcessor").error("No Links created");
   } else {
     delete results;
   }
@@ -378,30 +357,28 @@ void DeviceQueryHelper::register_device_to_scene(std::string device_id, \
 void DeviceQueryHelper::remove_device_from_scene(std::string device_id, \
   std::string scene_id) {
   // Set up the Cypher Query for device deletion
-  ResultsIteratorInterface *results = NULL;
-  Neo4jQueryParameterInterface* skey_param = NULL;
-  Neo4jQueryParameterInterface* udkey_param = NULL;
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::Neo4jQueryParameterInterface* skey_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface* udkey_param = NULL;
   std::string query_string =
     "MATCH (scn:Scene {key: {inp_key}})-[trans:TRANSFORM]->"
       "(ud:UserDevice {key: {inp_ud_key}}) "
     "DETACH DELETE ud RETURN scn";
-  processor_logging->debug("Executing Delete Query");
+  Poco::Logger::get("MessageProcessor").debug("Executing Delete Query");
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
   skey_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
-  processor_logging->debug("Scene Key:");
-  processor_logging->debug(scene_id);
+  Poco::Logger::get("MessageProcessor").debug("Scene Key: %s", scene_id);
   q_params.emplace("inp_key", skey_param);
 
   // Insert the device key into the query list
   udkey_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(device_id);
-  processor_logging->debug("Device Key:");
-  processor_logging->debug(device_id);
+  Poco::Logger::get("MessageProcessor").debug("Device Key: %s", device_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   // Execute the query
@@ -410,12 +387,11 @@ void DeviceQueryHelper::remove_device_from_scene(std::string device_id, \
       BaseQueryHelper::get_neo4j_interface()->execute(query_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(query_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      query_string, e.what());
   }
 
-  if (!results) processor_logging->error("No Links destroyed");
+  if (!results) Poco::Logger::get("MessageProcessor").error("No Links destroyed");
   else
     {delete results;}
   if (skey_param) delete skey_param;
@@ -427,18 +403,18 @@ void DeviceQueryHelper::remove_device_from_scene(std::string device_id, \
 // False if we were unable to find an existing link to update
 bool DeviceQueryHelper::update_device_registration(std::string dev_id, \
   std::string scene_id, TransformInterface *transform) {
-  processor_logging->debug("Updating Device Registration link");
-  ResultsIteratorInterface *results = NULL;
-  ResultTreeInterface *tree = NULL;
-  DbObjectInterface *obj = NULL;
-  Neo4jQueryParameterInterface *skey_param = NULL;
-  Neo4jQueryParameterInterface *udkey_param = NULL;
-  Neo4jQueryParameterInterface *locx_param = NULL;
-  Neo4jQueryParameterInterface *locy_param = NULL;
-  Neo4jQueryParameterInterface *locz_param = NULL;
-  Neo4jQueryParameterInterface *rotx_param = NULL;
-  Neo4jQueryParameterInterface *roty_param = NULL;
-  Neo4jQueryParameterInterface *rotz_param = NULL;
+  Poco::Logger::get("MessageProcessor").debug("Updating Device Registration link");
+  Neocpp::ResultsIteratorInterface *results = NULL;
+  Neocpp::ResultTreeInterface *tree = NULL;
+  Neocpp::DbObjectInterface *obj = NULL;
+  Neocpp::Neo4jQueryParameterInterface *skey_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *udkey_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *locx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *locy_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *locz_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *rotx_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *roty_param = NULL;
+  Neocpp::Neo4jQueryParameterInterface *rotz_param = NULL;
   // Create the query string
   std::string udq_string =
     "MATCH (scn:Scene {key: {inp_key}})-[trans:TRANSFORM]->"
@@ -449,20 +425,18 @@ bool DeviceQueryHelper::update_device_registration(std::string dev_id, \
     "RETURN scn, trans, ud";
 
   // Set up the query parameters for query
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> q_params;
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> q_params;
 
   // Insert the scene key into the query list
   skey_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(scene_id);
-  processor_logging->debug("Scene Key:");
-  processor_logging->debug(scene_id);
+  Poco::Logger::get("MessageProcessor").debug("Scene Key: %s", scene_id);
   q_params.emplace("inp_key", skey_param);
 
   // Insert the device key into the query list
   udkey_param = \
     BaseQueryHelper::get_neo4j_factory()->get_neo4j_query_parameter(dev_id);
-  processor_logging->debug("Device Key:");
-  processor_logging->debug(dev_id);
+  Poco::Logger::get("MessageProcessor").debug("Device Key: %s", dev_id);
   q_params.emplace("inp_ud_key", udkey_param);
 
   // Insert translation
@@ -487,8 +461,6 @@ bool DeviceQueryHelper::update_device_registration(std::string dev_id, \
   q_params.emplace("rot_y", roty_param);
   q_params.emplace("rot_z", rotz_param);
 
-  processor_logging->debug("Executing Query:");
-
   // Execute the query
   bool has_exception = false;
   bool result_found = true;
@@ -498,29 +470,28 @@ bool DeviceQueryHelper::update_device_registration(std::string dev_id, \
       BaseQueryHelper::get_neo4j_interface()->execute(udq_string, q_params);
   }
   catch (std::exception& e) {
-    processor_logging->error("Error running Query:");
-    processor_logging->error(udq_string);
-    processor_logging->error(e.what());
+    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      udq_string, e.what());
     has_exception = true;
     std::string e_string(e.what());
     exc_string = e_string;
   }
 
   if (!results) {
-    processor_logging->error("No Links created");
+    Poco::Logger::get("MessageProcessor").error("No Links created");
     result_found = false;
   } else if ((!has_exception) && result_found) {
-    processor_logging->debug("Query Executed Successfully");
+    Poco::Logger::get("MessageProcessor").debug("Query Executed Successfully");
     tree = results->next();
     if (!tree) {
-      processor_logging->error("Query Returned no result tree");
+      Poco::Logger::get("MessageProcessor").error("Query Returned no result tree");
       result_found = false;
     } else {
       obj = tree->get(0);
       if (!(obj->is_node())) {
-        processor_logging->error("Query Returned no values");
+        Poco::Logger::get("MessageProcessor").error("Query Returned no values");
         result_found = false;
-      } else {processor_logging->debug(obj->to_string());}
+      } else {Poco::Logger::get("MessageProcessor").debug(obj->to_string());}
     }
   }
   if (obj) delete obj;

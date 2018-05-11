@@ -15,30 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "rapidjson/document.h"
+#include "model/include/transform_interface.h"
+#include "model/include/transform_factory.h"
+#include "model/include/user_device_interface.h"
+#include "model/include/user_device_factory.h"
+#include "model/include/scene_interface.h"
+#include "model/include/scene_factory.h"
 
-#include "aossl/neo4j/include/neo4j_interface.h"
+#include "api/include/scene_list_interface.h"
+#include "api/include/scene_list_factory.h"
+
+#include "proc/query/include/query_helper_interface.h"
+#include "proc/query/include/query_helper_factory.h"
+#include "proc/processor/include/processor_interface.h"
+#include "proc/processor/include/base_message_processor.h"
+
+#include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/impl/libneo4j_factory.h"
+
+#include "aossl/core/include/kv_store_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
-#include "aossl/zmq/include/zmq_interface.h"
-
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
-#include "include/configuration_manager.h"
-
-#include "include/transform_interface.h"
-#include "include/transform_factory.h"
-#include "include/user_device_interface.h"
-#include "include/user_device_factory.h"
-#include "include/scene_interface.h"
-#include "include/scene_factory.h"
-
-#include "include/scene_list_interface.h"
-#include "include/scene_list_factory.h"
-
-#include "include/query_helper_interface.h"
-#include "include/query_helper_factory.h"
-#include "include/processor_interface.h"
-#include "include/base_message_processor.h"
 
 #ifndef SRC_PROC_PROCESSOR_INCLUDE_CRUD_MESSAGE_PROCESSOR_H_
 #define SRC_PROC_PROCESSOR_INCLUDE_CRUD_MESSAGE_PROCESSOR_H_
@@ -61,8 +57,8 @@ class CrudMessageProcessor : public BaseMessageProcessor {
   ProcessResult* process_device_get_message(SceneListInterface *obj_msg);
 
   // Constructor
-  CrudMessageProcessor(Neo4jComponentFactory *nf, Neo4jInterface *neo4j, \
-    ConfigurationManager *con, uuidInterface *u) : \
+  CrudMessageProcessor(Neocpp::LibNeo4jFactory *nf, Neocpp::Neo4jInterface *neo4j, \
+    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) : \
     BaseMessageProcessor(nf, neo4j, con, u) {}
 
   // Destructor

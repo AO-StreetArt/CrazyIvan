@@ -17,24 +17,28 @@ limitations under the License.
 
 #include <string>
 
-#include "include/ivan_log.h"
-#include "include/ivan_utils.h"
+#include "model/include/transform_interface.h"
+#include "model/include/transform_factory.h"
+#include "model/include/user_device_interface.h"
+#include "model/include/user_device_factory.h"
+#include "model/include/scene_interface.h"
+#include "model/include/scene_factory.h"
 
-#include "include/transform_interface.h"
-#include "include/transform_factory.h"
-#include "include/user_device_interface.h"
-#include "include/user_device_factory.h"
-#include "include/scene_interface.h"
-#include "include/scene_factory.h"
+#include "api/include/scene_list_interface.h"
+#include "api/include/scene_list_factory.h"
 
-#include "include/scene_list_interface.h"
-#include "include/scene_list_factory.h"
+#include "proc/query/include/query_helper_interface.h"
 
-#include "aossl/neo4j/include/neo4j_interface.h"
-#include "aossl/neo4j/include/factory_neo4j.h"
+#include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/impl/libneo4j_factory.h"
 
-#include "include/scene_query_helper.h"
-#include "include/query_helper_interface.h"
+#include "aossl/core/include/kv_store_interface.h"
+#include "aossl/uuid/include/uuid_interface.h"
+
+#include "scene_query_helper.h"
+#include "query_helper_interface.h"
+
+#include "Poco/Logger.h"
 
 #ifndef SRC_PROC_QUERY_INCLUDE_ALGORITHM_QUERY_HELPER_H_
 #define SRC_PROC_QUERY_INCLUDE_ALGORITHM_QUERY_HELPER_H_
@@ -49,8 +53,8 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
   SceneTransformResult str;
 
  public:
-  inline AlgorithmQueryHelper(Neo4jInterface *neo, Neo4jComponentFactory *nf, \
-    ConfigurationManager *con) : SceneQueryHelper(neo, nf, con) {}
+  inline AlgorithmQueryHelper(Neocpp::Neo4jInterface *neo, Neocpp::LibNeo4jFactory *nf, \
+    AOSSL::KeyValueStoreInterface *con) : SceneQueryHelper(neo, nf, con) {}
   ~AlgorithmQueryHelper() {}
 
   // Does the scene exist in the DB?
@@ -116,11 +120,11 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
     std::string scene_id2);
 
 // --------------------------Helper Methods---------------------------------- //
-  void assign_scene_properties(DbObjectInterface *db_scene, \
+  void assign_scene_properties(Neocpp::DbObjectInterface *db_scene, \
     SceneInterface *data) \
     {BaseQueryHelper::assign_scene_properties(db_scene, data);}
 
-  void assign_device_properties(DbObjectInterface *db_device, \
+  void assign_device_properties(Neocpp::DbObjectInterface *db_device, \
       UserDeviceInterface *data) {
     BaseQueryHelper::assign_device_properties(db_device, data);
   }
@@ -129,7 +133,7 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
     BaseQueryHelper::generate_scene_crud_query(key, crud_op, op_type, scn, query_str);
   }
   inline void generate_scene_query_parameters(std::string key, int crud_op, SceneInterface *scn, \
-      std::unordered_map<std::string, Neo4jQueryParameterInterface*> &scene_params) {
+      std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> &scene_params) {
     BaseQueryHelper::generate_scene_query_parameters(key, crud_op, scn, scene_params);
   }
 };
