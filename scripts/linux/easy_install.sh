@@ -20,7 +20,6 @@ fi
 if [ $OPT = "-r" ]; then
   printf "Attempting to uninstall CrazyIvan\n"
   sudo rm /usr/local/bin/crazy_ivan
-  sudo rm /usr/local/bin/stop_crazyivan.py
   sudo rm -r /etc/crazyivan
   sudo rm -r /var/log/crazyivan
   sudo deluser crazyivan
@@ -47,9 +46,6 @@ else
   # Install the executable to the bin folder
   sudo cp crazy_ivan /usr/local/bin
 
-  # Copy the stop_crazyivan script
-  sudo cp scripts/stop_crazyivan.py /usr/local/bin
-
   # Copy the systemd unit file
   sudo cp crazyivan.service /etc/systemd/system
 
@@ -61,7 +57,6 @@ else
 
   # Create the config directory and copy configuration files
   sudo mkdir /etc/crazyivan
-  sudo cp log4cpp.properties /etc/crazyivan
   sudo cp ivan.properties /etc/crazyivan
 
   # Ensure that the crazyivan user has permission to access both the configuration and logging directories

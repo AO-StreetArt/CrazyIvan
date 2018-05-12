@@ -4,8 +4,7 @@ Description=Crazy Ivan Scene Tracking Service
 [Service]
 User=crazyivan
 Group=crazyivan
-ExecStart=/usr/local/bin/crazy_ivan -consul-addr=localhost:8500 -config-file=/etc/crazyivan/ivan.properties -log-conf=/etc/crazyivan/log4cpp.properties
-ExecStop=./usr/local/bin/stop_crazyivan.py /etc/crazyivan/ivan.properties
+ExecStart=/usr/local/bin/crazy_ivan consul=localhost:8500 props=/etc/crazyivan/ivan.properties
 
 [Install]
 WantedBy=multi-user.target

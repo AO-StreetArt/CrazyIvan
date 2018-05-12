@@ -14,81 +14,46 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev
+apt-get install -y git libboost-all-dev openssl openssl-dev
+
+#Build POCO
+wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
+tar -xvzf poco-1.9.0-all.tar.gz
+cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && gmake -s && sudo gmake -s install
+cd ../
 
 #Build & Install the Shared Service Library
-
 if [ ! -d /usr/local/include/aossl ]; then
 
-  #Create the folder to clone into
-  mkdir $PRE/aossl
-
-  #Pull the code down
-  git clone https://github.com/AO-StreetArt/AOSharedServiceLibrary.git $PRE/aossl
+  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.0.0/aossl-deb-2.0.0.tar.gz
+  tar -xvzf aossl-deb-2.0.0.tar.gz
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
-  cp $PRE/aossl/scripts/deb/build_deps.sh $PRE/aossl_deps/
-  cd $PRE/aossl_deps
-  ./build_deps.sh
+  cp aossl-deb/deps/build_deps.sh $PRE/aossl_deps/
+  cd $PRE/aossl_deps && sudo ./build_deps.sh
   cd ../$RETURN
 
   #Build the shared service library
-  cd $PRE/aossl
-  make
-  make install
-  ldconfig
-  cd ../..
+  cd aossl-deb && make && sudo make install
+  cd ../
 
 fi
 
-#Determine if we Need RapidJSON
-if [ ! -d /usr/local/include/rapidjson ]; then
+# Build and install NeoCpp
+if [ ! -d /usr/local/include/neocpp ]; then
 
-  printf "Cloning RapidJSON"
+  git clone https://github.com/AO-StreetArt/NeoCpp.git
+  #Build the dependencies for the shared service library
+  mkdir $PRE/neocpp_deps
+  cp NeoCpp/scripts/linux/deb/build_deps.sh $PRE/neocpp_deps/
+  cd $PRE/neocpp_deps && sudo ./build_deps.sh
+  cd ../$RETURN
 
-  mkdir $PRE/rapidjson
-
-  #Get the RapidJSON Dependency
-  git clone https://github.com/miloyip/rapidjson.git $PRE/rapidjson
-
-  #Move the RapidJSON header files to the include path
-  cp -r $PRE/rapidjson/include/rapidjson/ /usr/local/include
-
-fi
-
-#Ensure we have access to the Protocol Buffer Interfaces
-if [ ! -d /usr/local/include/dvs_interface ]; then
-  mkdir $PRE/interfaces/
-  git clone https://github.com/AO-StreetArt/DvsInterface.git $PRE/interfaces
-  cd $PRE/interfaces && make install
-  cd ../..
-fi
-
-# Install librdkafka
-if [ ! -d /usr/local/include/librdkafka ]; then
-  wget https://github.com/edenhill/librdkafka/archive/v0.11.3.tar.gz
-  tar -xvzf v0.11.3.tar.gz
-  cd librdkafka-0.11.3 && ./configure && make && make install
-  cd ..
-fi
-
-# Here we look to install cppkafka
-if [ ! -d /usr/local/include/cppkafka ]; then
-  printf "Cloning CppKafka\n"
-
-  mkdir $PRE/cppkafka
-
-  #Get the CppKafka Dependency
-  git clone https://github.com/mfontanini/cppkafka.git $PRE/cppkafka
-
-  # Build and install
-  mkdir $PRE/cppkafka/build && cd $PRE/cppkafka/build && cmake .. && make && make install
+  cd NeoCpp && make && sudo make install
 
 fi
 
-#Install python, pyzmq, protobuf, boost, and the protobuf compiler
-apt-get install -y python-pip python-dev libprotobuf-dev protobuf-compiler libboost-all-dev
-pip install pyzmq
+sudo ldconfig
 
 printf "Finished installing dependencies"

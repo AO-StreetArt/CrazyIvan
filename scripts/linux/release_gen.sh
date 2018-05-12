@@ -38,9 +38,6 @@ cp LICENSE.txt ../$RELEASE_NAME
 #Copy the easy install script into the release folder
 cp scripts/linux/easy_install.sh ../$RELEASE_NAME
 
-#Copy the stopy crazyivan script into the release scripts folder
-cp scripts/stop_crazyivan.py ../$RELEASE_NAME/scripts
-
 #Coopy the populate consul script into the release scripts folder
 cp scripts/linux/populate_consul.sh ../$RELEASE_NAME/scripts
 
@@ -51,7 +48,6 @@ cp crazyivan.service ../$RELEASE_NAME
 cp crazy_ivan ../$RELEASE_NAME
 
 #Copy the configuration file
-cp conf/log4cpp_release.properties ../$RELEASE_NAME/log4cpp.properties
 cp ivan.properties ../$RELEASE_NAME/ivan.properties
 
 #Generate the Release tar files
