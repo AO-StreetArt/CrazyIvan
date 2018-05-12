@@ -8,8 +8,6 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - libssl-dev
-    - protobuf-compiler
-    - libprotobuf-dev
     - net-tools
 services:
 - docker

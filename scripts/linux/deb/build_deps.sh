@@ -49,8 +49,7 @@ if [ ! -d /usr/local/include/neocpp ]; then
   cp NeoCpp/scripts/linux/deb/build_deps.sh $PRE/neocpp_deps/
   cd $PRE/neocpp_deps && sudo ./build_deps.sh
   cd ../$RETURN
-
-  cd NeoCpp && make && sudo make install
+  cd NeoCpp && sudo make install
 
 fi
 
