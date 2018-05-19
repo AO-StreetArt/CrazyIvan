@@ -1,15 +1,25 @@
 We love pull requests from everyone.  By participating in this project, you agree to abide by the Code of Conduct, specified in the CODE_OF_CONDUCT.md file.
 
-Keep in mind that we maintain a DebugDockerfile, which can be used to generate a development Docker image.  This will pre-install the application and dependencies for you, making
-working on Crazy Ivan much easier.  Be sure to check out the [Developer Notes](http://crazyivan.readthedocs.io/en/latest/pages/dev_notes.html) for more information.
+Start by forking and cloning the repository.  The easiest way to handle dependencies
+is by using the Vagrant file.  Install Vagrant (https://www.vagrantup.com/), then,
+from the main directory of the repo:
 
-Start by forking and cloning the repository, then following the instructions to [build from source](http://crazyivan.readthedocs.io/en/latest/quickstart.html).
+`vagrant up`
+
+`vagrant ssh`
+
+`scl enable devtoolset-7 bash`
+
+`cd ../../vagrant`
 
 Ensure that the tests pass:
 
 `make && make test`
 
-Make your changes and write tests for your changes, then ensure that all tests pass:
+Vagrant creates a Virtual Machine hosting the code and dependencies, and shares the
+folder containing the code between your machine and the VM.  This means that you can
+make your updates on your computer in your favorite IDE, and build within the VM.  
+Once you've made you changes and written tests for your changes, then ensure that all tests pass:
 
 `make clean && make && make test`
 
