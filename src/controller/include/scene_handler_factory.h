@@ -26,7 +26,9 @@ limitations under the License.
 #include "proc/processor/include/processor_interface.h"
 #include "user/include/account_manager_interface.h"
 
-#include "scene_handler.h"
+#include "scene_base_handler.h"
+#include "scene_delete_handler.h"
+#include "scene_update_handler.h"
 
 #include "aossl/profile/include/tiered_app_profile.h"
 
@@ -112,9 +114,25 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     }
 
     // Build a request handler for the message
-    if (uri_path.size() >= 2 && uri_path[0] == "v1" && \
-        uri_path[1] == "scene" && request.getMethod() == "POST") {
-      return new SceneCreateRequestHandler(config, proc, accounts);
+    if (uri_path.size() >= 1 && uri_path[0] == "v1" && request.getMethod() == "POST") {
+      if (uri_path.size() == 2 && uri_path[1] == "scene") {
+        return new SceneBaseRequestHandler(config, proc, SCENE_CRT);
+      } else if (uri_path.size() == 3 && uri_path[1] == "scene") {
+        return new SceneUpdateRequestHandler(config, proc, uri_path[2]);
+      } else if (uri_path.size() == 3 && uri_path[1] == "query" && uri_path[2] ==  "scene") {
+        return new SceneBaseRequestHandler(config, proc, SCENE_GET);
+      } else if (uri_path.size() == 2 && uri_path[1] == "register") {
+        return new SceneBaseRequestHandler(config, proc, SCENE_ENTER);
+      } else if (uri_path.size() == 2 && uri_path[1] == "deregister") {
+        return new SceneBaseRequestHandler(config, proc, SCENE_LEAVE);
+      } else if (uri_path.size() == 2 && uri_path[1] == "align") {
+        return new SceneBaseRequestHandler(config, proc, DEVICE_ALIGN);
+      } else if (uri_path.size() == 3 && uri_path[1] == "query" && uri_path[2] ==  "device") {
+        return new SceneBaseRequestHandler(config, proc, DEVICE_GET);
+      }
+    } else if (uri_path.size() == 3 && uri_path[0] == "v1" && \
+        uri_path[1] == "scene" && request.getMethod() == "DELETE") {
+      return new SceneDeleteRequestHandler(config, proc, uri_path[2]);
     }
     return NULL;
   }

@@ -29,7 +29,9 @@ limitations under the License.
 #include "proc/processor/include/processor_interface.h"
 #include "proc/processor/include/processor_factory.h"
 
-#include "controller/include/scene_handler.h"
+#include "controller/include/scene_base_handler.h"
+#include "controller/include/scene_update_handler.h"
+#include "controller/include/scene_delete_handler.h"
 #include "controller/include/scene_handler_factory.h"
 
 #include "user/include/account_manager_interface.h"
