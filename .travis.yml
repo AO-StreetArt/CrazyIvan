@@ -4,8 +4,6 @@ language: cpp
 addons:
   apt:
     packages:
-    - gcc
-    - g++
     - cppcheck
 services:
   - docker

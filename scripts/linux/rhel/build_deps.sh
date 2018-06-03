@@ -11,16 +11,16 @@ RETURN=..
 mkdir $PRE
 
 # Set up a reasonably new version of gcc
-sudo yum -y install openssl-devel boost-devel centos-release-scl wget git gcc gcc-c++
-sudo yum -y update
-sudo yum -y install devtoolset-6
+yum -y install openssl-devel boost-devel centos-release-scl wget git gcc gcc-c++
+yum -y update
+yum -y install devtoolset-6
 scl enable devtoolset-6 bash
-sudo ldconfig
+ldconfig
 
 #Build POCO
 wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
 tar -xvzf poco-1.9.0-all.tar.gz
-cd poco-1.9.0-all && sudo ./configure --omit=Data/ODBC,Data/MySQL && sudo gmake -s && sudo gmake -s install
+cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && gmake -s && gmake -s install
 cd ../
 
 #Build & Install the Shared Service Library
@@ -32,11 +32,11 @@ if [ ! -d /usr/local/include/aossl ]; then
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
   cp aossl-rhel/deps/build_deps.sh $PRE/aossl_deps/
-  cd $PRE/aossl_deps && sudo ./build_deps.sh
+  cd $PRE/aossl_deps && ./build_deps.sh
   cd ../$RETURN
 
   #Build the shared service library
-  cd aossl-rhel && make && sudo make install
+  cd aossl-rhel && make && make install
   cd ../
 
 fi
@@ -48,12 +48,12 @@ if [ ! -d /usr/local/include/neocpp ]; then
   #Build the dependencies for the shared service library
   mkdir $PRE/neocpp_deps
   cp NeoCpp/scripts/linux/rhel/build_deps.sh $PRE/neocpp_deps/
-  cd $PRE/neocpp_deps && sudo ./build_deps.sh
+  cd $PRE/neocpp_deps && ./build_deps.sh
   cd ../$RETURN
-  cd NeoCpp && sudo make install
+  cd NeoCpp && make install
 
 fi
 
-sudo ldconfig
+ldconfig
 
 printf "Finished installing dependencies"
