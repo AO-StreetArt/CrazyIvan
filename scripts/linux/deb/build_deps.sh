@@ -14,13 +14,7 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev openssl libssl-dev software-properties-common build-essential automake cmake
-
-#Build POCO
-wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
-tar -xvzf poco-1.9.0-all.tar.gz
-cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && make -s && sudo make -s install
-cd ../
+apt-get install -y git libboost-all-dev openssl libssl-dev
 
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
@@ -50,8 +44,15 @@ if [ ! -d /usr/local/include/neocpp ]; then
   cd $PRE/neocpp_deps && sudo ./build_deps.sh
   cd ../$RETURN
   cd NeoCpp && sudo make install
+  cd ../
 
 fi
+
+#Build POCO
+wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
+tar -xvzf poco-1.9.0-all.tar.gz
+cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && make -s && sudo make -s install
+cd ../
 
 sudo ldconfig
 
