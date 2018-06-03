@@ -1,6 +1,3 @@
-CC = g++
-CFLAGS  = -g -Wall
-STD = -std=c++11
 PROC_TEST_FILES = unit/proc/base_processor_test.cpp unit/proc/base_qhelper_test.cpp
 API_TEST_FILES = unit/api/scene_list_test.cpp
 MODEL_TEST_FILES = unit/model/device_test.cpp unit/model/scene_test.cpp unit/model/transform_test.cpp
@@ -18,9 +15,6 @@ API_SUB_OBJECTS = $(API_LOC)/json_scene_list.o
 QUERY_SUB_OBJECTS = $(QUERY_LOC)/device_query_helper.o $(QUERY_LOC)/scene_query_helper.o $(QUERY_LOC)/algorithm_query_helper.o
 PROC_SUB_OBJECTS = $(PROC_LOC)/base_message_processor.o $(PROC_LOC)/crud_message_processor.o $(PROC_LOC)/message_processor.o
 SUB_OBJECTS = $(MODEL_SUB_OBJECTS) $(API_SUB_OBJECTS) $(QUERY_SUB_OBJECTS) $(PROC_SUB_OBJECTS)
-AOSSL_LIBS = -laossl -lcurl -lneo4j-client -lssl -lcrypto -lm -luuid
-POCO_LIBS = -lPocoNetSSL -lPocoCrypto -lPocoNet -lPocoUtil -lPocoFoundation
-LIBS = $(AOSSL_LIBS) $(POCO_LIBS) -lboost_system -lpthread
 
 tests: test_main.o
 	$(CC) $(CFLAGS) test_main.o $(TEST_FILES) $(SUB_OBJECTS) -o $@ $(LIBS) $(STD) $(INCL_DIRS)
