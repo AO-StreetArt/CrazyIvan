@@ -13,8 +13,8 @@ mkdir $PRE
 # Set up a reasonably new version of gcc
 sudo yum -y install openssl-devel boost-devel centos-release-scl wget git gcc gcc-c++
 sudo yum -y update
-sudo yum -y install devtoolset-7
-scl enable devtoolset-7 bash
+sudo yum -y install devtoolset-6
+scl enable devtoolset-6 bash
 sudo ldconfig
 
 #Build POCO

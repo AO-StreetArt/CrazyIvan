@@ -14,7 +14,7 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev openssl libssl-dev
+apt-get install -y git libboost-all-dev openssl libssl-dev gmake gcc gcc-c++
 
 #Build POCO
 wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
