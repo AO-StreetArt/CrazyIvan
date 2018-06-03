@@ -3,18 +3,14 @@ dist: trusty
 language: cpp
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.7
-    - g++-4.7
+    - gcc
+    - g++
     - cppcheck
 services:
   - docker
 before_install:
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name=database neo4j
-  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-4.7 /usr/bin/gcc
-  - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-4.7 /usr/bin/g++
   - which gcc
   - gcc -v
   - mkdir ../ivan_deps
