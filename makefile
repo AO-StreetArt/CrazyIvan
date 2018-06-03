@@ -33,3 +33,6 @@ crazy_ivan: mksrc
 
 clean:
 	$(RM) crazy_ivan *.o src/*/*.o src/*/*/*.o *~ *.log tests/tests
+
+reset: clean
+	$(RM) tests/test_main.o
