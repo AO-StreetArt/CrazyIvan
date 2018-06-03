@@ -23,7 +23,7 @@ before_install:
   - cd $TRAVIS_BUILD_DIR
   - export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 install:
-  - cd $TRAVIS_BUILD_DIR && make CFLAGS = -g -Wall -D_GLIBCXX_USE_CXX11_ABI=0 && make test
+  - cd $TRAVIS_BUILD_DIR && make all && make test
 before_script:
   - docker logs database
 script:
