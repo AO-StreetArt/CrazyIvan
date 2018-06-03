@@ -7,7 +7,7 @@ STD = -std=c++11
 AOSSL_LIBS = -laossl -lcurl -lneo4j-client -lssl -lcrypto -lm -luuid
 POCO_LIBS = -lPocoNetSSL -lPocoCrypto -lPocoNet -lPocoUtil -lPocoFoundation
 LIBS = $(AOSSL_LIBS) $(POCO_LIBS) -lboost_system -lpthread
-INCL_DIRS = -I. -I$(CURDIR)/src/
+INCL_DIRS = -I. -I$(CURDIR)/src/ -I/usr/local/include
 MODEL_SUB_OBJECTS = src/model/scene.o src/model/user_device.o src/model/transform.o
 API_SUB_OBJECTS = src/api/json_scene_list.o
 QUERY_SUB_OBJECTS = src/proc/query/device_query_helper.o src/proc/query/scene_query_helper.o src/proc/query/algorithm_query_helper.o
