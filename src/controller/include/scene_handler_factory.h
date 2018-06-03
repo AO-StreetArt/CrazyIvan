@@ -28,6 +28,7 @@ limitations under the License.
 #include "app/include/ivan_utils.h"
 
 #include "cache_handler.h"
+#include "heartbeat_handler.h"
 #include "scene_base_handler.h"
 #include "scene_delete_handler.h"
 #include "scene_update_handler.h"
@@ -109,7 +110,7 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     }
 
     // Build a request handler for the message
-    if (uri_path.size() >= 1 && uri_path[0] == "v1" && request.getMethod() == "POST") {
+    if (uri_path.size() > 1 && uri_path[0] == "v1" && request.getMethod() == "POST") {
       if (uri_path.size() == 2 && uri_path[1] == "scene") {
         return new SceneBaseRequestHandler(config, proc, SCENE_CRT);
       } else if (uri_path.size() == 3 && uri_path[1] == "scene") {
@@ -135,6 +136,9 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     } else if (uri_path.size() == 3 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && request.getMethod() == "DELETE") {
       return new SceneDeleteRequestHandler(config, proc, uri_path[2]);
+    } else if (uri_path.size() == 1 && uri_path[0] == "health" && \
+        request.getMethod() == "GET") {
+      return new HeartbeatHandler();
     }
     return NULL;
   }
