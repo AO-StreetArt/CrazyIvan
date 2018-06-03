@@ -223,9 +223,9 @@ class BaseQueryHelper {
         is_started = true;
       }
       // Check for a distance-based query
-      if (!(scn->get_latitude() == -9999.0 || \
-        scn->get_longitude() == -9999.0 || \
-        scn->get_distance() < 0.0)) {
+      if (scn->get_latitude() > -9998.9 && \
+        scn->get_longitude() > -9998.9 && \
+        scn->get_distance() > 0.0) {
         if (is_started) {query_str.append(" AND");}
         else {query_str.append(" WHERE");}
         // Query for distance

@@ -113,6 +113,10 @@ class SceneBaseRequestHandler: public Poco::Net::HTTPRequestHandler {
           response_body->set_err_code(NO_ERROR);
           key_scn->set_key(result->get_return_string());
           response_body->add_scene(key_scn);
+          std::string response_body_string;
+          response_body->to_msg_string(response_body_string);
+          ostr << response_body_string;
+          ostr.flush();
         }
       } else {
         response_body->set_err_code(result->get_error_code());

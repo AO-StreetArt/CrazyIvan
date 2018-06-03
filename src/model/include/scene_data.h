@@ -31,8 +31,8 @@ limitations under the License.
 
 // Stores the core data for a single scene
 class SceneData {
-  double latitude = 0.0;
-  double longitude = 0.0;
+  double latitude = -9999.0;
+  double longitude = -9999.0;
   std::vector<UserDeviceInterface*> devices;
   std::vector<std::string> asset_ids;
   UserDeviceFactory udfactory;

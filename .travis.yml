@@ -13,8 +13,6 @@ services:
   - docker
 before_install:
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name=database neo4j
-  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
-  - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
   - mkdir ../ivan_deps
   - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps
   - cd ../ivan_deps && sudo ./build_deps.sh
