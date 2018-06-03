@@ -4,7 +4,7 @@ CC = g++
 CFLAGS  = -g -Wall
 STD = -std=c++11
 OBJS = transform.o user_device.o scene.o
-INCL_DIRS = -I. -I$(CURDIR)/../
+INCL_DIRS = -I. -I$(CURDIR)/../ -I/usr/local/include 
 
 default: $(OBJS)
 
