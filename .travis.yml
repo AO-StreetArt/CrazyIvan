@@ -18,6 +18,7 @@ before_install:
 - sudo cp scripts/deb/build_deps.sh ../ivan_deps
 - cd ../ivan_deps && sudo ./build_deps.sh
 - cd $TRAVIS_BUILD_DIR
+- export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 install:
 - cd $TRAVIS_BUILD_DIR && make && make test
 script:
