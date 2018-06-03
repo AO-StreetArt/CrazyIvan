@@ -2,7 +2,7 @@
 # to use Makefile variables later in the Makefile: $()
 #
 CC = g++
-CFLAGS  = -g -Wall
+CFLAGS  = -g -Wall -D_GLIBCXX_USE_CXX11_ABI=0
 STD = -std=c++11
 AOSSL_LIBS = -laossl -lcurl -lneo4j-client -lssl -lcrypto -lm -luuid
 POCO_LIBS = -lPocoNetSSL -lPocoCrypto -lPocoNet -lPocoUtil -lPocoFoundation
