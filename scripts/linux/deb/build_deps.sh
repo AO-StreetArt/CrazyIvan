@@ -14,12 +14,12 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev openssl libssl-dev gmake gcc gcc-c++
+apt-get install -y git libboost-all-dev openssl libssl-dev software-properties-common build-essential automake cmake
 
 #Build POCO
 wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
 tar -xvzf poco-1.9.0-all.tar.gz
-cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && gmake -s && sudo gmake -s install
+cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && make -s && sudo make -s install
 cd ../
 
 #Build & Install the Shared Service Library
