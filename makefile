@@ -6,7 +6,7 @@ CFLAGS  = -g -Wall
 STD = -std=c++11
 AOSSL_LIBS = -laossl -lcurl -lneo4j-client -lssl -lcrypto -lm -luuid
 POCO_LIBS = -lPocoNetSSL -lPocoCrypto -lPocoNet -lPocoUtil -lPocoFoundation
-LIBS = $(AOSSL_LIBS) $(POCO_LIBS)
+LIBS = $(AOSSL_LIBS) $(POCO_LIBS) -lboost_system -lpthread
 INCL_DIRS = -I. -I$(CURDIR)/src/
 MODEL_SUB_OBJECTS = src/model/scene.o src/model/user_device.o src/model/transform.o
 API_SUB_OBJECTS = src/api/json_scene_list.o

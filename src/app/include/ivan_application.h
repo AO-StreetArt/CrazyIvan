@@ -25,9 +25,13 @@ limitations under the License.
 #include <sstream>
 #include <vector>
 #include <exception>
+#include <thread>
 
 #include "proc/processor/include/processor_interface.h"
 #include "proc/processor/include/processor_factory.h"
+
+#include "cache/include/device_cache.h"
+#include "cache/include/cache_loader.h"
 
 #include "controller/include/scene_base_handler.h"
 #include "controller/include/scene_update_handler.h"
@@ -36,6 +40,9 @@ limitations under the License.
 
 #include "user/include/account_manager_interface.h"
 #include "user/include/account_manager.h"
+
+#include "cache_loader_process.h"
+#include "event_stream_process.h"
 
 #include "aossl/profile/include/tiered_app_profile.h"
 #include "aossl/consul/include/consul_interface.h"
@@ -124,20 +131,26 @@ protected:
     // Set default values for configuration
     config.add_opt(std::string("connection.neo4j"), \
       std::string("neo4j://localhost:7687"));
-    config.add_opt(std::string("connection.kafka"), \
-      std::string("localhost:9092"));
     config.add_opt(std::string("transaction.format"), std::string("json"));
     config.add_opt(std::string("transaction.id.stamp"), std::string("true"));
     config.add_opt(std::string("event.stream.method"), std::string("kafka"));
     config.add_opt(std::string("event.format"), std::string("json"));
     config.add_opt(std::string("http.host"), std::string("localhost"));
     config.add_opt(std::string("http.port"), std::string("8765"));
+    config.add_opt(std::string("udp.port"), std::string("8764"));
     config.add_opt(std::string("cluster.name"), std::string("default"));
+    config.add_opt(std::string("log.file"), std::string("ivan.log"));
     config.add_opt(std::string("log.level"), std::string("Info"));
-    config.add_opt(std::string("security.ssl.enabled"), std::string("false"));
-    config.add_opt(std::string("security.auth.type"), std::string("none"));
-    config.add_opt(std::string("security.auth.user"), std::string("test"));
-    config.add_opt(std::string("security.auth.password"), std::string("test"));
+    config.add_opt(std::string("transaction.security.ssl.enabled"), std::string("false"));
+    config.add_opt(std::string("transaction.security.auth.type"), std::string("none"));
+    config.add_opt(std::string("transaction.security.auth.user"), std::string("test"));
+    config.add_opt(std::string("transaction.security.auth.password"), std::string("test"));
+    config.add_opt(std::string("transaction.security.hash.password"), std::string("test"));
+    config.add_opt(std::string("event.security.aes.enabled"), std::string("false"));
+    config.add_opt(std::string("event.security.out.aes.key"), std::string("s3cr3tk3y"));
+    config.add_opt(std::string("event.security.out.aes.salt"), std::string("asdff8723lasdf(**923412"));
+    config.add_opt(std::string("event.security.in.aes.key"), std::string("4n0th3rk4y"));
+    config.add_opt(std::string("event.security.in.aes.salt"), std::string("asdff8723lasdf(**923412"));
     // Perform the initial config
     bool config_success = false;
     bool config_tried = false;
@@ -194,10 +207,16 @@ protected:
       console_channel, log_priority);
     Poco::Logger& auth_logger = Poco::Logger::create("Auth", \
       console_channel, log_priority);
+    Poco::Logger& cache_logger = Poco::Logger::create("Cache", \
+      console_channel, log_priority);
+    Poco::Logger& event_logger = Poco::Logger::create("Event", \
+      console_channel, log_priority);
     data_logger.information("Data Logger Initialized");
     controller_logger.information("Controller Logger Initialized");
     process_logger.information("Processor Logger Initialized");
     auth_logger.information("Authorization Logger Initialized");
+    cache_logger.information("Cache Logger Initialized");
+    event_logger.information("Event Stream Logger Initialized");
     main_logger.information("Logging Configuration complete");
 
     // std::string cluster_name_lbl = "cluster.name";
@@ -239,25 +258,39 @@ protected:
     AOSSL::StringBuffer auth_type_buffer;
     AOSSL::StringBuffer auth_un_buffer;
     AOSSL::StringBuffer auth_pw_buffer;
-    config.get_opt(std::string("security.auth.type"), auth_type_buffer);
+    AOSSL::StringBuffer hash_pw_buffer;
+    config.get_opt(std::string("transaction.security.auth.type"), auth_type_buffer);
     if (auth_type_buffer.val == "single") {
-      config.get_opt(std::string("security.auth.user"), auth_un_buffer);
-      config.get_opt(std::string("security.auth.password"), auth_pw_buffer);
-      acct_manager = new SingleAccountManager(auth_un_buffer.val, auth_pw_buffer.val);
+      config.get_opt(std::string("transaction.security.auth.user"), auth_un_buffer);
+      config.get_opt(std::string("transaction.security.auth.password"), auth_pw_buffer);
+      config.get_opt(std::string("transaction.security.hash.password"), hash_pw_buffer);
+      acct_manager = new SingleAccountManager(auth_un_buffer.val, auth_pw_buffer.val, hash_pw_buffer.val);
     } else {
       acct_manager = NULL;
     }
 
-    // Main Application Loop
+    // Start the Device Cache
+    DeviceCache event_cache;
+    DeviceCacheLoader loader(&event_cache, neo);
+
+    // Kick off the Cache Loader background thread
+    std::thread cl_thread(load_device_cache, &loader, 5000000);
+    cl_thread.detach();
+
+    // Kick off the Event Stream background thread
+    std::thread es_thread(event_stream, &event_cache, &config);
+    es_thread.detach();
+
+    // Main Application Loop (Serving HTTP API)
     AOSSL::StringBuffer ssl_enabled_buf;
-    config.get_opt(std::string("security.ssl.enabled"), ssl_enabled_buf);
+    config.get_opt(std::string("transaction.security.ssl.enabled"), ssl_enabled_buf);
     std::string http_address = http_host.val + std::string(":") + http_port.val;
     Poco::Net::SocketAddress saddr(http_address);
     main_logger.debug("HTTP Address: %s, Security Enabled: %s", http_address, ssl_enabled_buf.val);
     if (ssl_enabled_buf.val == "true") {
       main_logger.information("Opening Secure HTTP Socket");
       Poco::Net::SecureServerSocket svs(saddr, 64);
-      Poco::Net::HTTPServer srv(new SceneHandlerFactory(&config, proc, acct_manager), svs, \
+      Poco::Net::HTTPServer srv(new SceneHandlerFactory(&config, proc, acct_manager, &event_cache), svs, \
         new Poco::Net::HTTPServerParams);
       srv.start();
       waitForTerminationRequest();
@@ -265,7 +298,7 @@ protected:
     } else {
       main_logger.information("Opening HTTP Socket");
       Poco::Net::ServerSocket svs(saddr);
-      Poco::Net::HTTPServer srv(new SceneHandlerFactory(&config, proc, acct_manager), svs, \
+      Poco::Net::HTTPServer srv(new SceneHandlerFactory(&config, proc, acct_manager, &event_cache), svs, \
         new Poco::Net::HTTPServerParams);
       srv.start();
       waitForTerminationRequest();

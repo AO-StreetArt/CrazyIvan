@@ -25,7 +25,9 @@ limitations under the License.
 
 #include "proc/processor/include/processor_interface.h"
 #include "user/include/account_manager_interface.h"
+#include "app/include/ivan_utils.h"
 
+#include "cache_handler.h"
 #include "scene_base_handler.h"
 #include "scene_delete_handler.h"
 #include "scene_update_handler.h"
@@ -44,17 +46,10 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
   ProcessorInterface *proc = NULL;
   AOSSL::TieredApplicationProfile *config = NULL;
   AccountManagerInterface *accounts = NULL;
-  void split(const std::string& input, std::vector<std::string>& output, char delim) {
-    Poco::Logger::get("Controller").debug("Trimmed URI: %s", input.substr(1, input.size()-2));
-    std::stringstream ss(input.substr(1, input.size()-1));
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-      output.push_back(item);
-    }
-  }
+  DeviceCache *event_cache = NULL;
  public:
-  SceneHandlerFactory(AOSSL::TieredApplicationProfile *conf, ProcessorInterface *processor, AccountManagerInterface *accts) \
-    {config=conf;proc=processor;accounts = accts;}
+  SceneHandlerFactory(AOSSL::TieredApplicationProfile *conf, ProcessorInterface *processor, AccountManagerInterface *accts, DeviceCache *cache) \
+    {config=conf;proc=processor;accounts = accts;event_cache=cache;}
   Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request) {
     // Authentication Routine
     char *buffer = NULL;
@@ -129,6 +124,13 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
         return new SceneBaseRequestHandler(config, proc, DEVICE_ALIGN);
       } else if (uri_path.size() == 3 && uri_path[1] == "query" && uri_path[2] ==  "device") {
         return new SceneBaseRequestHandler(config, proc, DEVICE_GET);
+      }
+    } else if (uri_path.size() == 4 && uri_path[0] == "v1" && \
+        uri_path[1] == "scene" && uri_path[2] == "cache") {
+      if (request.getMethod() == "PUT") {
+        return new CacheUpdateHandler(config, event_cache, CACHE_ADD, uri_path[3]);
+      } else if (request.getMethod() == "DELETE") {
+        return new CacheUpdateHandler(config, event_cache, CACHE_DEL, uri_path[3]);
       }
     } else if (uri_path.size() == 3 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && request.getMethod() == "DELETE") {

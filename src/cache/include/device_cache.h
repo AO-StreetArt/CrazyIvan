@@ -6,14 +6,15 @@
 
 
 #include "Poco/HashMap.h"
+#include "Poco/RWLock.h"
 
 #ifndef SRC_CACHE_INCLUDE_DEVICE_CACHE_H_
 #define SRC_CACHE_INCLUDE_DEVICE_CACHE_H_
 
 // An entry in a thread-safe cache
 class DeviceCacheEntry {
-  std::vector<std::string> device_addresses_0;
-  std::vector<std::string> device_addresses_1;
+  std::vector<std::pair<std::string, int>> device_addresses_0;
+  std::vector<std::pair<std::string, int>> device_addresses_1;
   std::mutex write_guard;
   std::atomic_int current_vector_id{0};
   std::atomic_int addresses0_counter{0};
@@ -21,12 +22,12 @@ class DeviceCacheEntry {
  public:
    // Constructors/Destructors
    DeviceCacheEntry() {}
-   DeviceCacheEntry(std::vector<std::string>& addresses) {device_addresses_0 = std::move(addresses);}
+   DeviceCacheEntry(std::vector<std::pair<std::string, int>>& addresses) {device_addresses_0 = std::move(addresses);}
    ~DeviceCacheEntry() {}
    // Get the latest complete list of addresses
-   inline std::vector<std::string> get_addresses() {
+   inline std::vector<std::pair<std::string, int>> get_addresses() {
      // Declare a local vector and copy the correct internal vector
-     std::vector<std::string> return_vector;
+     std::vector<std::pair<std::string, int>> return_vector;
      if (current_vector_id == 0) {
        addresses0_counter++;
        return_vector = device_addresses_0;
@@ -44,7 +45,7 @@ class DeviceCacheEntry {
    // Update the list of addresses
    // We keep the last known vector so that
    // we can continue serving requests while copying
-   inline void set_addresses(std::vector<std::string>& updated_addresses) {
+   inline void set_addresses(std::vector<std::pair<std::string, int>>& updated_addresses) {
      // Get a lock on the write mutex
      std::lock_guard<std::mutex> lock(write_guard);
      // Based on the current vector that's available, we need to:
@@ -62,37 +63,46 @@ class DeviceCacheEntry {
 };
 
 // Equality Operator
-bool operator==(DeviceCacheEntry& lhs, DeviceCacheEntry& rhs) {
+inline bool operator==(DeviceCacheEntry& lhs, DeviceCacheEntry& rhs) {
   return (lhs.get_addresses() == rhs.get_addresses());
 }
 
-// Implements a hashmap which never locks for read operations
+// Implements a hashmap which never locks for read operations unless scenes
+// are added/removed.  Updating the contents of the scene requires no wait.
 // Cannot be initialized with a copy constructor
 class DeviceCache {
   Poco::HashMap<std::string, DeviceCacheEntry*> cache_entries;
-  std::atomic_bool adding_scene{false};
+  Poco::RWLock scene_update_lock;
   std::vector<std::string> scene_list;
  public:
   // Constructors/Destructors
   DeviceCache() {}
   ~DeviceCache() {for (std::string key : scene_list) {delete cache_entries[key];}}
-  // Adding a new scene in the cache stops the world,
+  // Adding/removing scenes in the cache stops the world,
   // so it needs to be done very sparingly
   inline void add_scene(std::string scene_key) {
-    adding_scene = true;
+    scene_update_lock.writeLock();
     scene_list.push_back(scene_key);
     cache_entries[scene_key] = new DeviceCacheEntry();
-    adding_scene = false;
+    scene_update_lock.unlock();
+  }
+  inline void remove_scene(std::string scene_key) {
+    scene_update_lock.writeLock();
+    scene_list.erase(std::find(scene_list.begin(), scene_list.end(), scene_key));
+    cache_entries.erase(scene_key);
+    scene_update_lock.unlock();
   }
   inline std::vector<std::string>& get_scenes() {return scene_list;}
   // Thread-safe accessors
-  inline std::vector<std::string> get_devices(std::string scene_key) {
-    while(adding_scene.load()) {std::this_thread::yield();}
+  inline std::vector<std::pair<std::string, int>> get_devices(std::string scene_key) {
+    scene_update_lock.readLock();
     return cache_entries[scene_key]->get_addresses();
+    scene_update_lock.unlock();
   }
-  inline void set_devices(std::string scene_key, std::vector<std::string> devices) {
-    while(adding_scene.load()) {std::this_thread::yield();}
+  inline void set_devices(std::string scene_key, std::vector<std::pair<std::string, int>> devices) {
+    scene_update_lock.readLock();
     cache_entries[scene_key]->set_addresses(devices);
+    scene_update_lock.unlock();
   }
 };
 

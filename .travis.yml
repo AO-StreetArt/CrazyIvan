@@ -1,125 +1,55 @@
 sudo: required
-language: python
-python:
-- '2.7'
+dist: trusty
+language: cpp
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - libssl-dev
-    - net-tools
+    - gcc-5
+    - g++-5
+    - cppcheck
 services:
 - docker
 before_install:
-- python -V
-- pip -V
-- pip install protobuf pyzmq
-- git clone https://github.com/AO-StreetArt/DvsInterface.git
-- cd DvsInterface && sudo make install
+- sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+- sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
+- mkdir ../ivan_deps
+- sudo cp scripts/deb/build_deps.sh ../ivan_deps
+- cd ../ivan_deps && sudo ./build_deps.sh
 - cd $TRAVIS_BUILD_DIR
-- git clone https://github.com/AO-StreetArt/0-Meter.git
 - docker network create dvs
 install:
+- cd $TRAVIS_BUILD_DIR && make && make test
+- cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH
+  $TRAVIS_BUILD_DIR
+- cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500
+  localhost 5555
 - cd $TRAVIS_BUILD_DIR
 - docker pull consul
 - docker run -d --name=registry --network=dvs consul
 - docker pull neo4j
 - docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data
   --network=dvs --name=database neo4j
-- docker run -i -t -d -p 2181:2181 -p 9092:9092 --env ADVERTISED_PORT=9092 --env ADVERTISED_HOST=queue --name=queue --network=dvs spotify/kafka
 - docker run -d -p 0.0.0.0:5005:5005 -p 0.0.0.0:5005:5005/udp --name udp-listener mendhak/udp-listener
-- docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/DB_ConnectionString
-- docker exec -t registry curl -X PUT -d 'queue:9092' http://localhost:8500/v1/kv/ivan/KafkaBrokerAddress
-- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/StampTransactionId
-- docker exec -t registry curl -X PUT -d 'Json' http://localhost:8500/v1/kv/ivan/Data_Format_Type
-- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/ResolveHostnames
-- cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH
-  $TRAVIS_BUILD_DIR
-- cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500
-  localhost 5555
+- docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/connection.neo4j
+- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/transaction.id.stamp
+- docker exec -t registry curl -X PUT -d 'json' http://localhost:8500/v1/kv/ivan/transaction.format
+- docker exec -t registry curl -X PUT -d 'ivan.log' http://localhost:8500/v1/kv/ivan/log.file
+- docker exec -t registry curl -X PUT -d 'Debug' http://localhost:8500/v1/kv/ivan/log.level
+- docker exec -t registry curl -X PUT -d 'Debug' http://localhost:8500/v1/kv/ivan/event.stream.method
+- docker exec -t registry curl -X PUT -d 'json' http://localhost:8500/v1/kv/ivan/event.format
+- docker exec -t registry curl -X PUT -d 'Debug' http://localhost:8500/v1/kv/ivan/log.level
 before_script:
 - sleep 5
 - /sbin/ifconfig
 - ip addr show eth0 | grep -Po 'inet \K[\d.]+' >> $TRAVIS_BUILD_DIR/ci/csv/ip_addr.csv
 - docker ps -a
-- docker logs crazyivan
 - docker logs database
+- docker logs udp-listener
 - docker logs registry
 script:
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/ping.xml
-- tail $TRAVIS_BUILD_DIR/ping.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python ci/py/basicIvanFlow.py
-- cat basicIvanFlow.log
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
-- tail $TRAVIS_BUILD_DIR/scene_crt.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_get.xml
-- tail $TRAVIS_BUILD_DIR/scene_get.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_update.xml
-- tail $TRAVIS_BUILD_DIR/scene_update.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_get.xml
-- tail $TRAVIS_BUILD_DIR/scene_get.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/query.xml
-- tail $TRAVIS_BUILD_DIR/scene_query.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_register.xml
-- tail $TRAVIS_BUILD_DIR/device_register.log
-- docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_retrieve.xml
-- tail $TRAVIS_BUILD_DIR/device_retrieve.log
-- docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_deregister.xml
-- tail $TRAVIS_BUILD_DIR/device_deregister.log
-- docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_del.xml
-- tail $TRAVIS_BUILD_DIR/scene_del.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_crt_bad.xml
-- tail $TRAVIS_BUILD_DIR/scene_crt.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_get_bad.xml
-- tail $TRAVIS_BUILD_DIR/scene_get.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_upd_bad.xml
-- tail $TRAVIS_BUILD_DIR/scene_upd.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/scene_del_bad.xml
-- tail $TRAVIS_BUILD_DIR/scene_del.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/crud/query_bad.xml
-- tail $TRAVIS_BUILD_DIR/scene_query.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_deregister_bad.xml
-- tail $TRAVIS_BUILD_DIR/device_deregister.log
-- docker logs --tail 50 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_register.xml
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/dev_align.xml
-- tail $TRAVIS_BUILD_DIR/device_align.log
-- docker logs --tail 150 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_retrieve_bad.xml
-- tail $TRAVIS_BUILD_DIR/device_retrieve.log
-- docker logs --tail 100 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/failure/registration/dev_align_bad.xml
-- tail $TRAVIS_BUILD_DIR/device_align.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt_nokey.xml
-- tail $TRAVIS_BUILD_DIR/scene_crt_nokey.log
-- docker logs --tail 75 crazyivan
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/crud/scene_crt.xml
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/stream_base_registration.xml
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/xml/success/registration/stream_base_registration2.xml
-- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_1.json
-- docker run --rm --interactive --network dvs ches/kafka kafka-console-producer.sh --topic _dvs --broker-list queue:9092 < $TRAVIS_BUILD_DIR/ci/json/change_stream_2.json
-- sleep 2
-- cd $TRAVIS_BUILD_DIR && python 0-Meter/0-meter.py ci/ping.xml
-- docker logs --tail 100 crazyivan
-- docker logs --tail 30 udp-listener
+- cd $TRAVIS_BUILD_DIR/tests && ./tests
 after_success:
 - cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN
   $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR

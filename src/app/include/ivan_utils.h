@@ -24,11 +24,12 @@ limitations under the License.
 #include <functional>
 #include <cctype>
 #include <locale>
+#include <vector>
 
 #ifndef SRC_APP_INCLUDE_IVAN_UTILS_H_
 #define SRC_APP_INCLUDE_IVAN_UTILS_H_
 
-// Universal Event Types
+// Universal Transaction Types
 const int SCENE_CRT = 0;
 const int SCENE_UPD = 1;
 const int SCENE_GET = 2;
@@ -37,6 +38,8 @@ const int SCENE_ENTER = 4;
 const int SCENE_LEAVE = 5;
 const int DEVICE_ALIGN = 6;
 const int DEVICE_GET = 7;
+const int CACHE_ADD = 8;
+const int CACHE_DEL = 9;
 const int KILL = 999;
 const int PING = 555;
 
@@ -60,7 +63,14 @@ const int GET_QUERY_TYPE = 1;
 const int UPDATE_QUERY_TYPE = 2;
 const int DELETE_QUERY_TYPE = 3;
 
-// Trim Strings
+// String Manipulation
+inline void split(const std::string& input, std::vector<std::string>& output, char delim) {
+  std::stringstream ss(input.substr(1, input.size()-1));
+  std::string item;
+  while (std::getline(ss, item, delim)) {
+    output.push_back(item);
+  }
+}
 
 // remove non-ascii characters
 inline bool invalidChar(char c) {

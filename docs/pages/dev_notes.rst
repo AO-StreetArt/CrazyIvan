@@ -5,6 +5,26 @@ Developer Notes
 
 This page contains a series of notes intended to be beneficial for any contributors to Crazy Ivan.
 
+Running Test Cases
+------------------
+Building the tests can be done with:
+
+``make test``
+
+Tests cases are run using Catch2 (https://github.com/catchorg/Catch2), a few examples are shown below:
+
+Run all tests:
+
+``./tests/tests``
+
+Run only the unit tests:
+
+``./tests/tests [unit]``
+
+Run only the integration tests:
+
+``./tests/tests [integration]``
+
 Development Docker Image
 ------------------------
 Generating a development Docker Image is made easy by the DebugDockerfile.

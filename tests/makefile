@@ -1,10 +1,11 @@
 CC = g++
 CFLAGS  = -g -Wall
 STD = -std=c++11
-API_TEST_FILES = api/scene_list_test.cpp
-MODEL_TEST_FILES = model/device_test.cpp model/scene_test.cpp model/transform_test.cpp
-USER_TEST_FILES = user/account_manager_test.cpp
-CACHE_TEST_FILES = cache/device_cache_test.cpp
+PROC_TEST_FILES = unit/proc/base_processor_test.cpp unit/proc/base_qhelper_test.cpp
+API_TEST_FILES = unit/api/scene_list_test.cpp
+MODEL_TEST_FILES = unit/model/device_test.cpp unit/model/scene_test.cpp unit/model/transform_test.cpp
+USER_TEST_FILES = unit/user/account_manager_test.cpp
+CACHE_TEST_FILES = unit/cache/device_cache_test.cpp integration/cache/cache_loader_test.cpp
 TEST_FILES = $(API_TEST_FILES) $(MODEL_TEST_FILES) $(USER_TEST_FILES) $(CACHE_TEST_FILES)
 INCL_DIRS = -I. -I../src -I../src/model -I../src/api -I../src/cache -I../src/user -I../src/proc/query -I../src/proc/processor
 SRC_LOC = ../src/
@@ -19,7 +20,7 @@ PROC_SUB_OBJECTS = $(PROC_LOC)/base_message_processor.o $(PROC_LOC)/crud_message
 SUB_OBJECTS = $(MODEL_SUB_OBJECTS) $(API_SUB_OBJECTS) $(QUERY_SUB_OBJECTS) $(PROC_SUB_OBJECTS)
 AOSSL_LIBS = -laossl -lcurl -lneo4j-client -lssl -lcrypto -lm -luuid
 POCO_LIBS = -lPocoNetSSL -lPocoCrypto -lPocoNet -lPocoUtil -lPocoFoundation
-LIBS = $(AOSSL_LIBS) $(POCO_LIBS)
+LIBS = $(AOSSL_LIBS) $(POCO_LIBS) -lboost_system -lpthread
 
 tests: test_main.o
 	$(CC) $(CFLAGS) test_main.o $(TEST_FILES) $(SUB_OBJECTS) -o $@ $(LIBS) $(STD) $(INCL_DIRS)

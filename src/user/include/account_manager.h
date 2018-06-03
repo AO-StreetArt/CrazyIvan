@@ -18,6 +18,8 @@ limitations under the License.
 #include <string>
 
 #include "Poco/Logger.h"
+#include "Poco/HMACEngine.h"
+#include "Poco/SHA1Engine.h"
 
 #include "account_manager_interface.h"
 
@@ -28,18 +30,35 @@ limitations under the License.
 class SingleAccountManager: public AccountManagerInterface {
   std::string username;
   std::string password;
+  std::string hash_pw;
   int type = IVAN_BASIC_AUTH;
+  void hash_string(std::string& inp, std::string& out) {
+    // compute an HMAC-SHA1
+    Poco::HMACEngine<Poco::SHA1Engine> hmac(hash_pw);
+    hmac.update(inp);
+    const Poco::DigestEngine::Digest& digest = hmac.digest();
+    // finish HMAC computation and obtain digest
+    out.assign(Poco::DigestEngine::digestToHex(digest));
+  }
  public:
   // Destructor
   ~SingleAccountManager() {}
 
   // Constructor
-  SingleAccountManager(std::string& un, std::string& pw) {username.assign(un);password.assign(pw);}
+  SingleAccountManager(std::string& un, std::string& pw, std::string& sha_pw) {
+    username.assign(un);
+    hash_pw.assign(sha_pw);
+    std::string final_pw;
+    hash_string(pw, final_pw);
+    password.assign(final_pw);
+  }
 
   // Determine if a user is valid or not
   inline bool authenticate_user(std::string& user, std::string& passwd) {
     Poco::Logger::get("Auth").debug("Authenticating User: %s", user);
-    if (passwd == password) {
+    std::string final_pw;
+    hash_string(passwd, final_pw);
+    if (final_pw == password) {
       return true;
     }
     return false;

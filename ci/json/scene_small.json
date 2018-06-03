@@ -1,9 +1,0 @@
-{
-  "msg_type":$MSG_TYPE@,
-  "transaction_id":"$TRANSACTION_ID@",
-  "scenes":[
-    {
-      "key":"$SCN_KEY@"
-    }
-  ]
-}
