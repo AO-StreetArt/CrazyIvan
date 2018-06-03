@@ -51,15 +51,14 @@ services:
 before_install:
   - eval "${MATRIX_EVAL}"
   - sudo docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name=database neo4j
-  - which gcc
-  - gcc -v
+  - $CXX -v
   - mkdir ../ivan_deps
   - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps
   - cd ../ivan_deps && sudo ./build_deps.sh > deps_log.txt
   - cd $TRAVIS_BUILD_DIR
   - export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 install:
-  - cd $TRAVIS_BUILD_DIR && make all && make test
+  - cd $TRAVIS_BUILD_DIR && make all CC=$CXX && make test CC=$CXX
 before_script:
   - docker logs database
 script:
