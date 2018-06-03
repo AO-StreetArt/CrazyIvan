@@ -18,41 +18,10 @@ before_install:
 - sudo cp scripts/deb/build_deps.sh ../ivan_deps
 - cd ../ivan_deps && sudo ./build_deps.sh
 - cd $TRAVIS_BUILD_DIR
-- docker network create dvs
 install:
 - cd $TRAVIS_BUILD_DIR && make && make test
-- cd $TRAVIS_BUILD_DIR/scripts/linux && ./build_docker_instance.sh $TRAVIS_BRANCH
-  $TRAVIS_BUILD_DIR
-- cd $TRAVIS_BUILD_DIR/scripts/linux && ./run_docker_instance.sh $TRAVIS_BRANCH registry:8500
-  localhost 5555
-- cd $TRAVIS_BUILD_DIR
-- docker pull consul
-- docker run -d --name=registry --network=dvs consul
-- docker pull neo4j
-- docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data
-  --network=dvs --name=database neo4j
-- docker run -d -p 0.0.0.0:5005:5005 -p 0.0.0.0:5005:5005/udp --name udp-listener mendhak/udp-listener
-- docker exec -t registry curl -X PUT -d 'neo4j://database:7687' http://localhost:8500/v1/kv/ivan/connection.neo4j
-- docker exec -t registry curl -X PUT -d 'True' http://localhost:8500/v1/kv/ivan/transaction.id.stamp
-- docker exec -t registry curl -X PUT -d 'json' http://localhost:8500/v1/kv/ivan/transaction.format
-- docker exec -t registry curl -X PUT -d 'ivan.log' http://localhost:8500/v1/kv/ivan/log.file
-- docker exec -t registry curl -X PUT -d 'Debug' http://localhost:8500/v1/kv/ivan/log.level
-- docker exec -t registry curl -X PUT -d 'Debug' http://localhost:8500/v1/kv/ivan/event.stream.method
-- docker exec -t registry curl -X PUT -d 'json' http://localhost:8500/v1/kv/ivan/event.format
-- docker exec -t registry curl -X PUT -d 'Debug' http://localhost:8500/v1/kv/ivan/log.level
-before_script:
-- sleep 5
-- /sbin/ifconfig
-- ip addr show eth0 | grep -Po 'inet \K[\d.]+' >> $TRAVIS_BUILD_DIR/ci/csv/ip_addr.csv
-- docker ps -a
-- docker logs database
-- docker logs udp-listener
-- docker logs registry
 script:
 - cd $TRAVIS_BUILD_DIR/tests && ./tests
-after_success:
-- cd $TRAVIS_BUILD_DIR/scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN
-  $DOCKER_PW $TRAVIS_BRANCH $TRAVIS_BUILD_DIR
 notifications:
   slack:
     secure: YGqapA0ZH4TFv9G0otZRcqQXTpL0Y/4J51V0pm6mNp9bQi9XIoE8zoCEtZcCPnEFWjPoq8Nj1tA86WzRnriOzZIkzm83Ou/ZRcB4ZCmro0qC9fffALubzEvbqqG3TW77Xq3N7orz7Bjs8H2nxYgNQPjfQtaIMqL8ziGvf6s22LBQOBlusFJF3uELhtFCXvToKTO6XkkmLQ7Oj/qeX/kF6k7R1+lLna4JVNgkIpoEoubticMqY+/3MiS1tY41Y9phW3rxOi1O4upWnRo0fR/1fXS6Gn2Tr2PBSxdNzaJsbhJWUHf+e4DJtPkuqc7ftqSrb4DZhSukBnjXpMtE45oYcWo3h4txxTGnnzD9yMnEHegvlj1kQbcwCNc8We3RDAP80DWgvH3i1rghJ01n0okOQ4Zokz0Ntw+8pExFXO7qfa1vH3s36oIOF97cU+HWGGxqDmcBNVLNBvYfEWqWEOpZeP5p6YvnOCBwSoPXvjbcu+PeP1n9b+95ZBTTzoTJ5sHy54q7r8o/037n5kij3BfKJIjgVHkFPpXVMWkSsMZnQpBHe0RF+Iiv9SIcySF1ln3jUWIBM4heXYywYNjE6Qpw0xVQ3oq4xBPxmcSN+kcWC7wiwMGLzBQErNhbI2IRNVRAZCWIpGVnrHXB4Ev6+A2YgH4c3pWZsXmXu3L1esLv0ac=
