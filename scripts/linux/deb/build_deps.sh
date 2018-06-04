@@ -35,7 +35,7 @@ if [ ! -d /usr/local/include/aossl ]; then
   cd ../$RETURN
 
   #Build the shared service library
-  cd aossl-deb && make CC=$COMPILER && sudo make install
+  cd aossl-deb && make clean && make CC=$COMPILER && sudo make install
   cd ../
 
 fi

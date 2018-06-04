@@ -30,7 +30,7 @@ if [ ! -d /usr/local/include/aossl ]; then
   cd ../$RETURN
 
   #Build the shared service library
-  cd aossl-rhel && make && make install
+  cd aossl-rhel && make clean && make && make install
   cd ../
 
 fi
