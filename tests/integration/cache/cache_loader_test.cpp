@@ -38,13 +38,13 @@ TEST_CASE( "Test Cache Loader", "[integration]" ) {
   std::string scene_create_query = "CREATE (scn:Scene {key: \"test\","
       " name: \"test\", latitude: 100.0, longitude: 100.0,"
       " region: \"testRegion\", assets: [\"asset\"],"
-      " tags: [\"tag\"] RETURN scn";
+      " tags: [\"tag\"]} RETURN scn";
   std::string device_register_query = "MATCH (scn:Scene {key: \"test\"})"
       " CREATE (scn)-[trans:TRANSFORM {translation_x: 0.0, "
       "translation_y: 1.0, translation_z: 0.0, rotation_x: 0.0, "
-      "rotation_y: 0.0, rotation_z: 0.0]->(ud:UserDevice "
+      "rotation_y: 0.0, rotation_z: 0.0}]->(ud:UserDevice "
       "{key: \"testUd\", connection_string: \"\", "
-      "hostname: \"testHost\", port: 5555) ";
+      "hostname: \"testHost\", port: 5555}) ";
   try {
     results1 = neo->execute(scene_delete_query);
     results2 = neo->execute(scene_create_query);
