@@ -36,8 +36,8 @@ TEST_CASE( "Test Cache Loader", "[integration]" ) {
   // Setup base data in the DB
   std::string scene_delete_query = "MATCH (scn:Scene {key: \"test\"}) DETACH DELETE scn";
   std::string scene_create_query = "CREATE (scn:Scene {key: \"test\","
-      " name = \"test\", latitude = 100.0, longitude = 100.0,"
-      " region = \"testRegion\", assets = [\"asset\"],"
+      " name: \"test\", latitude: 100.0, longitude: 100.0,"
+      " region: \"testRegion\", assets: [\"asset\"],"
       " tags: [\"tag\"] RETURN scn";
   std::string device_register_query = "MATCH (scn:Scene {key: \"test\"})"
       " CREATE (scn)-[trans:TRANSFORM {translation_x: 0.0, "
