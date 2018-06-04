@@ -1,116 +1,142 @@
 .. _configuration:
 
+Startup
+=======
+
+Crazy Ivan can be configured from one or more sources:
+
+* Environment Variables
+* Command Line Arguments
+* Consul KV Store
+* Properties File
+
+The application gives priority to the values retrieved in the above order.  This means
+that an environment variable setting will override any other setting.
+
+Crazy Ivan has several startup options:
+
+Consul Address - Starts Crazy Ivan against a Consul instance.  Specified by
+either the `consul` command line argument or the `AOSSL_CONSUL_ADDRESS`
+environment variable.  For example:
+
+`./crazy_ivan consul=http://127.0.0.1:8500`
+
+Properties File - Starts Crazy Ivan against a Properties File.  Specified by either
+the `props` command line argument or the `AOSSL_PROPS_FILE` environment variable.  For example:
+
+`./crazy_ivan props=app.properties`
+
+If no properties file is specified, Crazy Ivan will look for one named `app.properties`.
+
+The consul address can also be specified within the properties file, with the key `consul`.
+
+SSL Context Configuration is performed on startup, if enabled, from the file `ssl.properties`.
+
 Configuration
 =============
-
-Properties File
----------------
-
-Crazy Ivan can be configured via a properties file, which has a few
-command line options:
-
--  ``./crazy_ivan`` - This will start Crazy Ivan with the default
-   properties file, ivan.properties
--  ``./crazy_ivan -config-file=file.properties`` - This will start Crazy
-   Ivan with the properties file, file.properties. Can be combined with
-   -log-conf.
--  ``./crazy_ivan -log-conf=logging.properties`` - This will start Crazy
-   Ivan with the logging properties file, logging.properties. Can be
-   combined with -config-file.
-
-The properties file can be edited in any text editor.
-
-Consul
-------
-
-Crazy Ivan can also be configured via a Consul Connection, in which we
-must specify the address of the consul agent, and the ip & port of the
-Inbound ZeroMQ Connection.
-
--  ``./crazy_ivan -consul-addr=localhost:8500 -ip=localhost -port=5555``
-   - Start Crazy Ivan, register as a service with consul, and configure
-   based on configuration values in Consul, and bind to an internal 0MQ
-   port on localhost
--  ``./crazy_ivan -consul-addr=localhost:8500 -ip=tcp://my.ip -port=5555 -log-conf=logging.properties``
-   - Start Crazy Ivan, register as a service with consul, and configure
-   based on configuration values in Consul. Bind to an external 0MQ port
-   on tcp://my.ip, and configure from the logging configuration file,
-   logging.properties.
-
-We can also use both a properties file and a Consul connection, in which case
-the properties file is used to define the ip and port of the inbound ZeroMQ connection,
-while Consul is used for registration and all other configuration retrieval.
-
--  ``./crazy_ivan -consul-addr=localhost:8500 -config-file=file.properties``
-
-When configuring from Consul the keys of the properties file are equal
-to the expected keys in Consul.
 
 Logging
 -------
 
-The Logging Configuration File can also be edited with a text file, and
-the documentation for this can be found [here]
-(http://log4cpp.sourceforge.net/api/classlog4cpp\_1\_1PropertyConfigurator.html).
-Note that logging configuration is not yet in Consul, and always exists
-in a properties file.
+* Log File
 
-Two logging configuration files are provided, one for logging to the
-console and to a file (log4cpp.properties), and another to log to syslog
-and to a file (log4cpp\_syslog.properties). Both show all of the logging
-modules utilized by Crazy Ivan during all phases of execution, and all
-of these should be configured with the same names (for example,
-log4cpp.category.main).
+`log.file=ivan.log`
 
-Crazy Ivan is built with many different logging modules, so that
-configuration values can change the log level for any given module, the
-log file of any given module, or shift any given module to a different
-appender or pattern entirely. These modules should always be present
-within configuration files, but can be configured to suit the particular
-deployment needs.
+* Log Level (Debug, Info, Warning, Error)
 
-Startup
+`log.level=Debug`
+
+Transaction
+-----------
+
+* Format for transactions
+
+`transaction.format=json`
+
+* Transaction ID's active or inactive
+
+`transaction.id.stamp=True`
+
+Event
+-----
+
+* Method for streaming events
+
+`event.stream.method=udp`
+
+* Format for events
+
+`event.format=json`
+
+HTTP
+----
+
+* HTTP host to register with Consul
+
+`http.host=127.0.0.1`
+
+* HTTP Port
+
+`http.port=8765`
+
+Cluster
 -------
 
-Crazy Ivan can be started with an option to wait for a specified number of
-seconds prior to looking for configuration values and opening up for requests.
-This is particularly useful when used with orchestration providers, in order
-to ensure that other components are properly started (in particular, in order
-to allow time for Consul to be populated with default configuration values).
+* Name of the cluster this instance is in
 
--  ``./crazy_ivan -wait=5`` - This will start Crazy Ivan with the default
-   properties file, and wait 5 seconds before starting.
+`cluster.name=test`
 
-Configuration Key-Value Variables
----------------------------------
+Neo4j
+-----
 
-Below you can find a summary of the options in the Properties File or
-Consul Key-Value Store:
+Optional connectivity information when dependent services are
+needed and not registered with Consul
 
-DB
-~~
+* Neo4j Connectivity String
 
--  DB\_ConnectionString - The string used to connect to the Neo4j
-   instance (example: neo4j://neo4j:neo4j@localhost:7687)
+`connection.neo4j=neo4j://localhost:7687`
 
-0MQ
-~~~
+Security
+--------
 
--  0MQ\_InboundConnectionString - The connectivity string for the
-   inbound 0MQ Port
+* true to enable HTTPS socket, false to use HTTP socket
 
-Kafka Connection
-~~~~~~~~~~~~~~~~
+`transaction.security.ssl.enabled=true`
 
--  KafkaBrokerAddress - The address of the Kafka connection to monitor
+* Authentication type:
+  - none: No authentication required
+  - single: basic-auth with single user/password set in properties file
+  - basic: basic-auth with users stored in Neo4j
 
-Behavior
-~~~~~~~~
+`transaction.security.auth.type=single`
 
--  StampTransactionId - True to stamp Transaction ID's on messages,
-   False if not. Transaction ID's are passed on Inbound Responses and
-   Outbound messages, in order to link the two together.
--  Data_Format_Type - JSON to accept JSON messages, protobuf to
-   accept protocol buffer messages
+* If auth.type is single, these set the only user.  If auth.type is basic, these set the default user.
+
+`transaction.security.auth.user=test`
+`transaction.security.auth.password=test`
+
+* Password used for SHA1 algorithm to generate hashes of the stored password
+
+`transaction.security.hash.password=test`
+
+* true to enable AES Encryption on events (UDP Messages)
+
+`event.security.aes.enabled=false`
+
+* Key used for AES Encryption
+
+`event.security.out.aes.key=s3cr3tk3y`
+
+* Salt used for AES Encryption
+
+`event.security.out.aes.salt=asdff8723lasdf(**923412`
+
+* Key used for AES Encryption
+
+`event.security.in.aes.key=4n0th3rk4y`
+
+* Salt used for AES Encryption
+
+`event.security.in.aes.salt=asdff8723lasdf(**923412`
 
 :ref:`Go Home <index>`
