@@ -1,0 +1,715 @@
+{
+	"info": {
+		"_postman_id": "10aabe86-d104-44dc-95a4-aacaba2c13df",
+		"name": "CrazyIvan",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a4d392b3-fd8e-471a-9876-3917c459f3d7",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status Check\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.status).to.eql(\"up\");",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"\",\n      \"name\":\"testScene\",\n      \"latitude\":100.0,\n      \"longitude\":100.0,\n      \"distance\":10.0,\n      \"region\":\"us-ga\",\n      \"assets\":[\"asset1\"],\n      \"tags\":[\"tag1\"]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/health",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Scene",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d94a1be1-b785-46d9-b97b-35e6d581f846",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"    pm.expect(jsonData.num_records).to.eql(1);",
+							"});",
+							"",
+							"pm.environment.unset(\"SCENE_ID\");",
+							"",
+							"pm.environment.set(\"SCENE_ID\", jsonData.scenes[0].key);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"\",\n      \"name\":\"testScene\",\n      \"latitude\":100.0,\n      \"longitude\":100.0,\n      \"distance\":10.0,\n      \"region\":\"us-ga\",\n      \"assets\":[\"asset1\"],\n      \"tags\":[\"tag1\"]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scene Query",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bf244056-2723-47f2-b295-6c8c8ea44731",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"name\":\"testScene\"\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/query/scene/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"query",
+						"scene",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Device",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d94a1be1-b785-46d9-b97b-35e6d581f846",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"    pm.expect(jsonData.num_records).to.eql(1);",
+							"});",
+							"",
+							"pm.environment.unset(\"SCENE_ID\");",
+							"",
+							"pm.environment.set(\"SCENE_ID\", jsonData.scenes[0].key);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"{{SCENE_ID}}\",\n      \"devices\":[\n      \t{\n      \t\t\"key\": \"12345\",\n  \t\t\t\"hostname\": \"127.0.0.1\",\n  \t\t\t\"port\":4444,\n  \t\t\t\"connection_string\": \"127.0.0.1:4444\",\n      \t\t\"transform\": {\n      \t\t\t\"translation\": [0.0,0.0,0.0], \n      \t\t\t\"rotation\": [0.0,0.0,0.0]\n      \t\t}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/register/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sync Device",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d94a1be1-b785-46d9-b97b-35e6d581f846",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"    pm.expect(jsonData.num_records).to.eql(1);",
+							"});",
+							"",
+							"pm.environment.unset(\"SCENE_ID\");",
+							"",
+							"pm.environment.set(\"SCENE_ID\", jsonData.scenes[0].key);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"{{SCENE_ID}}\",\n      \"devices\":[\n      \t{\n      \t\t\"key\": \"12345\",\n      \t\t\"transform\": {\n      \t\t\t\"translation\": [1.0,1.0,1.0], \n      \t\t\t\"rotation\": [1.0,1.0,1.0]\n      \t\t}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/align/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"align",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Scene to Event Cache",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ced39c7-ac75-4bc7-8e85-c8cbcd6c34ad",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/cache/{{SCENE_ID}}",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"cache",
+						"{{SCENE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scene from Event Cache",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0099a09f-2812-4233-b120-95a56de52e24",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/cache/{{SCENE_ID}}",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"cache",
+						"{{SCENE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Scene",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "87992778-9149-412a-b4a4-4f38bef364be",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"\",\n      \"name\":\"testScene\",\n      \"latitude\":100.0,\n      \"longitude\":100.0,\n      \"distance\":10.0,\n      \"region\":\"us-ga\",\n      \"assets\":[\"asset1\"],\n      \"tags\":[\"tag1\"]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/{{SCENE_ID}}",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"{{SCENE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deregister Device",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d94a1be1-b785-46d9-b97b-35e6d581f846",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"    pm.expect(jsonData.num_records).to.eql(1);",
+							"});",
+							"",
+							"pm.environment.unset(\"SCENE_ID\");",
+							"",
+							"pm.environment.set(\"SCENE_ID\", jsonData.scenes[0].key);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"{{SCENE_ID}}\",\n      \"devices\":[\n      \t{\n      \t\t\"key\": \"12345\",\n  \t\t\t\"hostname\": \"127.0.0.1\",\n  \t\t\t\"port\":4444,\n  \t\t\t\"connection_string\": \"127.0.0.1:4444\",\n      \t\t\"transform\": {\n      \t\t\t\"translation\": [0.0,0.0,0.0], \n      \t\t\t\"rotation\": [0.0,0.0,0.0]\n      \t\t}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/deregister/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"deregister",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scene",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "351e398f-6f73-43ac-80cf-3f888da9c938",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "test",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/{{SCENE_ID}}",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"{{SCENE_ID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
