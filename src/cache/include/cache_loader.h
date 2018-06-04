@@ -95,13 +95,16 @@ public:
       }
 
       // Load the new device vector into the cache
-      cache->set_devices(scene_key, new_devices);
+      if (new_devices.size() > 0) {
+        cache->set_devices(scene_key, new_devices);
+      }
 
       // Cleanup
       if (map) delete map;
       if (obj) delete obj;
       if (tree) delete tree;
       delete results;
+      delete key_param;
     }
   }
   // Re-load all scenes currently in the cache

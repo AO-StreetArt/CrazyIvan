@@ -34,7 +34,7 @@ TEST_CASE( "Test Cache Loader", "[integration]" ) {
   DeviceCacheLoader loader(&cache, neo);
 
   // Setup base data in the DB
-  std::string scene_delete_query = "MATCH (scn:Scene {key: \"test\"}) DETACH DELETE scn";
+  //std::string scene_delete_query = "MATCH (scn:Scene {key: \"test\"}) DETACH DELETE scn";
   std::string scene_create_query = "CREATE (scn:Scene {key: \"test\","
       " name: \"test\", latitude: 100.0, longitude: 100.0,"
       " region: \"testRegion\", assets: [\"asset\"],"
@@ -46,12 +46,12 @@ TEST_CASE( "Test Cache Loader", "[integration]" ) {
       "{key: \"testUd\", connection_string: \"\", "
       "hostname: \"testHost\", port: 5555}) ";
   try {
-    results1 = neo->execute(scene_delete_query);
+    //results1 = neo->execute(scene_delete_query);
     results2 = neo->execute(scene_create_query);
     results3 = neo->execute(device_register_query);
   } catch (std::exception& e) {
     std::cout << "Error running Neo4j Query: " << e.what() << std::endl;
-    if (results1) delete results1;
+    //if (results1) delete results1;
     if (results2) delete results2;
     if (results3) delete results3;
     delete neo;
@@ -61,10 +61,11 @@ TEST_CASE( "Test Cache Loader", "[integration]" ) {
 
   // Load the scene into the cache
   std::string scene_name = "test";
+  cache.add_scene(scene_name);
   loader.load_scene(scene_name);
   // Validate the cache entries
   std::vector<std::pair<std::string, int>> device_list = cache.get_devices(scene_name);
-  if (results1) delete results1;
+  //if (results1) delete results1;
   if (results2) delete results2;
   if (results3) delete results3;
   delete neo;
