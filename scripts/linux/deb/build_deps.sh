@@ -5,6 +5,12 @@ set -e
 #Based on Ubuntu 14.04 LTS
 #Not intended for use with other OS (should function correctly with Debian 7, untested)
 
+COMPILER="gcc"
+
+if [ "$#" -gt 0 ]; then
+  COMPILER=$1
+fi
+
 printf "Creating Dependency Folder"
 PRE=./downloads
 RETURN=..
@@ -19,8 +25,8 @@ apt-get install -y git libboost-all-dev openssl libssl-dev
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
 
-  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.0.0/aossl-deb-2.0.0.tar.gz
-  tar -xvzf aossl-deb-2.0.0.tar.gz
+  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/2.1/aossl-deb-2.1.0.tar.gz
+  tar -xvzf aossl-deb-2.1.0.tar.gz
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
@@ -29,7 +35,7 @@ if [ ! -d /usr/local/include/aossl ]; then
   cd ../$RETURN
 
   #Build the shared service library
-  cd aossl-deb && make && sudo make install
+  cd aossl-deb && make CC=$COMPILER && sudo make install
   cd ../
 
 fi
@@ -47,12 +53,6 @@ if [ ! -d /usr/local/include/neocpp ]; then
   cd ../
 
 fi
-
-#Build POCO
-wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
-tar -xvzf poco-1.9.0-all.tar.gz
-cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && make -s && sudo make -s install
-cd ../
 
 sudo ldconfig
 

@@ -17,17 +17,11 @@ yum -y install devtoolset-6
 scl enable devtoolset-6 bash
 ldconfig
 
-#Build POCO
-wget https://pocoproject.org/releases/poco-1.9.0/poco-1.9.0-all.tar.gz
-tar -xvzf poco-1.9.0-all.tar.gz
-cd poco-1.9.0-all && ./configure --omit=Data/ODBC,Data/MySQL && gmake -s && gmake -s install
-cd ../
-
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
 
-  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.0.0/aossl-rhel-2.0.0.tar.gz
-  tar -xvzf aossl-rhel-2.0.0.tar.gz
+  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/2.1/aossl-rhel-2.1.0.tar.gz
+  tar -xvzf aossl-rhel-2.1.0.tar.gz
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
