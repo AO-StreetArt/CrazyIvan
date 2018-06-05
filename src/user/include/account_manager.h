@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "Poco/Logger.h"
 #include "Poco/HMACEngine.h"
-#include "Poco/SHA1Engine.h"
+#include "Poco/MD5Engine.h"
 
 #include "account_manager_interface.h"
 
@@ -32,7 +32,7 @@ class SingleAccountManager: public AccountManagerInterface {
   std::string password;
   std::string hash_pw;
   int type = IVAN_BASIC_AUTH;
-  Poco::HMACEngine<Poco::SHA1Engine> *hmac = NULL;
+  Poco::HMACEngine<Poco::MD5Engine> *hmac = NULL;
   void hash_string(std::string& inp, std::string& out) {
     // compute an HMAC-SHA1
     hmac->update(inp);
@@ -49,7 +49,7 @@ class SingleAccountManager: public AccountManagerInterface {
   SingleAccountManager(std::string& un, std::string& pw, std::string& sha_pw) {
     username.assign(un);
     hash_pw.assign(sha_pw);
-    hmac = new Poco::HMACEngine<Poco::SHA1Engine>(hash_pw);
+    hmac = new Poco::HMACEngine<Poco::MD5Engine>(hash_pw);
     std::string final_pw;
     hash_string(pw, final_pw);
     password.assign(final_pw);
