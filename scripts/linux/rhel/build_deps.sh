@@ -15,7 +15,6 @@ yum -y install openssl-devel boost-devel centos-release-scl wget git gcc gcc-c++
 yum -y update
 yum -y install devtoolset-6
 scl enable devtoolset-6 bash
-ldconfig
 
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
@@ -48,7 +47,5 @@ if [ ! -d /usr/local/include/neocpp ]; then
   cd ../
 
 fi
-
-ldconfig
 
 printf "Finished installing dependencies"
