@@ -22,7 +22,12 @@ successfully compile the program.
 
 ``./build_deps.sh``
 
-You will be asked once for your sudo password.
+You will be asked once for your sudo password.  You will also need to ensure that
+the POCO dependency is on the linker path, which can be done with:
+
+`export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"`
+
+Now, we can build Crazy Ivan:
 
 ``cd ../CrazyIvan``
 

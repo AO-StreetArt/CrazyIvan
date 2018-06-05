@@ -45,6 +45,7 @@ if [ ! -d /usr/local/include/neocpp ]; then
   cd $PRE/neocpp_deps && ./build_deps.sh
   cd ../$RETURN
   cd NeoCpp && make install
+  cd ../
 
 fi
 

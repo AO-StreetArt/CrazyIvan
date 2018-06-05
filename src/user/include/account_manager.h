@@ -58,11 +58,8 @@ class SingleAccountManager: public AccountManagerInterface {
   // Determine if a user is valid or not
   inline bool authenticate_user(std::string& user, std::string& passwd) {
     Poco::Logger::get("Auth").debug("Authenticating User: %s", user);
-    Poco::Logger::get("Auth").debug("Password: %s", user);
-    Poco::Logger::get("Auth").debug("Comparison: %s", password);
     std::string final_pw;
     hash_string(passwd, final_pw);
-    Poco::Logger::get("Auth").debug("Hashed Password: %s", final_pw);
     if (final_pw == password) {
       return true;
     }

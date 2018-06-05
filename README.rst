@@ -13,7 +13,7 @@ from scenes as they move through the world, and as they do we build a network of
 relationships that can be used to determine the transformations needed for other devices.
 
 Crazy Ivan also serves as a UDP Server, communicating Object Change Streams to registered
-devices.  
+devices.
 
 Detailed documentation can be found on `ReadTheDocs <http://crazyivan.readthedocs.io/en/latest/index.html>`__.
 
