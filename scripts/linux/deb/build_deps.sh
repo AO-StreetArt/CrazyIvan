@@ -20,7 +20,7 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev openssl libssl-dev
+apt-get install -y git libboost-all-dev openssl libssl-dev wget
 
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
