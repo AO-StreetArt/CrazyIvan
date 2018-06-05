@@ -11,7 +11,7 @@ fi
 
 apt-get update
 apt-get -y install software-properties-common
-add-apt-repository -y ubuntu-toolchain-r-test
+add-apt-repository -y ppa:ubuntu-toolchain-r/test
 apt-get -y update
 apt-get -y install git gcc-6 g++6 make
 ln -s /usr/bin/gcc-6 /usr/bin/gcc
