@@ -9,6 +9,6 @@ fi
 
 yum -y install git
 git clone --depth=50 --branch=$BRANCH https://github.com/AO-StreetArt/CrazyIvan.git
-cd CrazyIvan/scripts/linux/rhel && ./build_deps.sh
+cd CrazyIvan/scripts/linux/deb && ./build_deps.sh
 export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 cd ../../.. && make && make test
