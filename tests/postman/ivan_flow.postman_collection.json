@@ -1,37 +1,31 @@
 {
 	"info": {
-		"_postman_id": "10aabe86-d104-44dc-95a4-aacaba2c13df",
-		"name": "CrazyIvan",
+		"_postman_id": "1304c11e-9cbd-4f0e-9c17-d31ad336ec19",
+		"name": "CrazyIvan copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Post Scene",
+			"name": "Scene Post",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "d94a1be1-b785-46d9-b97b-35e6d581f846",
+						"id": "b780d72d-de7b-4a66-b2ab-da87f23e2373",
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
 							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
 							"pm.test(\"Content-Type is present\", function () {",
 							"    pm.response.to.have.header(\"Content-Type\");",
-							"});",
-							"",
-							"var jsonData = pm.response.json();",
-							"",
-							"pm.test(\"Check Response Body\", function () {",
-							"    pm.expect(jsonData.err_code).to.eql(100);",
-							"    pm.expect(jsonData.num_records).to.eql(1);",
-							"});",
-							"",
-							"pm.environment.unset(\"SCENE_ID\");",
-							"",
-							"pm.environment.set(\"SCENE_ID\", jsonData.scenes[0].key);"
+							"});"
 						]
 					}
 				}
@@ -64,12 +58,13 @@
 					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"\",\n      \"name\":\"testScene\",\n      \"latitude\":100.0,\n      \"longitude\":100.0,\n      \"distance\":10.0,\n      \"region\":\"us-ga\",\n      \"assets\":[\"asset1\"],\n      \"tags\":[\"tag1\"]\n    }\n  ]\n}\n"
 				},
 				"url": {
-					"raw": "{{AESEL_URL}}/v1/scene/",
+					"raw": "{{AESEL_URL}}/v1/query/scene/",
 					"host": [
 						"{{AESEL_URL}}"
 					],
 					"path": [
 						"v1",
+						"query",
 						"scene",
 						""
 					]
@@ -83,7 +78,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "bf244056-2723-47f2-b295-6c8c8ea44731",
+						"id": "e52e3942-7512-4ea5-bc83-ce6bc1991d26",
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Status code is 200\", function () {",
@@ -97,6 +92,11 @@
 							"",
 							"pm.test(\"Content-Type is present\", function () {",
 							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"pm.test(\"Set Scene Name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.environment.set(\"SCENE_ID\", jsonData.scenes[0].key);",
 							"});"
 						]
 					}
