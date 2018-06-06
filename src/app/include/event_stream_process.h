@@ -60,7 +60,7 @@ public:
     decrypt_key.assign(dpasswd);
     decrypt_salt.assign(dsalt);
   }
-  ~EventSender() {delete event;}
+  ~EventSender() {delete[] event;}
   void send_updates() {
     Poco::Logger::get("Event").debug("Sending Object Updates");
     Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
