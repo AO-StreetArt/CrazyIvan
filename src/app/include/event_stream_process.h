@@ -62,6 +62,7 @@ public:
   }
   ~EventSender() {delete event;}
   void send_updates() {
+    Poco::Logger::get("Event").debug("Sending Object Updates");
     Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
     // Creates a 256-bit AES cipher (one for encryption, one for decryption)
     Poco::Crypto::Cipher* eCipher = factory.createCipher(Poco::Crypto::CipherKey("aes-256", encrypt_key, encrypt_salt));
@@ -81,6 +82,7 @@ public:
     // Scene ID is now in entry 0, event json is in entry 1
     // load the scene out of the cache
     std::vector<std::pair<std::string, int>> found_devices = cache->get_devices(event_items[0]);
+    Poco::Logger::get("Event").debug("Found Total Number of Devices %d", found_devices.size());
     for (std::pair<std::string, int> device : found_devices) {
       try {
         boost::asio::ip::udp::endpoint remote_endpoint;
@@ -129,6 +131,7 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
       boost::system::error_code error;
       socket.receive_from(boost::asio::buffer(recv_buf), remote_endpoint, 0, error);
       if (!(error && error != boost::asio::error::message_size)) {
+        Poco::Logger::get("Event").debug("Recieved UDP Update");
         // Copy the message buffer into dynamic memory
         char *event_msg = new char[EVENT_LENGTH];
         memcpy(event_msg, recv_buf, EVENT_LENGTH);
