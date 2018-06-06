@@ -37,7 +37,6 @@ before_install:
   - npm install newman --global;
   - cd $TRAVIS_BUILD_DIR
   - export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
-  - ip addr show eth0 | grep -Po 'inet \K[\d.]+' >> $TRAVIS_BUILD_DIR/tests/ip_addr.txt
 install:
   - cd $TRAVIS_BUILD_DIR && make all CC=$CXX && make test CC=$CXX
 before_script:
