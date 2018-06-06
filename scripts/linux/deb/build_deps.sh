@@ -31,11 +31,11 @@ if [ ! -d /usr/local/include/aossl ]; then
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
   cp aossl-deb/deps/build_deps.sh $PRE/aossl_deps/
-  cd $PRE/aossl_deps && sudo ./build_deps.sh
+  cd $PRE/aossl_deps && ./build_deps.sh
   cd ../$RETURN
 
   #Build the shared service library
-  cd aossl-deb && make clean && make CC=$COMPILER && sudo make install
+  cd aossl-deb && make clean && make CC=$COMPILER && make install
   cd ../
 
 fi
@@ -47,13 +47,11 @@ if [ ! -d /usr/local/include/neocpp ]; then
   #Build the dependencies for the shared service library
   mkdir $PRE/neocpp_deps
   cp NeoCpp/scripts/linux/deb/build_deps.sh $PRE/neocpp_deps/
-  cd $PRE/neocpp_deps && sudo ./build_deps.sh
+  cd $PRE/neocpp_deps && ./build_deps.sh
   cd ../$RETURN
-  cd NeoCpp && sudo make install
+  cd NeoCpp && make install
   cd ../
 
 fi
-
-sudo ldconfig
 
 printf "Finished installing dependencies"
