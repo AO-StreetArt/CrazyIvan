@@ -58,13 +58,12 @@
 					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"\",\n      \"name\":\"testScene\",\n      \"latitude\":100.0,\n      \"longitude\":100.0,\n      \"distance\":10.0,\n      \"region\":\"us-ga\",\n      \"assets\":[\"asset1\"],\n      \"tags\":[\"tag1\"]\n    }\n  ]\n}\n"
 				},
 				"url": {
-					"raw": "{{AESEL_URL}}/v1/query/scene/",
+					"raw": "{{AESEL_URL}}/v1/scene/",
 					"host": [
 						"{{AESEL_URL}}"
 					],
 					"path": [
 						"v1",
-						"query",
 						"scene",
 						""
 					]
