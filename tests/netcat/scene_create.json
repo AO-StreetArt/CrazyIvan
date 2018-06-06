@@ -1,0 +1,14 @@
+{
+  "scenes":[
+    {
+      "key":"",
+      "name":"udpTestScene",
+      "latitude":100.0,
+      "longitude":100.0,
+      "distance":10.0,
+      "region":"us-ga",
+      "assets":["asset1"],
+      "tags":["tag1"]
+    }
+  ]
+}

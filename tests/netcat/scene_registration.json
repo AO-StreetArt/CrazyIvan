@@ -1,0 +1,19 @@
+{
+  "scenes":[
+    {
+      "key":"_SCENE_KEY_",
+      "devices":[
+      	{
+      		"key": "udpDevice",
+  			"hostname": "_HOSTNAME_",
+  			"port":_PORT_,
+  			"connection_string": "127.0.0.1:4444",
+      		"transform": {
+      			"translation": [0.0,0.0,0.0],
+      			"rotation": [0.0,0.0,0.0]
+      		}
+      	}
+      ]
+    }
+  ]
+}
