@@ -81,6 +81,8 @@ public:
     socket.open(boost::asio::ip::udp::v4());
     // Scene ID is now in entry 0, event json is in entry 1
     // load the scene out of the cache
+    // WARNING: This causes segfaults when the entry isn't in the cache
+    //   we need to swap out for std::unordered_map and use find()
     std::vector<std::pair<std::string, int>> found_devices = cache->get_devices(event_items[0]);
     Poco::Logger::get("Event").debug("Found Total Number of Devices %d", found_devices.size());
     for (std::pair<std::string, int> device : found_devices) {
