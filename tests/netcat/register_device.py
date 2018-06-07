@@ -47,6 +47,9 @@ def execute_main(hostname, port):
         register_message = register_message.replace("_PORT_", "%s" % port)
         send_http_request(register_url, register_message)
 
+    # Add the scene to the cache
+    requests.put("http://localhost:8766/v1/scene/cache/" + scene_key)
+
     print("Generating UDP Message -- Python")
 
     # Build UDP Message
