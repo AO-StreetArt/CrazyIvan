@@ -21,7 +21,7 @@ void BaseMessageProcessor::create_uuid(std::string &out_string) {
   AOSSL::StringBuffer id_container;
   ugen->generate(id_container);
   if (!id_container.err_msg.empty()) {
-    Poco::Logger::get("MessageProcessor").error(id_container.err_msg);
+    log.error(id_container.err_msg);
   }
   out_string.assign(id_container.val);
 }

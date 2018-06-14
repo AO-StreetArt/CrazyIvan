@@ -43,6 +43,7 @@ limitations under the License.
 
 #include "cache_loader_process.h"
 #include "event_stream_process.h"
+#include "thread_error_handler.h"
 
 #include "aossl/profile/include/tiered_app_profile.h"
 #include "aossl/consul/include/consul_interface.h"
@@ -79,6 +80,8 @@ limitations under the License.
 #include "Poco/Message.h"
 #include "Poco/NumberParser.h"
 #include "Poco/AutoPtr.h"
+#include "Poco/AsyncChannel.h"
+#include "Poco/ErrorHandler.h"
 
 #ifndef SRC_APP_INCLUDE_IVAN_APPLICATION_H_
 #define SRC_APP_INCLUDE_IVAN_APPLICATION_H_
@@ -177,10 +180,13 @@ protected:
     }
 
     // Set up Poco Logging framework
-    // Set up a console channel
+    // Set up a console channel, and an async channel so that
+    // log lines are written on a background thread
+    Poco::AutoPtr<Poco::ConsoleChannel> pCons(new Poco::ConsoleChannel);
+    Poco::AutoPtr<Poco::AsyncChannel> pAsync(new Poco::AsyncChannel(pCons));
     Poco::FormattingChannel* console_channel = \
       new Poco::FormattingChannel(new Poco::PatternFormatter("%Y-%m-%d %H:%M:%S.%c %N[%P]:%s:%q:%t"));
-    console_channel->setChannel(new Poco::ConsoleChannel);
+    console_channel->setChannel(pAsync);
     console_channel->open();
 
     // Start up the app loggers
@@ -269,6 +275,10 @@ protected:
       acct_manager = NULL;
     }
 
+    // Start the background thread error handler
+    IvanErrorHandler eh;
+    Poco::ErrorHandler* pOldEH = Poco::ErrorHandler::set(&eh);
+
     // Start the Device Cache
     DeviceCache event_cache;
     DeviceCacheLoader loader(&event_cache, neo);
@@ -304,6 +314,7 @@ protected:
       waitForTerminationRequest();
       srv.stop();
     }
+    Poco::ErrorHandler::set(pOldEH);
     return Poco::Util::Application::EXIT_OK;
   }
 };

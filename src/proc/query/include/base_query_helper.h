@@ -48,10 +48,12 @@ class BaseQueryHelper {
   SceneListFactory slfactory;
   TransformFactory tfactory;
   UserDeviceFactory udfactory;
+  Poco::Logger& log;
 
  public:
   inline BaseQueryHelper(Neocpp::Neo4jInterface *neo, \
-    Neocpp::LibNeo4jFactory *nf, AOSSL::KeyValueStoreInterface *con) {
+      Neocpp::LibNeo4jFactory *nf, AOSSL::KeyValueStoreInterface *con) : \
+      log(Poco::Logger::get("MessageProcessor")) {
     n = neo;
     neo_factory = nf;
     config = con;
@@ -84,13 +86,14 @@ class BaseQueryHelper {
   AOSSL::KeyValueStoreInterface* get_config_manager() {return config;}
   Neocpp::Neo4jInterface* get_neo4j_interface() {return n;}
   Neocpp::LibNeo4jFactory* get_neo4j_factory() {return neo_factory;}
+  Poco::Logger& logger() {return log;}
 
   // Utility Methods
 
   // Assign the properties from a DB Scene to a Scene Interface
   inline void assign_scene_properties(Neocpp::DbObjectInterface *db_scene, \
     SceneInterface *data) {
-    Poco::Logger::get("MessageProcessor").debug("Assigning Scene Properties");
+    log.debug("Assigning Scene Properties");
     Neocpp::DbMapInterface* map = db_scene->properties();
     if (map->element_exists("key")) {
       data->set_key(map->get_string_element("key"));
@@ -130,7 +133,7 @@ class BaseQueryHelper {
   // Assign the properties from a DB Device in a scene to a Device Interface
   inline void assign_device_properties(Neocpp::DbObjectInterface *db_device, \
       UserDeviceInterface *data) {
-    Poco::Logger::get("MessageProcessor").debug("Assigning Device Properties");
+    log.debug("Assigning Device Properties");
     Neocpp::DbMapInterface* map = db_device->properties();
     if (map->element_exists("connection_string")) {
       data->set_connection_string(map->get_string_element("connection_string"));
@@ -277,7 +280,7 @@ class BaseQueryHelper {
     // Key
     if (!(key.empty())) {
       Neocpp::Neo4jQueryParameterInterface *key_param = neo_factory->get_neo4j_query_parameter(key);
-      Poco::Logger::get("MessageProcessor").debug("Key: %s", key);
+      log.debug("Key: %s", key);
       scene_params.emplace("inp_key", key_param);
     }
     if (scn) {
@@ -288,7 +291,7 @@ class BaseQueryHelper {
       if (!(scn->get_name().empty())) {
         std::string qname = scn->get_name();
         Neocpp::Neo4jQueryParameterInterface *name_param = neo_factory->get_neo4j_query_parameter(qname);
-        Poco::Logger::get("MessageProcessor").debug("Name: %s", qname);
+        log.debug("Name: %s", qname);
         scene_params.emplace("inp_name", name_param);
       }
       // Latitude
@@ -312,7 +315,7 @@ class BaseQueryHelper {
       // Region
       if (!(scn->get_region().empty())) {
         Neocpp::Neo4jQueryParameterInterface *region_param = neo_factory->get_neo4j_query_parameter(scn->get_region());
-        Poco::Logger::get("MessageProcessor").debug("Region: %s", scn->get_region());
+        log.debug("Region: %s", scn->get_region());
         scene_params.emplace("inp_region", region_param);
       }
       // Assets
@@ -321,7 +324,7 @@ class BaseQueryHelper {
         // Add the assets from the object message to the parameter
         for (int i = 0; i < scn->num_assets(); i++) {
           asset_param->add_value(scn->get_asset(i));
-          Poco::Logger::get("MessageProcessor").debug("Asset: %s", scn->get_asset(i));
+          log.debug("Asset: %s", scn->get_asset(i));
         }
         scene_params.emplace("inp_assets", asset_param);
       }
@@ -331,7 +334,7 @@ class BaseQueryHelper {
         // Add the assets from the object message to the parameter
         for (int j = 0; j < scn->num_tags(); j++) {
           tag_param->add_value(scn->get_tag(j));
-          Poco::Logger::get("MessageProcessor").debug("Tag: %s", scn->get_tag(j));
+          log.debug("Tag: %s", scn->get_tag(j));
         }
         scene_params.emplace("inp_tags", tag_param);
       }

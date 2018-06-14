@@ -23,7 +23,7 @@ limitations under the License.
 // which are then processed to generate the Scene-Scene links
 void AlgorithmQueryHelper::process_UDUD_transformation(\
   SceneListInterface *registered_scenes, SceneListInterface *obj_msg) {
-  Poco::Logger::get("MessageProcessor").debug("Processing Scene-Scene Links");
+  BaseQueryHelper::logger().debug("Processing Scene-Scene Links");
 
   // Get the number of scenes
   int num_scenes = registered_scenes->num_scenes();
@@ -38,7 +38,7 @@ void AlgorithmQueryHelper::process_UDUD_transformation(\
     if (scene1_key != scene2_key) {
       // Get the user device transforms for each scene,
       // calculate the correct transform
-      Poco::Logger::get("MessageProcessor").debug("Calculating Transform");
+      BaseQueryHelper::logger().debug("Calculating Transform");
       TransformInterface *new_trans = BaseQueryHelper::create_transform();
       for (int k = 0; k < 3; k++) {
         // translation
@@ -72,7 +72,7 @@ void AlgorithmQueryHelper::process_UDUD_transformation(\
       }
 
       // Get any existing scene links
-      Poco::Logger::get("MessageProcessor").debug("Retrieving existing scene links");
+      BaseQueryHelper::logger().debug("Retrieving existing scene links");
       results = SceneQueryHelper::get_scene_link(scene1_key, scene2_key);
       if (results == 0) {
         // No links found, create new one
@@ -93,7 +93,7 @@ void AlgorithmQueryHelper::process_UDUD_transformation(\
 // the resulting transform
 SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
   std::string scene_id1, std::string scene_id2) {
-  Poco::Logger::get("MessageProcessor").debug(\
+  BaseQueryHelper::logger().debug(\
     "Checking for existing paths between scenes: %s -> %s", \
     scene_id1, scene_id2);
 
@@ -132,14 +132,14 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
       path_q_params);
   }
   catch (std::exception& e) {
-    Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+    BaseQueryHelper::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
       path_q_string, e.what());
     err_str.assign(e.what());
     has_exception = true;
   }
 
   if (!results) {
-    Poco::Logger::get("MessageProcessor").error("No Path between scenes found");
+    BaseQueryHelper::logger().error("No Path between scenes found");
     err_str = "No Path between scenes found";
     has_exception = true;
   } else if (!has_exception) {
@@ -148,13 +148,13 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
     // Get the path object from the query return
     tree = results->next();
     if (!tree) {
-      Poco::Logger::get("MessageProcessor").error("No results tree returned");
+      BaseQueryHelper::logger().error("No results tree returned");
     } else {
       obj = tree->get(0);
 
       // Determine if we have a path in the return value
       if (obj->is_path()) {
-        Poco::Logger::get("MessageProcessor").debug("Path object detected in values from DB");
+        BaseQueryHelper::logger().debug("Path object detected in values from DB");
 
         // Iterate through the path
         int path_size = obj->size();
@@ -216,7 +216,7 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
           if (new_tran) {delete new_tran; new_tran = NULL;}
         }
       } else {
-        Poco::Logger::get("MessageProcessor").error("Non-Object value returned from query");
+        BaseQueryHelper::logger().error("Non-Object value returned from query");
       }
     }
   }

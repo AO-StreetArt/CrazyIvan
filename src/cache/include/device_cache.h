@@ -3,6 +3,7 @@
 #include <atomic>
 #include <thread>
 #include <vector>
+#include <unordered_map>
 
 
 #include "Poco/HashMap.h"
@@ -68,10 +69,11 @@ inline bool operator==(DeviceCacheEntry& lhs, DeviceCacheEntry& rhs) {
 }
 
 // Implements a hashmap which never locks for read operations unless scenes
-// are added/removed.  Updating the contents of the scene requires no wait.
+// are added/removed.  Updating the contents of the scene may wait, but will not
+// cause threads reading from the cache to wait as a result.
 // Cannot be initialized with a copy constructor
 class DeviceCache {
-  Poco::HashMap<std::string, DeviceCacheEntry*> cache_entries;
+  std::unordered_map<std::string, DeviceCacheEntry*> cache_entries;
   Poco::RWLock scene_update_lock;
   std::vector<std::string> scene_list;
  public:

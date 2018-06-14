@@ -16,12 +16,14 @@
 class DeviceCacheLoader {
   DeviceCache *cache = NULL;
   Neocpp::Neo4jInterface *neo = NULL;
+  Poco::Logger& logger;
 public:
   // Constructors & Destructors
-  DeviceCacheLoader(DeviceCache *dcache, Neocpp::Neo4jInterface *neoconn) \
-      {cache = dcache; neo = neoconn;}
+  DeviceCacheLoader(DeviceCache *dcache, Neocpp::Neo4jInterface *neoconn) : \
+      logger(Poco::Logger::get("Cache")) {cache = dcache; neo = neoconn;}
   ~DeviceCacheLoader() {}
-  DeviceCacheLoader(const DeviceCacheLoader& other) \
+  DeviceCacheLoader(const DeviceCacheLoader& other) : \
+      logger(Poco::Logger::get("Cache")) \
       {set_cache(other.get_cache()); set_neo4j(other.get_neo4j());}
   DeviceCache* get_cache() const {return cache;}
   Neocpp::Neo4jInterface* get_neo4j() const {return neo;}
@@ -46,12 +48,12 @@ public:
       results = neo->execute(query, query_params);
     }
     catch (std::exception& e) {
-      Poco::Logger::get("Cache").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      logger.error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
         query, std::string(e.what()));
     }
     // Get the query results
     if (!results) {
-      Poco::Logger::get("Cache").error("No Results from Query: %s", query);
+      logger.error("No Results from Query: %s", query);
     } else {
       Neocpp::ResultTreeInterface *tree = NULL;
       Neocpp::DbObjectInterface* obj = NULL;
@@ -62,7 +64,7 @@ public:
       while (tree) {
         // Get the first DB Object (Node)
         obj = tree->get(0);
-        Poco::Logger::get("MessageProcessor").debug("Query Result: %s", obj->to_string());
+        logger.debug("Query Result: %s", obj->to_string());
 
         // Break out if we're returned something not an object node
         if (!(obj->is_node())) break;

@@ -33,6 +33,7 @@ class SingleAccountManager: public AccountManagerInterface {
   std::string hash_pw;
   int type = IVAN_BASIC_AUTH;
   Poco::HMACEngine<Poco::MD5Engine> *hmac = NULL;
+  Poco::Logger& logger;
   void hash_string(std::string& inp, std::string& out) {
     // compute an HMAC-SHA1
     hmac->update(inp);
@@ -46,7 +47,8 @@ class SingleAccountManager: public AccountManagerInterface {
   ~SingleAccountManager() {delete hmac;}
 
   // Constructor
-  SingleAccountManager(std::string& un, std::string& pw, std::string& sha_pw) {
+  SingleAccountManager(std::string& un, std::string& pw, std::string& sha_pw) : \
+      logger(Poco::Logger::get("Auth")) {
     username.assign(un);
     hash_pw.assign(sha_pw);
     hmac = new Poco::HMACEngine<Poco::MD5Engine>(hash_pw);
@@ -57,7 +59,7 @@ class SingleAccountManager: public AccountManagerInterface {
 
   // Determine if a user is valid or not
   inline bool authenticate_user(std::string& user, std::string& passwd) {
-    Poco::Logger::get("Auth").debug("Authenticating User: %s", user);
+    logger.debug("Authenticating User: %s", user);
     std::string final_pw;
     hash_string(passwd, final_pw);
     if (final_pw == password) {

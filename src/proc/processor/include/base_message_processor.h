@@ -54,6 +54,7 @@ class BaseMessageProcessor {
   TransformFactory tfactory;
   UserDeviceFactory udfactory;
   QueryHelperFactory qfactory;
+  Poco::Logger& log;
 
  public:
   // Access internal components
@@ -65,6 +66,7 @@ class BaseMessageProcessor {
   SceneFactory get_sfactory() {return sfactory;}
   UserDeviceFactory get_udfactory() {return udfactory;}
   TransformFactory get_tfactory() {return tfactory;}
+  Poco::Logger& logger() {return log;}
 
   // Helper Methods
   // Generate a new UUID
@@ -89,8 +91,9 @@ class BaseMessageProcessor {
 
   // Constructor
   inline BaseMessageProcessor(Neocpp::LibNeo4jFactory *nf, \
-    Neocpp::Neo4jInterface *neo4j, \
-    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) {
+      Neocpp::Neo4jInterface *neo4j, \
+      AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) : \
+      log(Poco::Logger::get("MessageProcessor")) {
     n = neo4j;
     config = con;
     ugen = u;

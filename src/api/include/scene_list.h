@@ -45,8 +45,9 @@ class SceneList : public SceneListInterface {
   const char* ret_val;
   TransformFactory tfactory;
   UserDeviceFactory udfactory;
-
+  Poco::Logger& logr;
  public:
+  inline Poco::Logger& logger() {return logr;}
   inline TransformInterface* create_transform() \
     {return tfactory.build_transform();}
   inline UserDeviceInterface* create_device() {return udfactory.build_device();}
@@ -56,7 +57,7 @@ class SceneList : public SceneListInterface {
   inline UserDeviceInterface* create_device(std::string inp_key) \
     {return udfactory.build_device(inp_key);}
   // Constructor
-  SceneList() {}
+  SceneList() : logr(Poco::Logger::get("Data")) {}
   // Destructor
   virtual inline ~SceneList() {
     for (unsigned int i = 0; i < data.size(); i++) {
@@ -88,7 +89,7 @@ class SceneList : public SceneListInterface {
   int num_scenes() {return data.size();}
   int get_num_records() {return num_records;}
   inline void print() {
-    Poco::Logger::get("Data").debug("{\"SceneList\": {\"msg_type\": %d, \"operation\": %d, \"err_msg\": %s, \"err_code\": %d, \"transaction_id\": \"%s\", \"num_records\": %d}}",
+    logr.debug("{\"SceneList\": {\"msg_type\": %d, \"operation\": %d, \"err_msg\": %s, \"err_code\": %d, \"transaction_id\": \"%s\", \"num_records\": %d}}",
       msg_type, operation, err_msg, err_code, transaction_id, num_records);
     for (unsigned int i = 0; i < data.size(); i++) {data[i]->print();}
   }

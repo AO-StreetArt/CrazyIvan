@@ -24,13 +24,13 @@ limitations under the License.
 // Create a new scene
 ProcessResult* \
   CrudMessageProcessor::process_create_message(SceneListInterface *obj_msg) {
-  Poco::Logger::get("MessageProcessor").information("Processing Scene Creation messages: %d", obj_msg->num_scenes());
+  BaseMessageProcessor::logger().information("Processing Scene Creation messages: %d", obj_msg->num_scenes());
   ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
     Neocpp::ResultsIteratorInterface *results = NULL;
     Neocpp::ResultTreeInterface *tree = NULL;
     Neocpp::DbObjectInterface* obj = NULL;
-    Poco::Logger::get("MessageProcessor").information("Scenes Found in creation message");
+    BaseMessageProcessor::logger().information("Scenes Found in creation message");
 
     // Empty string to hold a newly generated ID, if needed
     std::string new_id;
@@ -38,11 +38,11 @@ ProcessResult* \
       // Generate a new key
       BaseMessageProcessor::create_uuid(new_id);
       if (new_id.empty()) {
-        Poco::Logger::get("MessageProcessor").error("Unknown error generating new key for scene");
+        BaseMessageProcessor::logger().error("Unknown error generating new key for scene");
         response->set_error(PROCESSING_ERROR, "Error generating key for scene");
         return response;
       }
-      Poco::Logger::get("MessageProcessor").information("Key Generated: %s", new_id);
+      BaseMessageProcessor::logger().information("Key Generated: %s", new_id);
     } else {
       new_id = obj_msg->get_scene(0)->get_key();
     }
@@ -53,7 +53,7 @@ ProcessResult* \
     BaseMessageProcessor::get_query_helper()->generate_scene_crud_query(new_id, \
       CREATE_QUERY_TYPE, APPEND, obj_msg->get_scene(0), scene_query);
 
-    Poco::Logger::get("MessageProcessor").debug("Executing Query: %s", scene_query);
+    BaseMessageProcessor::logger().debug("Executing Query: %s", scene_query);
 
     // Set up the query parameters for scene creation
     std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> scene_params;
@@ -66,16 +66,16 @@ ProcessResult* \
         execute(scene_query, scene_params);
     }
     catch (std::exception& e) {
-      Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+      BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
         scene_query, std::string(e.what()));
       response->set_error(PROCESSING_ERROR, e.what());
     }
 
     if (!results) {
-      Poco::Logger::get("MessageProcessor").error("No results returned from create query");
+      BaseMessageProcessor::logger().error("No results returned from create query");
       response->set_error(PROCESSING_ERROR, "Error processing Scene Create");
     } else {
-      Poco::Logger::get("MessageProcessor").information("Scene Successfully added");
+      BaseMessageProcessor::logger().information("Scene Successfully added");
       tree = results->next();
       if (tree) {
         obj = tree->get(0);
@@ -111,7 +111,7 @@ ProcessResult* \
 
     // Declare base variables
     Neocpp::ResultsIteratorInterface *results = NULL;
-    Poco::Logger::get("MessageProcessor").debug("Processing Scene Update message");
+    BaseMessageProcessor::logger().debug("Processing Scene Update message");
 
     // Ensure that we have fields in the query
     if (obj_msg->get_scene(0)->get_name().empty() && \
@@ -121,7 +121,7 @@ ProcessResult* \
       obj_msg->get_scene(0)->get_region().empty() && \
       obj_msg->get_scene(0)->num_tags() == 0 && \
       obj_msg->get_scene(0)->num_assets() == 0) {
-      Poco::Logger::get("MessageProcessor").error("No fields found in update message");
+      BaseMessageProcessor::logger().error("No fields found in update message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message");
     } else {
       // Set up the Cypher Query for scene update
@@ -130,7 +130,7 @@ ProcessResult* \
         UPDATE_QUERY_TYPE, obj_msg->get_op_type(), \
         obj_msg->get_scene(0), scene_query);
 
-      Poco::Logger::get("MessageProcessor").debug("Executing Query: %s", scene_query);
+      BaseMessageProcessor::logger().debug("Executing Query: %s", scene_query);
 
       // Set up the query parameters for scene update
       BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(obj_msg->get_scene(0)->get_key(), \
@@ -147,13 +147,13 @@ ProcessResult* \
       catch (std::exception& e) {
         if (obj) delete obj;
         if (tree) delete tree;
-        Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+        BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
           scene_query, e.what());
         response->set_error(PROCESSING_ERROR, e.what());
       }
 
       if (!results) {
-        Poco::Logger::get("MessageProcessor").error("No results returned from update query");
+        BaseMessageProcessor::logger().error("No results returned from update query");
         response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
       } else {
         response->set_return_string(obj_msg->get_scene(0)->get_key());
@@ -191,7 +191,7 @@ ProcessResult* \
     scene_params;
   if (obj_msg->num_scenes() > 0) {
     Neocpp::ResultsIteratorInterface *results = NULL;
-    Poco::Logger::get("MessageProcessor").debug("Processing Scene Retrieve message");
+    BaseMessageProcessor::logger().debug("Processing Scene Retrieve message");
 
     if (obj_msg->get_scene(0)->get_name().empty() && \
       obj_msg->get_scene(0)->get_latitude() + 9999.0 < 0.0001 && \
@@ -200,7 +200,7 @@ ProcessResult* \
       obj_msg->get_scene(0)->get_key().empty() && \
       obj_msg->get_scene(0)->get_region().empty() && \
       obj_msg->get_scene(0)->num_tags() == 0) {
-      Poco::Logger::get("MessageProcessor").error("No fields found in get message");
+      BaseMessageProcessor::logger().error("No fields found in get message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields for get");
     } else {
       // Set up the Cypher Query for scene retrieval
@@ -208,7 +208,7 @@ ProcessResult* \
       BaseMessageProcessor::get_query_helper()->generate_scene_crud_query(obj_msg->get_scene(0)->get_key(), \
         GET_QUERY_TYPE, APPEND, obj_msg->get_scene(0), scene_query);
 
-      Poco::Logger::get("MessageProcessor").debug("Executing Query: %s", scene_query);
+      BaseMessageProcessor::logger().debug("Executing Query: %s", scene_query);
 
       // Set up the query parameters for scene retrieval
       BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(obj_msg->get_scene(0)->get_key(), \
@@ -220,7 +220,7 @@ ProcessResult* \
           BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
           scene_params);
         if (!results) {
-          Poco::Logger::get("MessageProcessor").error("No results returned from query");
+          BaseMessageProcessor::logger().error("No results returned from query");
           response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
         } else {
           // Pull results and return
@@ -236,7 +236,7 @@ ProcessResult* \
 
             // Get the first DB Object (Node)
             Neocpp::DbObjectInterface* obj = tree->get(0);
-            Poco::Logger::get("MessageProcessor").debug("Query Result: %s", obj->to_string());
+            BaseMessageProcessor::logger().debug("Query Result: %s", obj->to_string());
 
             // Leave the loop if we don't have anything in this result tree
             if (!(obj->is_node()) && !(obj->is_edge())) break;
@@ -266,7 +266,7 @@ ProcessResult* \
         }
       }
       catch (std::exception& e) {
-        Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+        BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
           scene_query, e.what());
         response->set_error(PROCESSING_ERROR, e.what());
       }
@@ -286,18 +286,18 @@ ProcessResult* \
   CrudMessageProcessor::process_delete_message(SceneListInterface *obj_msg) {
   ProcessResult *response = new ProcessResult;
   if (obj_msg->num_scenes() > 0) {
-    Poco::Logger::get("MessageProcessor").debug("Processing Scene Delete message");
+    BaseMessageProcessor::logger().debug("Processing Scene Delete message");
     Neocpp::ResultsIteratorInterface *results = NULL;
     Neocpp::Neo4jQueryParameterInterface *key_param = NULL;
 
     if (obj_msg->get_scene(0)->get_key().empty()) {
-      Poco::Logger::get("MessageProcessor").error("No fields found in delete message");
+      BaseMessageProcessor::logger().error("No fields found in delete message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message");
     } else {
       // Set up the Cypher Query for scene delete
       std::string scene_query = \
         "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn";
-      Poco::Logger::get("MessageProcessor").debug("Executing Delete Query");
+      BaseMessageProcessor::logger().debug("Executing Delete Query");
 
       // Set up the query parameters for scene retrieval
       std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> \
@@ -314,12 +314,12 @@ ProcessResult* \
           scene_params);
       }
       catch (std::exception& e) {
-        Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+        BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
           scene_query, e.what());
         response->set_error(PROCESSING_ERROR, e.what());
       }
       if (!results) {
-        Poco::Logger::get("MessageProcessor").error("No results returned from delete query");
+        BaseMessageProcessor::logger().error("No results returned from delete query");
         response->set_error(PROCESSING_ERROR, "Error processing Scene Delete");
       } else {
         response->set_return_string(obj_msg->get_scene(0)->get_key());
@@ -348,17 +348,17 @@ ProcessResult* \
     CrudMessageProcessor::process_device_get_message(SceneListInterface *msg) {
   ProcessResult *response = new ProcessResult;
   if (msg->num_scenes() > 0) {
-    Poco::Logger::get("MessageProcessor").debug("Processing Device Retrieval message");
+    BaseMessageProcessor::logger().debug("Processing Device Retrieval message");
     Neocpp::ResultsIteratorInterface *results = NULL;
     Neocpp::Neo4jQueryParameterInterface *key_param = NULL;
 
     if (msg->get_scene(0)->num_devices() < 1) {
-      Poco::Logger::get("MessageProcessor").error("No fields found in device retreival message");
+      BaseMessageProcessor::logger().error("No fields found in device retreival message");
       response->set_error(INSUFF_DATA_ERROR, "Insufficient fields in message");
     } else {
       // Set up the Cypher Query for device retrieval
       std::string scene_query = "MATCH (ud:UserDevice {key: {inp_key}}) RETURN ud";
-      Poco::Logger::get("MessageProcessor").debug("Executing Retreival Query");
+      BaseMessageProcessor::logger().debug("Executing Retreival Query");
 
       // Set up the query parameters for scene delete
       std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> \
@@ -366,7 +366,7 @@ ProcessResult* \
       std::string device_key = msg->get_scene(0)->get_device(0)->get_key();
       key_param = BaseMessageProcessor::get_neo4j_factory()->\
         get_neo4j_query_parameter(device_key);
-      Poco::Logger::get("MessageProcessor").debug("Key: %s", device_key);
+      BaseMessageProcessor::logger().debug("Key: %s", device_key);
       scene_params.emplace("inp_key", key_param);
 
       // Execute the query
@@ -378,12 +378,12 @@ ProcessResult* \
           scene_params);
       }
       catch (std::exception& e) {
-        Poco::Logger::get("MessageProcessor").error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+        BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
           scene_query, e.what());
         response->set_error(PROCESSING_ERROR, e.what());
       }
       if (!results) {
-        Poco::Logger::get("MessageProcessor").error("No results returned from device get query");
+        BaseMessageProcessor::logger().error("No results returned from device get query");
         response->set_error(PROCESSING_ERROR, "Error processing Device Get");
       } else {
         // Build the response scene list
@@ -398,11 +398,11 @@ ProcessResult* \
         if (tree) {
           obj = tree->get(0);
           if (obj) {
-            Poco::Logger::get("MessageProcessor").debug("Query Result: %s", obj->to_string());
+            BaseMessageProcessor::logger().debug("Query Result: %s", obj->to_string());
 
             // Log an error if we don't have a node in this result tree
             if (!(obj->is_node())) {
-              Poco::Logger::get("MessageProcessor").error("Non-node returned from query");
+              BaseMessageProcessor::logger().error("Non-node returned from query");
               response->set_error(NOT_FOUND, "Unable to find Device");
             } else {
               UserDeviceInterface *data = \
@@ -418,7 +418,7 @@ ProcessResult* \
             sc->add_scene(empty_scene);
 
             // Set our return string
-            Poco::Logger::get("MessageProcessor").debug("Response Scene List:");
+            BaseMessageProcessor::logger().debug("Response Scene List:");
             sc->print();
             std::string msg_string;
             sc->to_msg_string(msg_string);
@@ -426,12 +426,12 @@ ProcessResult* \
 
             delete obj;
           } else {
-            Poco::Logger::get("MessageProcessor").error("No results returned from Query");
+            BaseMessageProcessor::logger().error("No results returned from Query");
             response->set_error(NOT_FOUND, "Unable to find Device");
           }
           delete tree;
         } else {
-          Poco::Logger::get("MessageProcessor").error("No results returned from Query");
+          BaseMessageProcessor::logger().error("No results returned from Query");
           response->set_error(NOT_FOUND, "Unable to find Device");
         }
         if (sc) delete sc;

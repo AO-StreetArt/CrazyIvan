@@ -25,8 +25,8 @@ apt-get install -y git libboost-all-dev openssl libssl-dev wget
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
 
-  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/2.1/aossl-deb-2.1.0.tar.gz
-  tar -xvzf aossl-deb-2.1.0.tar.gz
+  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.1.1/aossl-deb-2.1.1.tar.gz
+  tar -xvzf aossl-deb-2.1.1.tar.gz
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
