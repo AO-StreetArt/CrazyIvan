@@ -61,7 +61,7 @@ public:
     decrypt_key.assign(dpasswd);
     decrypt_salt.assign(dsalt);
   }
-  ~EventSender() {delete[] event;}
+  ~EventSender() {}
   void send_updates() {
     logger.debug("Sending Object Updates");
     Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
@@ -101,6 +101,7 @@ public:
         logger.error(e.what());
       }
     }
+    delete[] event;
   }
 };
 
@@ -125,6 +126,9 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
     int port = std::stoi(udp_port.val);
     bool aes_enabled = false;
     if (aes_enabled_buffer.val == "true") aes_enabled = true;
+    // Start a std::vector to hold event memory
+    std::vector<EventSender*> evt_senders {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+    int sender_index = 0;
     // Open the UDP Socket
     boost::asio::io_service io_service;
     boost::asio::ip::udp::socket socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port));
@@ -139,28 +143,26 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
         // Copy the message buffer into dynamic memory
         char *event_msg = new char[EVENT_LENGTH];
         memcpy(event_msg, recv_buf, EVENT_LENGTH);
+        // Clear out any left-over event sender
+        if (evt_senders[sender_index]) delete evt_senders[sender_index];
+        // Build the new event sender
         if (aes_enabled) {
-          try {
-            // Fire off another thread to actually send UDP messages
-            EventSender sender(cache, event_msg, io_service, aesout_key_buffer.val, aesout_salt_buffer.val, aesin_key_buffer.val, aesin_salt_buffer.val);
-            Poco::RunnableAdapter<EventSender> runnable(sender, &EventSender::send_updates);
-            Poco::ThreadPool::defaultPool().start(runnable);
-          } catch (Poco::NoThreadAvailableException& e) {
-            // Send on the main thread if no more threads available in the pool
-            EventSender sender(cache, event_msg, io_service, aesout_key_buffer.val, aesout_salt_buffer.val, aesin_key_buffer.val, aesin_salt_buffer.val);
-            sender.send_updates();
-          }
+          evt_senders[sender_index] = new EventSender(cache, event_msg, io_service, aesout_key_buffer.val, aesout_salt_buffer.val, aesin_key_buffer.val, aesin_salt_buffer.val);
         } else {
-          try {
-            // Fire off another thread to actually send UDP messages
-            EventSender sender(cache, event_msg, io_service);
-            Poco::RunnableAdapter<EventSender> runnable(sender, &EventSender::send_updates);
-            Poco::ThreadPool::defaultPool().start(runnable);
-          } catch (Poco::NoThreadAvailableException& e) {
-            // Send on the main thread if no more threads available in the pool
-            EventSender sender(cache, event_msg, io_service);
-            sender.send_updates();
-          }
+          evt_senders[sender_index] = new EventSender(cache, event_msg, io_service);
+        }
+        // Fire off another thread to actually send UDP messages
+        try {
+          Poco::RunnableAdapter<EventSender> runnable(*(evt_senders[sender_index]), &EventSender::send_updates);
+          Poco::ThreadPool::defaultPool().start(runnable);
+          sender_index = sender_index + 1;
+        } catch (Poco::NoThreadAvailableException& e) {
+          // If no more threads are available, then execute the updates on the
+          // main thread, and wait for other threads to complete before pulling
+          // the next message.
+          evt_senders[sender_index]->send_updates();
+          Poco::ThreadPool::defaultPool().joinAll();
+          sender_index = 0;
         }
       }
     }
