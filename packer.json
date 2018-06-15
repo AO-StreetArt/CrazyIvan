@@ -12,6 +12,13 @@
   "provisioners": [
     {
       "type": "shell",
+      "inline": [
+        "apt-get update && apt-get install sudo"
+      ],
+      "only": ["docker"]
+    },
+    {
+      "type": "shell",
       "script": "scripts/linux/container_install.sh"
     }
   ],

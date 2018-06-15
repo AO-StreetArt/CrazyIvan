@@ -5,7 +5,7 @@ set -e
 #Based on Ubuntu 14.04 LTS
 #Not intended for use with other OS (should function correctly with Debian 7, untested)
 
-COMPILER="gcc"
+COMPILER="g++"
 
 if [ "$#" -gt 0 ]; then
   COMPILER=$1
@@ -22,6 +22,20 @@ printf "Calling apt-get update"
 apt-get -y update
 apt-get install -y git libboost-all-dev openssl libssl-dev wget
 
+# Build and install NeoCpp
+if [ ! -d /usr/local/include/neocpp ]; then
+
+  git clone https://github.com/AO-StreetArt/NeoCpp.git
+  #Build the dependencies for the shared service library
+  mkdir $PRE/neocpp_deps
+  cp NeoCpp/scripts/linux/deb/build_deps.sh $PRE/neocpp_deps/
+  cd $PRE/neocpp_deps && ./build_deps.sh
+  cd ../$RETURN
+  cd NeoCpp && make install
+  cd ../
+
+fi
+
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
 
@@ -36,20 +50,6 @@ if [ ! -d /usr/local/include/aossl ]; then
 
   #Build the shared service library
   cd aossl-deb && make clean && make CC=$COMPILER && make install
-  cd ../
-
-fi
-
-# Build and install NeoCpp
-if [ ! -d /usr/local/include/neocpp ]; then
-
-  git clone https://github.com/AO-StreetArt/NeoCpp.git
-  #Build the dependencies for the shared service library
-  mkdir $PRE/neocpp_deps
-  cp NeoCpp/scripts/linux/deb/build_deps.sh $PRE/neocpp_deps/
-  cd $PRE/neocpp_deps && ./build_deps.sh
-  cd ../$RETURN
-  cd NeoCpp && make install
   cd ../
 
 fi
