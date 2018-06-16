@@ -28,12 +28,6 @@
         "type": "docker-tag",
         "repository": "aostreetart/crazyivan",
         "tag": "v2"
-      },
-      {
-        "type": "docker-push",
-        "login": "true",
-        "login_username": "aostreetart",
-        "login_password": "Ambystoma1"
       }
     ]
   ]

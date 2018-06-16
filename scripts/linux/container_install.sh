@@ -10,11 +10,12 @@ if [ "$#" -gt 0 ]; then
 fi
 
 apt-get update
-apt-get -y install software-properties-common build-essential
+apt-get -y install software-properties-common build-essential g++ make
 add-apt-repository -y ppa:ubuntu-toolchain-r/test
 apt-get -y update
-apt-get -y install git gcc-6 g++6 make
-update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-6
+apt-get -y install git g++-6
+export CXX=g++-6
+export CC=gcc-6
 git clone --depth=50 --branch=$BRANCH https://github.com/AO-StreetArt/CrazyIvan.git
 mkdir ivan_deps
 cp CrazyIvan/scripts/linux/deb/build_deps.sh ivan_deps
