@@ -28,3 +28,6 @@ Events
 ------
 
 UDP Events utilize AES encryption, with the key and salt set in the application configuration.
+
+Keep in mind that AES encryption is symmetrical, meaning that the encryption keys
+must be distributed to the clients in order to encrypt traffic between them and Crazy Ivan.

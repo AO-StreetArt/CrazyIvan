@@ -119,10 +119,6 @@ Security
 
 `transaction.security.hash.password=test`
 
-* true to enable AES Encryption on events (UDP Messages)
-
-`event.security.aes.enabled=false`
-
 * Key used for AES Encryption
 
 `event.security.out.aes.key=s3cr3tk3y`
@@ -131,11 +127,11 @@ Security
 
 `event.security.out.aes.salt=asdff8723lasdf(**923412`
 
-* Key used for AES Encryption
+* Key used for AES Decryption
 
 `event.security.in.aes.key=4n0th3rk4y`
 
-* Salt used for AES Encryption
+* Salt used for AES Decryption
 
 `event.security.in.aes.salt=asdff8723lasdf(**923412`
 

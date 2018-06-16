@@ -9,8 +9,8 @@ Building from Source
 --------------------
 
 The recommended system for development of CrazyIvan is either
-Ubuntu 18.04 or CentOS7.  You will need gcc 5.0 or greater installed to
-successfully compile the program.
+Ubuntu 18.04 or CentOS7.  You will need gcc 6.0 or greater and gnu make
+installed to successfully compile the program.
 
 ``git clone https://github.com/AO-StreetArt/CrazyIvan.git``
 

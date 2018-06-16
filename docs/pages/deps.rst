@@ -40,18 +40,29 @@ LibUUID
 `LibUUID <https://sourceforge.net/projects/libuuid/>`__ is released under a BSD License.
 
 
-LibCurl
--------
-`LibCurl <https://curl.haxx.se/libcurl/>`__ is a ubiquitous networking library.
+POCO
+----
+`The POCO Project <https://pocoproject.org/>`__ is a set of libraries for building networked C++ applications.
 
-`LibCurl <https://curl.haxx.se/libcurl/>`__ is released under an MIT License.
+It is released under the Boost Software License.
+
+
+Boost
+-----
+`The Boost Project <https://www.boost.org/>`__ is a set of C++ libraries, that are primarily used for UDP Processing.
+
+It is released under the Boost Software License.
 
 
 Automatic Dependency Resolution
 -------------------------------
 
-For Ubuntu 16.04 & Debian 7, the build\_deps.sh script should allow for
+For Ubuntu 16.04 or Centos7, the build\_deps.sh scripts should allow for
 automatic resolution of dependencies.
+
+Developers can utilize the Vagrant image, which will install dependencies in the VM.
+
+End-Users can run the Docker image, which will install dependencies in the container.
 
 Other Acknowledgements
 ----------------------
