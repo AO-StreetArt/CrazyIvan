@@ -9,12 +9,11 @@
 #include "aossl/profile/include/tiered_app_profile.h"
 
 #include "Poco/ThreadPool.h"
+#include "Poco/Runnable.h"
 #include "Poco/RunnableAdapter.h"
 #include "Poco/Crypto/Cipher.h"
 #include "Poco/Crypto/CipherFactory.h"
 #include "Poco/Crypto/CipherKey.h"
-
-
 
 #include "boost/asio.hpp"
 
@@ -33,7 +32,7 @@ const int EVENT_LENGTH = 275;
 // Send UDP updates to client devices
 // also responsible for cleaning up the event memory
 // TO-DO: Socket Pool Implementation
-class EventSender {
+class EventSender : public Poco::Runnable {
   DeviceCache *cache = NULL;
   char *event = NULL;
   boost::asio::io_service *io_service = NULL;
@@ -61,8 +60,7 @@ public:
     decrypt_key.assign(dpasswd);
     decrypt_salt.assign(dsalt);
   }
-  ~EventSender() {}
-  void send_updates() {
+  virtual void run() {
     logger.debug("Sending Object Updates");
     Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
     // Creates a 256-bit AES cipher (one for encryption, one for decryption)
@@ -84,8 +82,6 @@ public:
     socket.open(boost::asio::ip::udp::v4());
     // Scene ID is now in entry 0, event json is in entry 1
     // load the scene out of the cache
-    // WARNING: This causes segfaults when the entry isn't in the cache
-    //   we need to swap out for std::unordered_map and use find()
     std::vector<std::pair<std::string, int>> found_devices = cache->get_devices(event_items[0]);
     logger.debug("Found Total Number of Devices %d", found_devices.size());
     for (std::pair<std::string, int> device : found_devices) {
@@ -137,6 +133,7 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
     boost::asio::ip::udp::socket socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port));
     // Listen on the UDP Socket
     while (true) {
+      // Build a buffer and recieve a message
       char recv_buf[EVENT_LENGTH];
       boost::asio::mutable_buffers_1 bbuffer = boost::asio::buffer(recv_buf);
       boost::asio::ip::udp::endpoint remote_endpoint;
@@ -159,14 +156,13 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
         }
         // Fire off another thread to actually send UDP messages
         try {
-          Poco::RunnableAdapter<EventSender> runnable(*(evt_senders[sender_index]), &EventSender::send_updates);
-          Poco::ThreadPool::defaultPool().start(runnable);
+          Poco::ThreadPool::defaultPool().start(*(evt_senders[sender_index]));
           sender_index = sender_index + 1;
         } catch (Poco::NoThreadAvailableException& e) {
           // If no more threads are available, then execute the updates on the
           // main thread, and wait for other threads to complete before pulling
           // the next message.
-          evt_senders[sender_index]->send_updates();
+          evt_senders[sender_index]->run();
           Poco::ThreadPool::defaultPool().joinAll();
           sender_index = 0;
         }
