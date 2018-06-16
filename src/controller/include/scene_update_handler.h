@@ -113,7 +113,8 @@ class SceneUpdateRequestHandler: public Poco::Net::HTTPRequestHandler {
       response_body->to_msg_string(response_body_string);
       ostr << response_body_string;
       ostr.flush();
-      if (inp_doc) delete inp_doc;
+      delete inp_doc;
+      delete result;
     }
     delete response_body;
     delete[] tmpStr;

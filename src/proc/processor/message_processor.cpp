@@ -206,6 +206,7 @@ ProcessResult* \
   if (registered_scenes) {
     delete registered_scenes;
   }
+  delete resp_interface;
   return new ProcessResult(response_string);
 }
 

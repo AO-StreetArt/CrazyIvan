@@ -17,9 +17,9 @@ class DeviceCacheEntry {
   std::vector<std::pair<std::string, int>> device_addresses_0;
   std::vector<std::pair<std::string, int>> device_addresses_1;
   std::mutex write_guard;
-  std::atomic_int current_vector_id{0};
-  std::atomic_int addresses0_counter{0};
-  std::atomic_int addresses1_counter{0};
+  std::atomic<int> current_vector_id{0};
+  std::atomic<int> addresses0_counter{0};
+  std::atomic<int> addresses1_counter{0};
  public:
    // Constructors/Destructors
    DeviceCacheEntry() {}
@@ -29,7 +29,7 @@ class DeviceCacheEntry {
    inline std::vector<std::pair<std::string, int>> get_addresses() {
      // Declare a local vector and copy the correct internal vector
      std::vector<std::pair<std::string, int>> return_vector;
-     if (current_vector_id == 0) {
+     if (current_vector_id.load() == 0) {
        addresses0_counter++;
        return_vector = device_addresses_0;
        addresses0_counter--;
@@ -97,6 +97,7 @@ class DeviceCache {
   inline std::vector<std::string>& get_scenes() {return scene_list;}
   // Thread-safe accessors
   inline std::vector<std::pair<std::string, int>> get_devices(std::string scene_key) {
+    if (cache_entries.find(scene_key) == cache_entries.end()) throw std::invalid_argument("Unknown Key");
     scene_update_lock.readLock();
     return cache_entries[scene_key]->get_addresses();
     scene_update_lock.unlock();

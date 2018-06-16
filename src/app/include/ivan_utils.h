@@ -64,12 +64,15 @@ const int UPDATE_QUERY_TYPE = 2;
 const int DELETE_QUERY_TYPE = 3;
 
 // String Manipulation
-inline void split(const std::string& input, std::vector<std::string>& output, char delim) {
-  std::stringstream ss(input.substr(1, input.size()-1));
+inline void split_from_index(const std::string& input, std::vector<std::string>& output, char delim, int start) {
+  std::stringstream ss(input.substr(start, input.size()-1));
   std::string item;
   while (std::getline(ss, item, delim)) {
     output.push_back(item);
   }
+}
+inline void split(const std::string& input, std::vector<std::string>& output, char delim) {
+  split_from_index(input, output, delim, 1);
 }
 
 // remove non-ascii characters
