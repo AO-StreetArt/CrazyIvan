@@ -83,29 +83,26 @@ class DeviceCache {
   // Adding/removing scenes in the cache stops the world,
   // so it needs to be done very sparingly
   inline void add_scene(std::string scene_key) {
-    scene_update_lock.writeLock();
+    Poco::ScopedWriteRWLock scoped_lock(scene_update_lock);
     scene_list.push_back(scene_key);
     cache_entries[scene_key] = new DeviceCacheEntry();
-    scene_update_lock.unlock();
   }
   inline void remove_scene(std::string scene_key) {
-    scene_update_lock.writeLock();
+    Poco::ScopedWriteRWLock scoped_lock(scene_update_lock);
     scene_list.erase(std::find(scene_list.begin(), scene_list.end(), scene_key));
+    delete cache_entries[scene_key];
     cache_entries.erase(scene_key);
-    scene_update_lock.unlock();
   }
   inline std::vector<std::string>& get_scenes() {return scene_list;}
   // Thread-safe accessors
   inline std::vector<std::pair<std::string, int>> get_devices(std::string scene_key) {
+    Poco::ScopedReadRWLock scoped_lock(scene_update_lock);
     if (cache_entries.find(scene_key) == cache_entries.end()) throw std::invalid_argument("Unknown Key");
-    scene_update_lock.readLock();
     return cache_entries[scene_key]->get_addresses();
-    scene_update_lock.unlock();
   }
   inline void set_devices(std::string scene_key, std::vector<std::pair<std::string, int>> devices) {
-    scene_update_lock.readLock();
+    Poco::ScopedReadRWLock scoped_lock(scene_update_lock);
     cache_entries[scene_key]->set_addresses(devices);
-    scene_update_lock.unlock();
   }
 };
 

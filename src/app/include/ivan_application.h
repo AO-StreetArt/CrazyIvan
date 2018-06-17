@@ -126,6 +126,7 @@ protected:
   int main(const std::vector<std::string>& args) {
     Poco::Util::Application& app = Poco::Util::Application::instance();
     app.logger().information("Starting Crazy Ivan");
+    is_app_running = true;
     for (std::string elt : args) {
       app.logger().information(elt);
     }
@@ -314,6 +315,10 @@ protected:
       waitForTerminationRequest();
       srv.stop();
     }
+    // Handle graceful shutdown of background threads
+    main_logger.information("Shutting down application");
+    is_app_running = false;
+    while(is_sender_running.load()) {usleep(1000000);}
     Poco::ErrorHandler::set(pOldEH);
     return Poco::Util::Application::EXIT_OK;
   }

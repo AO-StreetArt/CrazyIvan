@@ -60,6 +60,9 @@ def execute_main(hostname, port):
     with open(udp_out_file, "w") as w_file:
         w_file.write(udp_message)
 
+    with open("scene_key.txt", "w") as key_file:
+        key_file.write(scene_key)
+
     print("Finishing UDP Test Generation -- Python")
 
 

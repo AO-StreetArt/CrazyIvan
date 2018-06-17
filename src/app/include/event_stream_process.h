@@ -29,6 +29,10 @@
 // 1 bit for final new line
 const int EVENT_LENGTH = 275;
 
+// Global atomic booleans for shutting down
+std::atomic<bool> is_app_running(false);
+std::atomic<bool> is_sender_running(false);
+
 // Send UDP updates to client devices
 // also responsible for cleaning up the event memory
 // TO-DO: Socket Pool Implementation
@@ -109,6 +113,7 @@ public:
 void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
   Poco::Logger& logger = Poco::Logger::get("Event");
   logger.information("Starting Event Stream");
+  is_sender_running = true;
   std::vector<EventSender*> evt_senders {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
   try {
     // Get the configuration values out of the configuration profile
@@ -132,7 +137,7 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
     boost::asio::io_service io_service;
     boost::asio::ip::udp::socket socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port));
     // Listen on the UDP Socket
-    while (true) {
+    while (is_app_running.load()) {
       // Build a buffer and recieve a message
       char recv_buf[EVENT_LENGTH];
       boost::asio::mutable_buffers_1 bbuffer = boost::asio::buffer(recv_buf);
@@ -140,7 +145,8 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
       boost::system::error_code error;
       int bytes_transferred = socket.receive_from(bbuffer, remote_endpoint, 0, error);
       char* event_data_ptr = boost::asio::buffer_cast<char*>(bbuffer);
-      if (!(error && error != boost::asio::error::message_size && bytes_transferred > 0)) {
+      if (!(error && error != boost::asio::error::message_size && bytes_transferred > 0) \
+          && is_app_running.load()) {
         logger.debug("Recieved UDP Update");
         // Copy the message buffer into dynamic memory
         char *event_msg = new char[EVENT_LENGTH+1]();
@@ -174,6 +180,7 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
   for (EventSender *sender : evt_senders) {
     if (sender) delete sender;
   }
+  is_sender_running = false;
 }
 
 #endif  // SRC_APP_INCLUDE_EVENT_STREAM_PROCESS_H_
