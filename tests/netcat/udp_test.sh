@@ -11,5 +11,5 @@ NETWORK_INTERFACE_NAME=$(route | grep '^default' | grep -o '[^ ]*$')
 NETWORK_INTERFACE_ADDRESS=$(ip addr show $NETWORK_INTERFACE_NAME | grep -Po 'inet \K[\d.]+')
 printf $NETWORK_INTERFACE_NAME
 printf $NETWORK_INTERFACE_ADDRESS
-cat udp_message_upd.txt | nc -u $NETWORK_INTERFACE_ADDRESS 8764
+cat udp_message_upd.txt | nc -u -w 3 $NETWORK_INTERFACE_ADDRESS 8764
 exit 0
