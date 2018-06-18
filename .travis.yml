@@ -58,6 +58,7 @@ script:
   - cd $TRAVIS_BUILD_DIR/tests/postman && newman run ivan_flow.postman_collection.json -e ivan_flow.postman_environment.json
   - cd $TRAVIS_BUILD_DIR/tests/netcat && ./udp_test.sh
   - kill $(cat $TRAVIS_BUILD_DIR/pid.txt)
+  - sleep 1
   - echo "kill" | nc -u $(ip addr show eth0 | grep -Po 'inet \K[\d.]+') 8764
   - docker logs udp-listener
 after_success:
