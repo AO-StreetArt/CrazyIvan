@@ -22,6 +22,8 @@ cd ../.. && make
 printf "Generating Release Folders\n"
 mkdir ../$RELEASE_NAME
 mkdir ../$RELEASE_NAME/scripts
+mkdir ../$RELEASE_NAME/scripts/linux
+mkdir ../$RELEASE_NAME/release
 mkdir ../$RELEASE_NAME/licenses
 
 #Copy the dependency licenses into the licenses folder
@@ -38,8 +40,11 @@ cp LICENSE.txt ../$RELEASE_NAME
 #Copy the easy install script into the release folder
 cp scripts/linux/easy_install.sh ../$RELEASE_NAME
 
-#Coopy the populate consul script into the release scripts folder
-cp scripts/linux/populate_consul.sh ../$RELEASE_NAME/scripts
+#Copy the populate consul script into the release scripts folder
+cp scripts/linux/populate_consul.sh ../$RELEASE_NAME/scripts/linux
+
+#Copy the populate consul script into the release scripts folder
+cp scripts/linux/ivan_controller.sh ../$RELEASE_NAME/scripts/linux
 
 #Copy the systemd unit file
 cp crazyivan.service ../$RELEASE_NAME
@@ -48,7 +53,11 @@ cp crazyivan.service ../$RELEASE_NAME
 cp crazy_ivan ../$RELEASE_NAME
 
 #Copy the configuration file
-cp ivan.properties ../$RELEASE_NAME/ivan.properties
+cp release/app.properties ../$RELEASE_NAME/release/app.properties
+cp ssl.properties ../$RELEASE_NAME/release/ssl.properties
+
+#Copy the Release Notes file
+cp release/RELEASE_NOTES.md ../$RELEASE_NAME/RELEASE_NOTES.md
 
 #Generate the Release tar files
 printf "Generate Release Tar Files\n"

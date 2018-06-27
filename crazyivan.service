@@ -4,7 +4,8 @@ Description=Crazy Ivan Scene Tracking Service
 [Service]
 User=crazyivan
 Group=crazyivan
-ExecStart=/usr/local/bin/crazy_ivan consul=localhost:8500 props=/etc/crazyivan/ivan.properties
+ExecStart=/usr/local/bin/ivan_controller.sh start
+ExecStop=/usr/local/bin/ivan_controller.sh stop
 
 [Install]
 WantedBy=multi-user.target

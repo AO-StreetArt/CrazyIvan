@@ -94,45 +94,45 @@ needed and not registered with Consul
 
 * Neo4j Connectivity String
 
-`connection.neo4j=neo4j://localhost:7687`
+`neo4j=neo4j://localhost:7687`
 
 Security
 --------
 
 * true to enable HTTPS socket, false to use HTTP socket
 
-`transaction.security.ssl.enabled=true`
+`ivan.transaction.security.ssl.enabled=true`
 
 * Authentication type:
   - none: No authentication required
   - single: basic-auth with single user/password set in properties file
   - basic: basic-auth with users stored in Neo4j
 
-`transaction.security.auth.type=single`
+`ivan.transaction.security.auth.type=single`
 
 * If auth.type is single, these set the only user.  If auth.type is basic, these set the default user.
 
-`transaction.security.auth.user=test`
-`transaction.security.auth.password=test`
+`ivan.transaction.security.auth.user=test`
+`ivan.transaction.security.auth.password=test`
 
 * Password used for SHA1 algorithm to generate hashes of the stored password
 
-`transaction.security.hash.password=test`
+`ivan.transaction.security.hash.password=test`
 
 * Key used for AES Encryption
 
-`event.security.out.aes.key=s3cr3tk3y`
+`ivan.event.security.out.aes.key=s3cr3tk3y`
 
 * Salt used for AES Encryption
 
-`event.security.out.aes.salt=asdff8723lasdf(**923412`
+`ivan.event.security.out.aes.salt=asdff8723lasdf(**923412`
 
 * Key used for AES Decryption
 
-`event.security.in.aes.key=4n0th3rk4y`
+`ivan.event.security.in.aes.key=4n0th3rk4y`
 
 * Salt used for AES Decryption
 
-`event.security.in.aes.salt=asdff8723lasdf(**923412`
+`ivan.event.security.in.aes.salt=asdff8723lasdf(**923412`
 
 :ref:`Go Home <index>`

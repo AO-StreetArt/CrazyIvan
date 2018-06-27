@@ -19,12 +19,12 @@ fi
 
 if [ $OPT = "-r" ]; then
   printf "Attempting to uninstall CrazyIvan\n"
-  sudo rm /usr/local/bin/crazy_ivan
-  sudo rm -r /etc/crazyivan
-  sudo rm -r /var/log/crazyivan
-  sudo deluser crazyivan
-  sudo groupdel crazyivan
-  sudo rm /etc/systemd/system/crazyivan.service
+  rm /usr/local/bin/crazy_ivan
+  rm -r /etc/crazyivan
+  rm -r /var/log/crazyivan
+  deluser crazyivan
+  groupdel crazyivan
+  rm /etc/systemd/system/crazyivan.service
   exit 0
 else
   if [ $OPT = "-d" ]; then
@@ -37,31 +37,20 @@ else
     read deps_confirm
     if [deps_confirm = 'y']; then
       printf "Installing Dependencies\n"
-      sudo ./scripts/build_deps.sh
+      ./scripts/build_deps.sh
     fi
   fi
 
   printf "Installing CrazyIvan\n"
-
-  # Install the executable to the bin folder
-  sudo cp crazy_ivan /usr/local/bin
-
-  # Copy the systemd unit file
-  sudo cp crazyivan.service /etc/systemd/system
+  make install
 
   # Create the crazyivan user and group
-  sudo useradd --system --user-group crazyivan
-
-  # Build the logging directory
-  sudo mkdir /var/log/crazyivan
-
-  # Create the config directory and copy configuration files
-  sudo mkdir /etc/crazyivan
-  sudo cp ivan.properties /etc/crazyivan
+  useradd --system --user-group crazyivan
 
   # Ensure that the crazyivan user has permission to access both the configuration and logging directories
-  sudo chown -R crazyivan:crazyivan /etc/crazyivan
-  sudo chown -R crazyivan:crazyivan /var/log/crazyivan
+  chown -R crazyivan:crazyivan /etc/crazyivan
+  chown -R crazyivan:crazyivan /var/log/crazyivan
+  chown -R crazyivan:crazyivan /var/crazyivan
 
   exit 0
 
