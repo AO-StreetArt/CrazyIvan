@@ -46,7 +46,7 @@ before_install:
   - cd $TRAVIS_BUILD_DIR
   - export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 install:
-  - cd $TRAVIS_BUILD_DIR && make all CC=$CXX && make test CC=$CXX
+  - cd $TRAVIS_BUILD_DIR && make CC=$CXX && make test CC=$CXX
 before_script:
   - docker logs database
 script:
