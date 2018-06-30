@@ -47,13 +47,13 @@ limitations under the License.
 // And performs any and all processing on it,
 // Includes DB Interactions, and any necessary calculations
 class MessageProcessor : public CrudMessageProcessor, \
-  public ProcessorInterface {
-
+    public ProcessorInterface {
+  std::string cluster_name;
  public:
   // Constructor
   MessageProcessor(Neocpp::LibNeo4jFactory *nf, Neocpp::Neo4jInterface *neo4j, \
-    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) : \
-    CrudMessageProcessor(nf, neo4j, con, u) {}
+    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u, std::string cluster) : \
+    CrudMessageProcessor(nf, neo4j, con, u) {cluster_name.assign(cluster);}
 
   // Destructor
   ~MessageProcessor() {}

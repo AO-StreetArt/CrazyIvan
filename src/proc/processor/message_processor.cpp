@@ -200,6 +200,23 @@ ProcessResult* \
     resp_interface->get_scene(0)->add_device(ud_interface);
   }
 
+  // If we successfully registered, add an encryption key and salt
+  // to the response message
+  if (current_err_code == NO_ERROR) {
+    AOSSL::StringBuffer aes_enabled_buffer;
+    AOSSL::StringBuffer aesout_key_buffer;
+    AOSSL::StringBuffer aesout_salt_buffer;
+    BaseMessageProcessor::get_config_manager()->get_opt(std::string("ivan.event.security.aes.enabled"), aes_enabled_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".ivan.event.security.out.aes.key"), aesout_key_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".ivan.event.security.out.aes.salt"), aesout_salt_buffer);
+    if (aes_enabled_buffer.val == "true") {
+      resp_interface->set_encryption_key(aesout_key_buffer.val);
+      resp_interface->set_encryption_salt(aesout_salt_buffer.val);
+    }
+  }
+
   // Convert the Response to a string for sending
   resp_interface->to_msg_string(response_string);
 

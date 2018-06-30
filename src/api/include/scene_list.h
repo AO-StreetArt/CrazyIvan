@@ -39,6 +39,8 @@ class SceneList : public SceneListInterface {
   std::string err_msg = "";
   int err_code = 100;
   std::string transaction_id = "";
+  std::string encryption_key;
+  std::string encryption_salt;
   std::vector<SceneInterface*> data;
   int num_records = 10;
   std::string ret_string = "";
@@ -72,6 +74,8 @@ class SceneList : public SceneListInterface {
   void set_err_msg(std::string new_err) {err_msg = new_err;}
   void set_transaction_id(std::string new_tran_id) \
     {transaction_id = new_tran_id;}
+  void set_encryption_key(std::string new_key) {encryption_key.assign(new_key);}
+  void set_encryption_salt(std::string new_salt) {encryption_salt.assign(new_salt);}
   void set_err_code(int new_code) {err_code = new_code;}
   void add_scene(SceneInterface *scn) {data.push_back(scn);}
   void set_num_records(int new_num) {num_records = new_num;}
@@ -80,6 +84,8 @@ class SceneList : public SceneListInterface {
   int get_op_type() {return operation;}
   std::string get_err() {return err_msg;}
   std::string get_transaction_id() {return transaction_id;}
+  std::string get_encryption_key() {return encryption_key;}
+  std::string get_encryption_salt() {return encryption_salt;}
   int get_err_code() {return err_code;}
   inline SceneInterface* get_scene(unsigned int i) {
     if (i < data.size()) return data[i];

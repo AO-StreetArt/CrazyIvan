@@ -39,8 +39,8 @@ fi
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
 
-  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.2.1/aossl-deb-2.2.1.tar.gz
-  tar -xvzf aossl-deb-2.2.1.tar.gz
+  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.3.0/aossl-deb-2.3.0.tar.gz
+  tar -xvzf aossl-deb-2.3.0.tar.gz
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps

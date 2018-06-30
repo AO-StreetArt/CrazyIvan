@@ -48,35 +48,38 @@ limitations under the License.
 //! for safely updating the Neo4j DB that's connected
 class DatabaseManager: public Neocpp::Neo4jInterface {
   Neocpp::Neo4jInterface *internal_connection = nullptr;
-  AOSSL::NetworkApplicationProfile internal_profile = nullptr;
+  AOSSL::NetworkApplicationProfile *internal_profile = nullptr;
   Poco::Logger& logger;
   std::string last_connection_string;
   bool secured = false;
   AOSSL::ServiceInterface *connected_service = nullptr;
   std::atomic<int> failures{0};
+  Neocpp::LibNeo4jFactory neo_factory;
+  std::string service_name = "neo4j";
   // We use a RW lock to let any number of queries execute
   // simultaneously, XOR let a connection get updated
   Poco::RWLock conn_usage_lock;
   int max_failures = 5;
+  int max_retries = 11;
   inline void set_new_connection() {
     Poco::ScopedWriteRWLock scoped_lock(conn_usage_lock);
     if (failures.load() > max_failures) {
       // deregister the existing service
       if (connected_service) {
         logger.debug("De-registering Neo4j instance which is unresponsive");
-        internal_profile.get_consul()->deregister_service(*connected_service);
+        internal_profile->get_consul()->deregister_service(*connected_service);
       }
       // Attempt to find a new Neo4j instance to use
       if (connected_service) delete connected_service;
-      connected_service = internal_profile.get_service(service_name);
+      connected_service = internal_profile->get_service(service_name);
       AOSSL::StringBuffer neo4j_un_buf;
       AOSSL::StringBuffer neo4j_pw_buf;
-      internal_profile.get_opt(std::string("neo4j.auth.un"), neo4j_un_buf);
-      internal_profile.get_opt(std::string("neo4j.auth.pw"), neo4j_pw_buf);
+      internal_profile->get_opt(std::string("neo4j.auth.un"), neo4j_un_buf);
+      internal_profile->get_opt(std::string("neo4j.auth.pw"), neo4j_pw_buf);
       std::string neo4j_conn_str = std::string("neo4j://") + neo4j_un_buf.val\
           + std::string(":") + neo4j_pw_buf.val + std::string("@")\
-          + neo4j_service->get_hostname() + std::string(":")\
-          + neo4j_service->get_port();
+          + connected_service->get_address() + std::string(":")\
+          + connected_service->get_port();
       // Reset the internal connection
       if (internal_connection) delete internal_connection;
       internal_connection = \
@@ -85,25 +88,32 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
     }
   }
  public:
-  DatabaseManager(AOSSL::NetworkApplicationProfile& profile) : \
+  DatabaseManager(AOSSL::NetworkApplicationProfile *profile) : \
       logger(Poco::Logger::get("DatabaseManager")) \
-      {internal_profile = profile}
+      {internal_profile = profile;}
   ~DatabaseManager() \
       {if (internal_connection) delete internal_connection;\
       if (connected_service) delete connected_service;}
 
   //! Execute the given Cypher Query
   inline Neocpp::ResultsIteratorInterface* execute(const char * query) {
-    if (!internal_connection) set_new_connection();
-    bool failure = false;
-    try {
-      Poco::ScopedReadRWLock scoped_lock(conn_usage_lock);
-      return internal_connection->execute(query);
-    } catch (std::exception& e) {
-      failures++;
-      failure = true;
+    int retries = 0;
+    while (retries < max_retries) {
+      if (!internal_connection) set_new_connection();
+      bool failure = false;
+      try {
+        Poco::ScopedReadRWLock scoped_lock(conn_usage_lock);
+        return internal_connection->execute(query);
+      } catch (std::exception& e) {
+        logger.error("Exception executing Neo4j Query");
+        logger.error(e.what());
+        failures++;
+        failure = true;
+      }
+      if (failure) set_new_connection();
+      retries++;
     }
-    if (failure) set_new_connection();
+    return nullptr;
   }
 
   //! Execute the given Cypher Query
@@ -115,16 +125,23 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
   inline Neocpp::ResultsIteratorInterface* execute(const char * query, \
       std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*>\
       query_params) {
-    if (!internal_connection) set_new_connection();
-    bool failure = false;
-    try {
-      Poco::ScopedReadRWLock scoped_lock(conn_usage_lock);
-      return internal_connection->execute(query, query_params);
-    } catch (std::exception& e) {
-      failures++;
-      failure = true;
+    int retries = 0;
+    while (retries < max_retries) {
+      if (!internal_connection) set_new_connection();
+      bool failure = false;
+      try {
+        Poco::ScopedReadRWLock scoped_lock(conn_usage_lock);
+        return internal_connection->execute(query, query_params);
+      } catch (std::exception& e) {
+        logger.error("Exception executing Neo4j Query");
+        logger.error(e.what());
+        failures++;
+        failure = true;
+      }
+      if (failure) set_new_connection();
+      retries++;
     }
-    if (failure) set_new_connection();
+    return nullptr;
   }
 
   //! Execute a given Cypher Query with an input map of parameters

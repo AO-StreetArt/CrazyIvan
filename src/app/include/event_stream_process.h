@@ -125,10 +125,14 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
     AOSSL::StringBuffer udp_port;
     config->get_opt(std::string("udp.port"), udp_port);
     config->get_opt(std::string("ivan.event.security.aes.enabled"), aes_enabled_buffer);
-    config->get_opt(std::string("ivan.event.security.out.aes.key"), aesout_key_buffer);
-    config->get_opt(std::string("ivan.event.security.out.aes.salt"), aesout_salt_buffer);
-    config->get_opt(std::string("ivan.event.security.in.aes.key"), aesin_key_buffer);
-    config->get_opt(std::string("ivan.event.security.in.aes.salt"), aesin_salt_buffer);
+    config->get_opt(config->get_cluster_name() + \
+        std::string(".ivan.event.security.out.aes.key"), aesout_key_buffer);
+    config->get_opt(config->get_cluster_name() + \
+        std::string(".ivan.event.security.out.aes.salt"), aesout_salt_buffer);
+    config->get_opt(config->get_cluster_name() + \
+        std::string(".ivan.event.security.in.aes.key"), aesin_key_buffer);
+    config->get_opt(config->get_cluster_name() + \
+        std::string(".ivan.event.security.in.aes.salt"), aesin_salt_buffer);
     int port = std::stoi(udp_port.val);
     bool aes_enabled = false;
     if (aes_enabled_buffer.val == "true") aes_enabled = true;

@@ -48,6 +48,24 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         set_transaction_id(tranid_iter->value.GetString());
       }
     }
+    // Encryption Key
+    rapidjson::Value::ConstMemberIterator enckey_iter = \
+      d.FindMember("encryption_key");
+    if (enckey_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Encryption Key found");
+      if (!(enckey_iter->value.IsNull())) {
+        set_encryption_key(enckey_iter->value.GetString());
+      }
+    }
+    // Encryption Key
+    rapidjson::Value::ConstMemberIterator encsalt_iter = \
+      d.FindMember("encryption_salt");
+    if (encsalt_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Encryption Salt found");
+      if (!(encsalt_iter->value.IsNull())) {
+        set_encryption_key(encsalt_iter->value.GetString());
+      }
+    }
     // Error Code
     rapidjson::Value::ConstMemberIterator errcode_iter = \
       d.FindMember("err_code");
@@ -331,6 +349,18 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       writer.Key("transaction_id");
       writer.String(get_transaction_id().c_str(), \
       (rapidjson::SizeType)get_transaction_id().length());
+    }
+    // Add the Encryption Key
+    if (!(get_encryption_key().empty())) {
+      writer.Key("encryption_key");
+      writer.String(get_encryption_key().c_str(), \
+      (rapidjson::SizeType)get_encryption_key().length());
+    }
+    // Add the Encryption Key
+    if (!(get_encryption_salt().empty())) {
+      writer.Key("encryption_salt");
+      writer.String(get_encryption_salt().c_str(), \
+      (rapidjson::SizeType)get_encryption_salt().length());
     }
     // Determine how many scenes we want to return in the message
     int num_return_scenes = num_scenes();

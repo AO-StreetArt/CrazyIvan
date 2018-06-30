@@ -33,10 +33,10 @@ class ProcessorFactory {
   ProcessorFactory() {}
   ~ProcessorFactory() {}
   ProcessorInterface* build_processor(Neocpp::LibNeo4jFactory *nf, \
-    Neocpp::Neo4jInterface *neo4j, \
-    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) {
+    Neocpp::Neo4jInterface *neo4j, AOSSL::KeyValueStoreInterface *con, \
+    AOSSL::UuidInterface *u, std::string cluster) {
     // Build and return a new message processor
-    return new MessageProcessor(nf, neo4j, con, u);
+    return new MessageProcessor(nf, neo4j, con, u, cluster);
   }
 };
 

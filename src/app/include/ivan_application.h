@@ -99,6 +99,7 @@ limitations under the License.
 class CrazyIvan: public Poco::Util::ServerApplication {
   ProcessorInterface *proc = NULL;
   Neocpp::Neo4jInterface *neo = NULL;
+  bool need_to_cleanup_neo4j_interface = false;
   AccountManagerInterface *acct_manager = NULL;
 public:
  CrazyIvan() {}
@@ -116,15 +117,13 @@ protected:
   void uninitialize() {
     Poco::Util::ServerApplication::uninitialize();
     if (proc) delete proc;
-    if (neo) delete neo;
+    if (neo && need_to_cleanup_neo4j_interface) delete neo;
     if (acct_manager) delete acct_manager;
   }
 
   // Define basic CLI Opts
   void defineOptions(Poco::Util::OptionSet& options) {
     Poco::Util::ServerApplication::defineOptions(options);
-    // options.addOption(Poco::Util::Option("cluster", "c", "Cluster Name")\
-    //   .required(false).argument("value").binding("cluster.name"));
   }
 
   // Main application method
@@ -139,13 +138,20 @@ protected:
     AOSSL::NetworkApplicationProfile config(args, std::string("CrazyIvan"), std::string("prod"));
     // Add secure opts
     std::vector<std::string> secure_ops;
-    secure_ops.push_back(std::string("ivan.transaction.security.auth.user"));
-    secure_ops.push_back(std::string("ivan.transaction.security.auth.password"));
-    secure_ops.push_back(std::string("ivan.transaction.security.hash.password"));
-    secure_ops.push_back(std::string("ivan.event.security.out.aes.key"));
-    secure_ops.push_back(std::string("ivan.event.security.out.aes.salt"));
-    secure_ops.push_back(std::string("ivan.event.security.in.aes.key"));
-    secure_ops.push_back(std::string("ivan.event.security.in.aes.salt"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.transaction.security.auth.user"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.transaction.security.auth.password"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.transaction.security.hash.password"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.event.security.out.aes.key"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.event.security.out.aes.salt"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.event.security.in.aes.key"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".ivan.event.security.in.aes.salt"));
     secure_ops.push_back(std::string("neo4j.auth.un"));
     secure_ops.push_back(std::string("neo4j.auth.pw"));
     for (std::string op: secure_ops) {
@@ -162,13 +168,12 @@ protected:
     config.add_opt(std::string("http.host"), std::string("localhost"));
     config.add_opt(std::string("http.port"), std::string("8765"));
     config.add_opt(std::string("udp.port"), std::string("8764"));
-    config.add_opt(std::string("cluster.name"), std::string("default"));
     config.add_opt(std::string("log.file"), std::string("ivan.log"));
     config.add_opt(std::string("log.level"), std::string("Info"));
-    config.add_opt(std::string("ivan.transaction.security.ssl.enabled"), std::string("false"));
     config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.active"), std::string("false"));
     config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.role_name"), std::string("test"));
-    config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.common_name"), std::string("www.test.com"));
+    config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.common_name"), std::string("test"));
+    config.add_opt(std::string("ivan.transaction.security.ssl.enabled"), std::string("false"));
     config.add_opt(std::string("ivan.transaction.security.auth.type"), std::string("none"));
     config.add_opt(std::string("ivan.event.security.aes.enabled"), std::string("false"));
     // Perform the initial config
@@ -253,10 +258,8 @@ protected:
     config.get_opt(std::string("http.port"), http_port);
     if (config.get_consul()) {
       main_logger.information("Registering with Consul");
-      AOSSL::StringBuffer cluster_name;
-      config.get_opt(std::string("cluster.name"), cluster_name);
       std::vector<std::string> tags;
-      tags.push_back(std::string("cluster=") + cluster_name.val);
+      tags.push_back(std::string("cluster=") + config.get_cluster_name());
       AOSSL::ConsulComponentFactory consul_factory;
       AOSSL::ServiceInterface *my_app = \
         consul_factory.get_service_interface(std::string("CrazyIvan"), \
@@ -265,7 +268,8 @@ protected:
     }
 
     // Set up the Neo4j Connection
-    DatabaseManager neo4j_manager(config);
+    Neocpp::LibNeo4jFactory neo_factory;
+    DatabaseManager neo4j_manager(&config);
 
     AOSSL::StringBuffer neo4j_discover_buf;
     config.get_opt(std::string("neo4j.discover"), neo4j_discover_buf);
@@ -275,31 +279,35 @@ protected:
       // between databases
       neo = &neo4j_manager;
     } else {
-      // Get the connection string from a Props file
+      // Get the connection string for a single instance
       main_logger.information("Creating Neo4j Interface");
       AOSSL::StringBuffer neo_addr;
       config.get_opt(std::string("neo4j"), neo_addr);
       main_logger.information("Neo4j Connection registered: %s", neo_addr.val);
-      Neocpp::LibNeo4jFactory neo_factory;
       // Initialize Neo4j Connection
       neo = neo_factory.get_neo4j_interface(neo_addr.val);
+      need_to_cleanup_neo4j_interface = true;
     }
 
     // Start the Message Processor
     ProcessorFactory process_factory;
     proc = process_factory.build_processor(&neo_factory, \
-      neo, &config, config.get_uuid());
+      neo, &config, config.get_uuid(), config.get_cluster_name());
 
     // Start the User Account Manager
     AOSSL::StringBuffer auth_type_buffer;
     AOSSL::StringBuffer auth_un_buffer;
     AOSSL::StringBuffer auth_pw_buffer;
     AOSSL::StringBuffer hash_pw_buffer;
-    config.get_opt(std::string("ivan.transaction.security.auth.type"), auth_type_buffer);
+    config.get_opt(config.get_cluster_name() + \
+        std::string(".ivan.transaction.security.auth.type"), auth_type_buffer);
     if (auth_type_buffer.val == "single") {
-      config.get_opt(std::string("ivan.transaction.security.auth.user"), auth_un_buffer);
-      config.get_opt(std::string("ivan.transaction.security.auth.password"), auth_pw_buffer);
-      config.get_opt(std::string("ivan.transaction.security.hash.password"), hash_pw_buffer);
+      config.get_opt(config.get_cluster_name() + \
+          std::string(".ivan.transaction.security.auth.user"), auth_un_buffer);
+      config.get_opt(config.get_cluster_name() + \
+          std::string(".ivan.transaction.security.auth.password"), auth_pw_buffer);
+      config.get_opt(config.get_cluster_name() + \
+          std::string(".ivan.transaction.security.hash.password"), hash_pw_buffer);
       acct_manager = new SingleAccountManager(auth_un_buffer.val, auth_pw_buffer.val, hash_pw_buffer.val);
     } else {
       acct_manager = NULL;
@@ -329,9 +337,9 @@ protected:
     AOSSL::StringBuffer use_vault_ca_buf;
     AOSSL::StringBuffer vault_role_buf;
     AOSSL::StringBuffer vault_common_name_buf;
-    config.get_opt(std::string("ivan.transaction.security.auth.user"), use_vault_ca_buf);
-    config.get_opt(std::string("ivan.transaction.security.auth.role_name"), vault_role_buf);
-    config.get_opt(std::string("ivan.transaction.security.auth.common_name"), vault_common_name_buf);
+    config.get_opt(std::string("ivan.transaction.security.ssl.ca.vault.active"), use_vault_ca_buf);
+    config.get_opt(std::string("ivan.transaction.security.ssl.ca.vault.role_name"), vault_role_buf);
+    config.get_opt(std::string("ivan.transaction.security.ssl.ca.vault.common_name"), vault_common_name_buf);
     if (use_vault_ca_buf.val == "true") {
       // Generate a new SSL Cert from Vault
       AOSSL::SslCertificateBuffer ssl_cert_buf;
@@ -360,7 +368,8 @@ protected:
 
     // Main Application Loop (Serving HTTP API)
     AOSSL::StringBuffer ssl_enabled_buf;
-    config.get_opt(std::string("ivan.transaction.security.ssl.enabled"), ssl_enabled_buf);
+    config.get_opt(config.get_cluster_name() + \
+        std::string(".ivan.transaction.security.ssl.enabled"), ssl_enabled_buf);
     std::string http_address = http_host.val + std::string(":") + http_port.val;
     Poco::Net::SocketAddress saddr(http_address);
     main_logger.debug("HTTP Address: %s, Security Enabled: %s", http_address, ssl_enabled_buf.val);
