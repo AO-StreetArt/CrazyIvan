@@ -33,9 +33,6 @@ before_install:
   - eval "${MATRIX_EVAL}"
   - docker run -d -p 0.0.0.0:5005:5005 -p 0.0.0.0:5005:5005/udp --name udp-listener mendhak/udp-listener
   - docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name=database neo4j
-  - wget https://releases.hashicorp.com/packer/1.2.4/packer_1.2.4_linux_amd64.zip
-  - unzip packer_1.2.4_linux_amd64.zip
-  - mv packer packr
   - $CXX -v
   - mkdir ../ivan_deps
   - sudo cp scripts/linux/deb/build_deps.sh ../ivan_deps

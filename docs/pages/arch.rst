@@ -31,8 +31,11 @@ as a Service Discovery and Distributed Configuration architecture. This
 requires the `Consul Agent <https://www.consul.io/downloads.html>`__ to
 be deployed that Crazy Ivan can connect to.
 
-Object Change Streams
----------------------
+Crazy Ivan can be deployed securely using `Vault <https://www.vaultproject.io`__
+as a secret store and/or intermediate CA.
+
+Object Change Streams (Events)
+------------------------------
 
 Object Change Streams ensure that all registered User Devices remain up to date about
 objects within their scenes.  Crazy Ivan recieves UDP updates from outside sources,
@@ -43,5 +46,12 @@ The changes streams are designed to be high-speed and high-volume.  Crazy Ivan
 can process many messages in parallel, and registration information is kept up-to-date
 in a cache for immediate retrieval.  A separate background thread periodically loads
 updated values from Neo4j.
+
+Security
+--------
+
+Security for Transactions is provided by HTTPS encryption with Basic Authentication.
+
+Security for Events is provided by AES-256 symmetric encryption.
 
 :ref:`Go Home <index>`

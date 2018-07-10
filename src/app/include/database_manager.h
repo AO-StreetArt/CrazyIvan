@@ -54,6 +54,7 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
   bool secured = false;
   AOSSL::ServiceInterface *connected_service = nullptr;
   std::atomic<int> failures{0};
+  std::atomic<bool> initialized{false};
   Neocpp::LibNeo4jFactory neo_factory;
   std::string service_name = "neo4j";
   // We use a RW lock to let any number of queries execute
@@ -61,29 +62,30 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
   Poco::RWLock conn_usage_lock;
   int max_failures = 5;
   int max_retries = 11;
+  inline void find_new_connection() {
+    logger.information("Discovering Neo4j Connection");
+    connected_service = internal_profile->get_service(service_name);
+    AOSSL::StringBuffer neo4j_un_buf;
+    AOSSL::StringBuffer neo4j_pw_buf;
+    internal_profile->get_opt(std::string("neo4j.auth.un"), neo4j_un_buf);
+    internal_profile->get_opt(std::string("neo4j.auth.pw"), neo4j_pw_buf);
+    std::string neo4j_conn_str = std::string("neo4j://") + neo4j_un_buf.val\
+        + std::string(":") + neo4j_pw_buf.val + std::string("@")\
+        + connected_service->get_address() + std::string(":")\
+        + connected_service->get_port();
+    // Reset the internal connection
+    logger.information("Connecting to Neo4j instance: %s", neo4j_conn_str);
+    if (internal_connection) delete internal_connection;
+    internal_connection = \
+        neo_factory.get_neo4j_interface(neo4j_conn_str, true, 50, 0, 1);
+  }
   inline void set_new_connection() {
     Poco::ScopedWriteRWLock scoped_lock(conn_usage_lock);
     if (failures.load() > max_failures) {
-      // deregister the existing service
-      if (connected_service) {
-        logger.debug("De-registering Neo4j instance which is unresponsive");
-        internal_profile->get_consul()->deregister_service(*connected_service);
-      }
+      logger.debug("Max Neo4j Failures reached, identifying new instance");
       // Attempt to find a new Neo4j instance to use
       if (connected_service) delete connected_service;
-      connected_service = internal_profile->get_service(service_name);
-      AOSSL::StringBuffer neo4j_un_buf;
-      AOSSL::StringBuffer neo4j_pw_buf;
-      internal_profile->get_opt(std::string("neo4j.auth.un"), neo4j_un_buf);
-      internal_profile->get_opt(std::string("neo4j.auth.pw"), neo4j_pw_buf);
-      std::string neo4j_conn_str = std::string("neo4j://") + neo4j_un_buf.val\
-          + std::string(":") + neo4j_pw_buf.val + std::string("@")\
-          + connected_service->get_address() + std::string(":")\
-          + connected_service->get_port();
-      // Reset the internal connection
-      if (internal_connection) delete internal_connection;
-      internal_connection = \
-          neo_factory.get_neo4j_interface(neo4j_conn_str, true, 50, 0, 1);
+      find_new_connection();
       failures = 0;
     }
   }
@@ -99,7 +101,11 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
   inline Neocpp::ResultsIteratorInterface* execute(const char * query) {
     int retries = 0;
     while (retries < max_retries) {
-      if (!internal_connection) set_new_connection();
+      // Initialize the connection for the first time
+      bool expected_init_value = false;
+      if (initialized.compare_exchange_strong(expected_init_value, true)) {
+        find_new_connection();
+      }
       bool failure = false;
       try {
         Poco::ScopedReadRWLock scoped_lock(conn_usage_lock);
@@ -127,7 +133,11 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
       query_params) {
     int retries = 0;
     while (retries < max_retries) {
-      if (!internal_connection) set_new_connection();
+      // Initialize the connection for the first time
+      bool expected_init_value = false;
+      if (initialized.compare_exchange_strong(expected_init_value, true)) {
+        find_new_connection();
+      }
       bool failure = false;
       try {
         Poco::ScopedReadRWLock scoped_lock(conn_usage_lock);

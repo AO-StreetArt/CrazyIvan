@@ -101,6 +101,7 @@ class CrazyIvan: public Poco::Util::ServerApplication {
   Neocpp::Neo4jInterface *neo = NULL;
   bool need_to_cleanup_neo4j_interface = false;
   AccountManagerInterface *acct_manager = NULL;
+  AOSSL::ServiceInterface *my_app = NULL;
 public:
  CrazyIvan() {}
  ~CrazyIvan() {}
@@ -135,23 +136,29 @@ protected:
       app.logger().information(elt);
     }
     // Initialize the application profile
-    AOSSL::NetworkApplicationProfile config(args, std::string("CrazyIvan"), std::string("prod"));
+    AOSSL::NetworkApplicationProfile config(args, std::string("ivan"), std::string("prod"));
+    // Print the configuration log
+    app.logger().information("Profile Startup Log");
+    std::vector<std::string> profile_startup_log = config.get_config_record();
+    for (auto& log_line: profile_startup_log) {
+      app.logger().information(log_line);
+    }
     // Add secure opts
     std::vector<std::string> secure_ops;
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.transaction.security.auth.user"));
+        std::string(".transaction.security.auth.user"));
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.transaction.security.auth.password"));
+        std::string(".transaction.security.auth.password"));
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.transaction.security.hash.password"));
+        std::string(".transaction.security.hash.password"));
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.event.security.out.aes.key"));
+        std::string(".event.security.out.aes.key"));
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.event.security.out.aes.salt"));
+        std::string(".event.security.out.aes.salt"));
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.event.security.in.aes.key"));
+        std::string(".event.security.in.aes.key"));
     secure_ops.push_back(config.get_cluster_name() + \
-        std::string(".ivan.event.security.in.aes.salt"));
+        std::string(".event.security.in.aes.salt"));
     secure_ops.push_back(std::string("neo4j.auth.un"));
     secure_ops.push_back(std::string("neo4j.auth.pw"));
     for (std::string op: secure_ops) {
@@ -170,12 +177,12 @@ protected:
     config.add_opt(std::string("udp.port"), std::string("8764"));
     config.add_opt(std::string("log.file"), std::string("ivan.log"));
     config.add_opt(std::string("log.level"), std::string("Info"));
-    config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.active"), std::string("false"));
-    config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.role_name"), std::string("test"));
-    config.add_opt(std::string("ivan.transaction.security.ssl.ca.vault.common_name"), std::string("test"));
-    config.add_opt(std::string("ivan.transaction.security.ssl.enabled"), std::string("false"));
-    config.add_opt(std::string("ivan.transaction.security.auth.type"), std::string("none"));
-    config.add_opt(std::string("ivan.event.security.aes.enabled"), std::string("false"));
+    config.add_opt(std::string("transaction.security.ssl.ca.vault.active"), std::string("false"));
+    config.add_opt(std::string("transaction.security.ssl.ca.vault.role_name"), std::string("test"));
+    config.add_opt(std::string("transaction.security.ssl.ca.vault.common_name"), std::string("test"));
+    config.add_opt(std::string("transaction.security.ssl.enabled"), std::string("false"));
+    config.add_opt(std::string("transaction.security.auth.type"), std::string("none"));
+    config.add_opt(std::string("event.security.aes.enabled"), std::string("false"));
     // Perform the initial config
     bool config_success = false;
     bool config_tried = false;
@@ -239,17 +246,22 @@ protected:
       console_channel, log_priority);
     Poco::Logger& event_logger = Poco::Logger::create("Event", \
       console_channel, log_priority);
+    Poco::Logger& database_manager_logger = Poco::Logger::create("DatabaseManager", \
+      console_channel, log_priority);
     data_logger.information("Data Logger Initialized");
     controller_logger.information("Controller Logger Initialized");
     process_logger.information("Processor Logger Initialized");
     auth_logger.information("Authorization Logger Initialized");
     cache_logger.information("Cache Logger Initialized");
     event_logger.information("Event Stream Logger Initialized");
+    database_manager_logger.information("Database Manager Logger Initialized");
     main_logger.information("Logging Configuration complete");
 
-    // std::string cluster_name_lbl = "cluster.name";
-    // std::string cluster_name_val = app.config().getString(cluster_name_lbl);
-    // main_logger.information(cluster_name_val);
+    main_logger.information("Profile Configuration Log");
+    std::vector<std::string> profile_config_log = config.get_config_record();
+    for (auto& log_line: profile_config_log) {
+      main_logger.information(log_line);
+    }
 
     // Register the service with Consul
     AOSSL::StringBuffer http_host;
@@ -261,9 +273,22 @@ protected:
       std::vector<std::string> tags;
       tags.push_back(std::string("cluster=") + config.get_cluster_name());
       AOSSL::ConsulComponentFactory consul_factory;
-      AOSSL::ServiceInterface *my_app = \
+      // Create the actual Service to register
+      my_app = \
         consul_factory.get_service_interface(std::string("CrazyIvan"), \
         std::string("CrazyIvan"), http_host.val, http_port.val, tags);
+      AOSSL::StringBuffer security_enabled_buf;
+      config.get_opt(config.get_cluster_name() + \
+          std::string(".ivan.transaction.security.ssl.enabled"), security_enabled_buf);
+      std::string url_start;
+      if (security_enabled_buf.val == "true") {
+        url_start.assign("https://");
+      } else {
+        url_start.assign("http://");
+      }
+      // Add a health check against the health URL
+      my_app->set_check(url_start + http_host.val + std::string(":") \
+          + http_port.val + std::string("/health"), 10, 15);
       config.get_consul()->register_service(*my_app);
     }
 
@@ -277,6 +302,7 @@ protected:
       // Use the DatabaseManager as the Neo4j interface
       // This handles service discovery and failover
       // between databases
+      main_logger.information("Registering DB Manager as Neo4j Interface");
       neo = &neo4j_manager;
     } else {
       // Get the connection string for a single instance
@@ -300,14 +326,14 @@ protected:
     AOSSL::StringBuffer auth_pw_buffer;
     AOSSL::StringBuffer hash_pw_buffer;
     config.get_opt(config.get_cluster_name() + \
-        std::string(".ivan.transaction.security.auth.type"), auth_type_buffer);
+        std::string(".transaction.security.auth.type"), auth_type_buffer);
     if (auth_type_buffer.val == "single") {
       config.get_opt(config.get_cluster_name() + \
-          std::string(".ivan.transaction.security.auth.user"), auth_un_buffer);
+          std::string(".transaction.security.auth.user"), auth_un_buffer);
       config.get_opt(config.get_cluster_name() + \
-          std::string(".ivan.transaction.security.auth.password"), auth_pw_buffer);
+          std::string(".transaction.security.auth.password"), auth_pw_buffer);
       config.get_opt(config.get_cluster_name() + \
-          std::string(".ivan.transaction.security.hash.password"), hash_pw_buffer);
+          std::string(".transaction.security.hash.password"), hash_pw_buffer);
       acct_manager = new SingleAccountManager(auth_un_buffer.val, auth_pw_buffer.val, hash_pw_buffer.val);
     } else {
       acct_manager = NULL;
@@ -337,9 +363,9 @@ protected:
     AOSSL::StringBuffer use_vault_ca_buf;
     AOSSL::StringBuffer vault_role_buf;
     AOSSL::StringBuffer vault_common_name_buf;
-    config.get_opt(std::string("ivan.transaction.security.ssl.ca.vault.active"), use_vault_ca_buf);
-    config.get_opt(std::string("ivan.transaction.security.ssl.ca.vault.role_name"), vault_role_buf);
-    config.get_opt(std::string("ivan.transaction.security.ssl.ca.vault.common_name"), vault_common_name_buf);
+    config.get_opt(std::string("transaction.security.ssl.ca.vault.active"), use_vault_ca_buf);
+    config.get_opt(std::string("transaction.security.ssl.ca.vault.role_name"), vault_role_buf);
+    config.get_opt(std::string("transaction.security.ssl.ca.vault.common_name"), vault_common_name_buf);
     if (use_vault_ca_buf.val == "true") {
       // Generate a new SSL Cert from Vault
       AOSSL::SslCertificateBuffer ssl_cert_buf;
@@ -355,13 +381,25 @@ protected:
         std::ofstream out_ca("rootcert.pem");
         out_ca << ssl_cert_buf.issuing_ca;
         out_ca.close();
-        std::ofstream out_chain("cachain.pem");
+        bool use_chain_certs = false;
+        std::string chain_cert_path = "cachain.pem";
+        if (ssl_cert_buf.ca_chain.empty()) {
+          main_logger.debug("Empty CA Chain detected, ignoring");
+        } else {
+          use_chain_certs = true;
+        }
+        std::ofstream out_chain(chain_cert_path);
         out_chain << ssl_cert_buf.ca_chain;
         out_chain.close();
         // Initialize the SSL Manager with those files
         Poco::SharedPtr<Poco::Net::PrivateKeyPassphraseHandler> pConsoleHandler = new Poco::Net::KeyConsoleHandler(true);
         Poco::SharedPtr<Poco::Net::InvalidCertificateHandler> pInvalidCertHandler = new Poco::Net::ConsoleCertificateHandler(true);
         Poco::Net::Context::Ptr pContext = new Poco::Net::Context(Poco::Net::Context::SERVER_USE, "private.key", "cert.pem", "rootcert.pem", Poco::Net::Context::VERIFY_STRICT, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
+        Poco::Net::X509Certificate chain_cert(chain_cert_path);
+        if (use_chain_certs) {
+          main_logger.debug("Adding Chain Certificate to SSL Context");
+          pContext->addChainCertificate(chain_cert);
+        }
         Poco::Net::SSLManager::instance().initializeServer(pConsoleHandler, pInvalidCertHandler, pContext);
       }
     }
@@ -393,6 +431,10 @@ protected:
     // Handle graceful shutdown of background threads
     main_logger.information("Shutting down application");
     is_app_running = false;
+    if (my_app) {
+      config.get_consul()->deregister_service(*my_app);
+      delete my_app;
+    }
     while(is_sender_running.load()) {usleep(1000000);}
     Poco::ErrorHandler::set(pOldEH);
     return Poco::Util::Application::EXIT_OK;

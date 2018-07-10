@@ -8,6 +8,7 @@ Crazy Ivan can be configured from one or more sources:
 * Environment Variables
 * Command Line Arguments
 * Consul KV Store
+* Vault KV Store
 * Properties File
 
 The application gives priority to the values retrieved in the above order.  This means
@@ -15,61 +16,127 @@ that an environment variable setting will override any other setting.
 
 Crazy Ivan has several startup options:
 
+Cluster Name
+------------
+The 'cluster' option on the command line or in a properties file, or the 'AOSSL_CLUSTER_NAME' environment variable,
+will set the name of the cluster.  A cluster is a grouping of Crazy Ivan instances, which have been assigned particular
+scenes to manage.  Each Crazy Ivan instance is designed to manage a set number of scenes, and this allows for highly
+optimized streaming of object updates.
+
+The cluster name will affect both how Crazy Ivan registers with Consul, if provided, as well as the names of
+cluster-specific security properties.
+
+Vault
+-----
+Vault Address - Starts Crazy Ivan against a Vault instance.  Specified by
+a collection of arguments:
+* vault (Environment Variable AOSSL_VAULT_ADDRESS) - the address of the vault instance
+* vault.cert (Environment Variable AOSSL_VAULT_SSL_CERT) - the location of the SSL certificate to use when communicating with Vault.
+* vault.authtype (Environment Variable AOSSL_VAULT_AUTH_TYPE) - the authentication type used by Vault, currently supported options are 'APPROLE' and 'BASIC'
+* vault.un (Environment Variable AOSSL_VAULT_AUTH_UN) - The Username/Role Id for authenticating with Vault
+* vault.pw (Environment Variable AOSSL_VAULT_AUTH_PW) - The Password/Secret Id for authenticating with Vault
+
+`./crazy_ivan vault=http://127.0.0.1:8200 vault.authtype=BASIC vault.un=test vault.pw=test`
+
+In addition, the Vault UN and PW can be loaded from files on disk, 'vault_un.txt' and 'vault_pw.txt'.  This is the recommended
+method to set authentication info in CI/CD processes within an application container.
+
+Secure Properties
+-----------------
+Secure Properties can be loaded from a properties file for development purposes, but in a
+Production scenario should always be loaded from a Vault instance.  Once Crazy Ivan is connected
+to a Vault instance, the following properties can be loaded:
+
+AOSSL_CONSUL_SSL_CERT - The SSL Certificate to use when communicating with Consul
+AOSSL_CONSUL_ACL_TOKEN - The ACL Token to use when communicating with Consul
+NEO4J_AUTH_UN - The Username to authenticate with discovered Neo4j instances
+NEO4J_AUTH_PW - The Password to authenticate with discovered Neo4j instances
+{cluster-name}_IVAN_TRANSACTION_SECURITY_AUTH_USER - The username which will authenticate with Crazy Ivan over HTTP(s)
+{cluster-name}_IVAN_TRANSACTION_SECURITY_AUTH_PASSWORD - The password which will authenticate with Crazy Ivan over HTTP(s)
+{cluster-name}_IVAN_TRANSACTION_SECURITY_HASH_PASSWORD - The password for the hashing algorithm used to hash the password prior to storage.
+{cluster-name}_IVAN_EVENT_SECURITY_OUT_AES_KEY - The key for the AES-256 encryption used for sending UDP messages.
+{cluster-name}_IVAN_EVENT_SECURITY_OUT_AES_SALT - The salt used for the AES-256 encryption used for sending UDP messages.
+{cluster-name}_IVAN_EVENT_SECURITY_IN_AES_KEY - The key for the AES-256 encryption used for receiving UDP messages.
+{cluster-name}_IVAN_EVENT_SECURITY_IN_AES_SALT - The salt used for the AES-256 encryption used for receiving UDP messages.
+
+Consul
+------
 Consul Address - Starts Crazy Ivan against a Consul instance.  Specified by
 either the `consul` command line argument or the `AOSSL_CONSUL_ADDRESS`
-environment variable.  For example:
+environment variable.
 
 `./crazy_ivan consul=http://127.0.0.1:8500`
 
+We may also include the arguments:
+* consul.cert (Environment Variable AOSSL_CONSUL_SSL_CERT) - The location of the SSL Certificate to use when communicating with Consul
+* consul.token (Environment Variable AOSSL_CONSUL_ACL_TOKEN) - The ACL Token to use when communicating with Consul
+
+This will enable property retrieval from Consul KV Store, registering with Consul on Startup, and the ability to use
+Neo4j discovery to dynamically find and update the Neo4j instance processing updates.
+
+Properties File
+---------------
 Properties File - Starts Crazy Ivan against a Properties File.  Specified by either
 the `props` command line argument or the `AOSSL_PROPS_FILE` environment variable.  For example:
 
 `./crazy_ivan props=app.properties`
 
-If no properties file is specified, Crazy Ivan will look for one named `app.properties`.
+If no properties file is specified, Crazy Ivan will look for one named `app.properties` in both the
+current working folder, and in /etc/ivan/.
 
 The consul address can also be specified within the properties file, with the key `consul`.
 
-SSL Context Configuration is performed on startup, if enabled, from the file `ssl.properties`.
+HTTPS Setup
+-----------
+SSL Context Configuration is performed on startup, if enabled.  If the following properties
+are set, then SSL Certs for Crazy Ivan can be generated dynamically from Vault:
 
-Configuration
-=============
+ivan.transaction.security.ssl.ca.vault.active - 'true' or 'false'
+ivan.transaction.security.ssl.ca.vault.role_name - the name of the role to use to generate the SSL Cert
+ivan.transaction.security.ssl.ca.vault.common_name - The Common-Name to use on the Certificate
 
-Logging
--------
+Otherwise, SSL Certificate Generation can be configured from a file in the current working directory called 'ssl.properties'.
 
-* Log File
+Neo4j Connection
+----------------
+A full connection string may be supplied as a properties value for, but in Production Scenarios
+it is recommended to use Neo4j Discovery.  This is controlled by the property neo4j.discover, which
+can be 'true' or 'false'.  If it is set to true, then Crazy Ivan will use Consul to find a Neo4j
+instance, and will dynamically find new instances when it encounters many consecutive failures.
+
+When enabled, you will want to utilize the secure properties 'NEO4J_AUTH_UN' and 'NEO4J_AUTH_PW' in Vault,
+in order to store the authorization info for Neo4j securely.
+
+Other Values
+------------
+
+There are a number of other options present in the default app.properties file provided.
+
+Below is an overview of the remaining properties:
+
+* Log File - Path on disk to write logs to
 
 `log.file=ivan.log`
 
-* Log Level (Debug, Info, Warning, Error)
+* Log Level - Debug, Info, Warning, Error
 
 `log.level=Debug`
 
-Transaction
------------
-
-* Format for transactions
+* Format for transactions (HTTP traffic).  Currently only json is supported.
 
 `transaction.format=json`
 
-* Transaction ID's active or inactive
+* Transaction ID's active or inactive.  If active, Crazy Ivan will ensure a Transaction Id is stamped on each message.
 
 `transaction.id.stamp=True`
 
-Event
------
-
-* Method for streaming events
+* Method for streaming events.  Currently only udp is supported.
 
 `event.stream.method=udp`
 
-* Format for events
+* Format for streaming events.  Currently only json is supported
 
 `event.format=json`
-
-HTTP
-----
 
 * HTTP host to register with Consul
 
@@ -78,61 +145,5 @@ HTTP
 * HTTP Port
 
 `http.port=8765`
-
-Cluster
--------
-
-* Name of the cluster this instance is in
-
-`cluster.name=test`
-
-Neo4j
------
-
-Optional connectivity information when dependent services are
-needed and not registered with Consul
-
-* Neo4j Connectivity String
-
-`neo4j=neo4j://localhost:7687`
-
-Security
---------
-
-* true to enable HTTPS socket, false to use HTTP socket
-
-`ivan.transaction.security.ssl.enabled=true`
-
-* Authentication type:
-  - none: No authentication required
-  - single: basic-auth with single user/password set in properties file
-  - basic: basic-auth with users stored in Neo4j
-
-`ivan.transaction.security.auth.type=single`
-
-* If auth.type is single, these set the only user.  If auth.type is basic, these set the default user.
-
-`ivan.transaction.security.auth.user=test`
-`ivan.transaction.security.auth.password=test`
-
-* Password used for SHA1 algorithm to generate hashes of the stored password
-
-`ivan.transaction.security.hash.password=test`
-
-* Key used for AES Encryption
-
-`ivan.event.security.out.aes.key=s3cr3tk3y`
-
-* Salt used for AES Encryption
-
-`ivan.event.security.out.aes.salt=asdff8723lasdf(**923412`
-
-* Key used for AES Decryption
-
-`ivan.event.security.in.aes.key=4n0th3rk4y`
-
-* Salt used for AES Decryption
-
-`ivan.event.security.in.aes.salt=asdff8723lasdf(**923412`
 
 :ref:`Go Home <index>`

@@ -1,7 +1,7 @@
-Aesel HTTP API
-==============
+Advanced Topics
+===============
 
-.. _http_index:
+.. _advanced_index:
 
 .. image:: _images/Aesel_Logo_Alpha.png
    :alt: AO Labs
@@ -12,7 +12,8 @@ Aesel HTTP API
    :maxdepth: 1
    :caption: Contents:
 
-   Scene_API.rst
-   Scene_Registration_API.rst
-   Cache_API.rst
-   Events_API.rst
+   arch.rst
+   deploy.rst
+   deps.rst
+   dev_notes.rst
+   security.rst

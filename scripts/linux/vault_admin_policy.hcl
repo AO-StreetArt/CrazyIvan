@@ -2,3 +2,11 @@
 path "secret/*" {
   capabilities = ["read", "list"]
 }
+
+path "consul/*" {
+  capabilities = ["read", "list"]
+}
+
+path "pki/*" {
+  capabilities = ["write", "read", "list"]
+}
