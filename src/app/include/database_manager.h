@@ -34,6 +34,7 @@ limitations under the License.
 #include "aossl/consul/include/consul_interface.h"
 
 #include "neocpp/connection/interface/neo4j_interface.h"
+#include "neocpp/connection/interface/neo4j_tls_config.h"
 #include "neocpp/connection/impl/libneo4j_factory.h"
 
 #include "rapidjson/document.h"
@@ -73,11 +74,24 @@ class DatabaseManager: public Neocpp::Neo4jInterface {
         + std::string(":") + neo4j_pw_buf.val + std::string("@")\
         + connected_service->get_address() + std::string(":")\
         + connected_service->get_port();
+    // Check for TLS Configuration
+    Neocpp::Neo4jTlsConfig *tls_conf = neo_factory.get_neo4j_tls_configuration();
+    AOSSL::StringBuffer neo4j_ssl_ca_buf;
+    AOSSL::StringBuffer neo4j_ssl_ca_dir_buf;
+    internal_profile->get_opt(std::string("neo4j.ssl.ca.file"), neo4j_ssl_ca_buf);
+    internal_profile->get_opt(std::string("neo4j.ssl.ca.dir"), neo4j_ssl_ca_dir_buf);
+    if (!(neo4j_ssl_ca_buf.val.empty())) {
+      logger.debug("Using CA File: %s", neo4j_ssl_ca_buf.val);
+      tls_conf->set_ca_file(neo4j_ssl_ca_buf.val);
+    } else if (!(neo4j_ssl_ca_dir_buf.val.empty())) {
+      logger.debug("Using CA Directory: %s", neo4j_ssl_ca_dir_buf.val);
+      tls_conf->set_ca_dir(neo4j_ssl_ca_dir_buf.val);
+    }
     // Reset the internal connection
     logger.information("Connecting to Neo4j instance: %s", neo4j_conn_str);
     if (internal_connection) delete internal_connection;
     internal_connection = \
-        neo_factory.get_neo4j_interface(neo4j_conn_str, true, 50, 0, 1);
+        neo_factory.get_neo4j_interface(neo4j_conn_str, 50, 0, 1, tls_conf);
   }
   inline void set_new_connection() {
     Poco::ScopedWriteRWLock scoped_lock(conn_usage_lock);

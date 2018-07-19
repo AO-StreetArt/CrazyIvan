@@ -19,3 +19,5 @@ tests/tests
 tests/netcat/udp_message_upd.txt
 tests/netcat/scene_key.txt
 pid.txt
+*.pem
+*.key

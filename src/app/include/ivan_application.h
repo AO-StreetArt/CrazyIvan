@@ -168,6 +168,8 @@ protected:
     config.add_opt(std::string("neo4j"), \
       std::string("neo4j://localhost:7687"));
     config.add_opt(std::string("neo4j.discover"), std::string("false"));
+    config.add_opt(std::string("neo4j.ssl.ca.file"), std::string(""));
+    config.add_opt(std::string("neo4j.ssl.ca.dir"), std::string(""));
     config.add_opt(std::string("transaction.format"), std::string("json"));
     config.add_opt(std::string("transaction.id.stamp"), std::string("true"));
     config.add_opt(std::string("event.stream.method"), std::string("kafka"));
@@ -277,18 +279,6 @@ protected:
       my_app = \
         consul_factory.get_service_interface(std::string("CrazyIvan"), \
         std::string("CrazyIvan"), http_host.val, http_port.val, tags);
-      AOSSL::StringBuffer security_enabled_buf;
-      config.get_opt(config.get_cluster_name() + \
-          std::string(".ivan.transaction.security.ssl.enabled"), security_enabled_buf);
-      std::string url_start;
-      if (security_enabled_buf.val == "true") {
-        url_start.assign("https://");
-      } else {
-        url_start.assign("http://");
-      }
-      // Add a health check against the health URL
-      my_app->set_check(url_start + http_host.val + std::string(":") \
-          + http_port.val + std::string("/health"), 10, 15);
       config.get_consul()->register_service(*my_app);
     }
 
@@ -325,8 +315,7 @@ protected:
     AOSSL::StringBuffer auth_un_buffer;
     AOSSL::StringBuffer auth_pw_buffer;
     AOSSL::StringBuffer hash_pw_buffer;
-    config.get_opt(config.get_cluster_name() + \
-        std::string(".transaction.security.auth.type"), auth_type_buffer);
+    config.get_opt(std::string("transaction.security.auth.type"), auth_type_buffer);
     if (auth_type_buffer.val == "single") {
       config.get_opt(config.get_cluster_name() + \
           std::string(".transaction.security.auth.user"), auth_un_buffer);
@@ -394,9 +383,9 @@ protected:
         // Initialize the SSL Manager with those files
         Poco::SharedPtr<Poco::Net::PrivateKeyPassphraseHandler> pConsoleHandler = new Poco::Net::KeyConsoleHandler(true);
         Poco::SharedPtr<Poco::Net::InvalidCertificateHandler> pInvalidCertHandler = new Poco::Net::ConsoleCertificateHandler(true);
-        Poco::Net::Context::Ptr pContext = new Poco::Net::Context(Poco::Net::Context::SERVER_USE, "private.key", "cert.pem", "rootcert.pem", Poco::Net::Context::VERIFY_STRICT, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
-        Poco::Net::X509Certificate chain_cert(chain_cert_path);
+        Poco::Net::Context::Ptr pContext = new Poco::Net::Context(Poco::Net::Context::SERVER_USE, "private.key", "cert.pem", "rootcert.pem", Poco::Net::Context::VERIFY_NONE, 9, false, "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH");
         if (use_chain_certs) {
+          Poco::Net::X509Certificate chain_cert(chain_cert_path);
           main_logger.debug("Adding Chain Certificate to SSL Context");
           pContext->addChainCertificate(chain_cert);
         }
@@ -406,8 +395,7 @@ protected:
 
     // Main Application Loop (Serving HTTP API)
     AOSSL::StringBuffer ssl_enabled_buf;
-    config.get_opt(config.get_cluster_name() + \
-        std::string(".ivan.transaction.security.ssl.enabled"), ssl_enabled_buf);
+    config.get_opt(std::string("transaction.security.ssl.enabled"), ssl_enabled_buf);
     std::string http_address = http_host.val + std::string(":") + http_port.val;
     Poco::Net::SocketAddress saddr(http_address);
     main_logger.debug("HTTP Address: %s, Security Enabled: %s", http_address, ssl_enabled_buf.val);

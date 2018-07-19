@@ -295,13 +295,13 @@ class BaseQueryHelper {
         scene_params.emplace("inp_name", name_param);
       }
       // Latitude
-      if (!(scn->get_latitude() == -9999.0)) {
+      if (scn->get_latitude() > -9999.0) {
         double qlat = scn->get_latitude();
         Neocpp::Neo4jQueryParameterInterface *lat_param = neo_factory->get_neo4j_query_parameter(qlat);
         scene_params.emplace("inp_lat", lat_param);
       }
       // Longitude
-      if (!(scn->get_longitude() == -9999.0)) {
+      if (scn->get_longitude() > -9999.0) {
         double qlong = scn->get_longitude();
         Neocpp::Neo4jQueryParameterInterface *long_param = neo_factory->get_neo4j_query_parameter(qlong);
         scene_params.emplace("inp_long", long_param);
