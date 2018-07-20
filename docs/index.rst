@@ -5,9 +5,9 @@
    :caption: Contents:
 
    pages/quickstart.rst
+   pages/api.rst
    pages/config.rst
    pages/security.rst
-   pages/api.rst
    pages/deploy.rst
    pages/advanced_walkthrough.rst
    pages/arch.rst
