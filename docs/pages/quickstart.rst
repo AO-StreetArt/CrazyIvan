@@ -43,6 +43,17 @@ order to successfully shut down the main event thread.  You can send one with:
 
 Replacing 'eth0' with your network device, if necessary.
 
+Latest Release
+--------------
+
+Download and unzip the latest release file from https://github.com/AO-StreetArt/CrazyIvan/releases.
+
+Once you have done this, you can run the easy_install script with the -d option
+to install dependencies and the Crazy Ivan executable.  Alternatively, you can
+simply run the install_deps.sh script from the scripts/ folder, and then run
+the crazy_ivan executable from the main release folder.
+
+``./crazy_ivan``
 
 Building from Source
 --------------------
