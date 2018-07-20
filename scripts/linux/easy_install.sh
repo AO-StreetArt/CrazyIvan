@@ -19,7 +19,7 @@ fi
 
 if [ $OPT = "-r" ]; then
   printf "Attempting to uninstall CrazyIvan\n"
-  rm /usr/local/bin/crazy_ivan
+  rm /usr/bin/crazy_ivan
   rm -r /etc/crazyivan
   rm -r /var/log/crazyivan
   deluser crazyivan
@@ -48,9 +48,14 @@ else
   useradd --system --user-group crazyivan
 
   # Ensure that the crazyivan user has permission to access both the configuration and logging directories
-  chown -R crazyivan:crazyivan /etc/crazyivan
+  mkdir -p /etc/crazyivan
+  mkdir -p /var/log/crazyivan
+  chown -R crazyivan:crazyivan /etc/ivan
   chown -R crazyivan:crazyivan /var/log/crazyivan
   chown -R crazyivan:crazyivan /var/crazyivan
+
+  sudo cp crazy_ivan /usr/bin/
+  sudo cp app.properties /etc/ivan
 
   exit 0
 
