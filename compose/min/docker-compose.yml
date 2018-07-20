@@ -1,0 +1,20 @@
+version: '3.0'
+
+services:
+  graphdb:
+    image: neo4j
+    container_name: graphdb
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ${HOME}/neo4j/data:/data
+    environment:
+      NEO4J_AUTH: none
+  crazyivan:
+    image: aostreetart/crazyivan:v2
+    container_name: crazyivan
+    ports:
+      - "8766:8766"
+      - "8764:8764/udp"
+    command: ivan.prod.neo4j=neo4j://graphdb:7687 ivan.prod.http.host=crazyivan ivan.prod.http.port=8766 ivan.prod.udp.port=8764

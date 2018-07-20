@@ -22,3 +22,6 @@ cp CrazyIvan/scripts/linux/deb/build_deps.sh ivan_deps
 cd ivan_deps && ./build_deps.sh
 export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 cd ../CrazyIvan && make && make test
+cp crazy_ivan /usr/bin
+mkdir /etc/ivan
+cp app.properties /etc/ivan/
