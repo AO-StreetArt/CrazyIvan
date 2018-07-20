@@ -1,3 +1,5 @@
+.. _cache_api:
+
 Cache API
 =========
 

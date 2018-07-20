@@ -1,3 +1,5 @@
+.. _event_stream_api:
+
 Event API
 =========
 
@@ -18,3 +20,7 @@ This means that the only requirement on the format of the messages is that:
 * Then they contain a new line character.
 * Then they contain the desired message to send.
 * The total, encrypted, message is no more than 275 characters
+
+For example:
+
+``_SCENE_KEY_\n{“key”: “_OBJ_KEY_”, “scene”: “_SCENE_KEY_”, “transform”: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]}``

@@ -30,4 +30,19 @@ Events
 UDP Events utilize AES encryption, with the key and salt set in the application configuration.
 
 Keep in mind that AES encryption is symmetrical, meaning that the encryption keys
-must be distributed to the clients in order to encrypt traffic between them and Crazy Ivan.
+must be distributed to the clients in order to encrypt traffic between them
+and Crazy Ivan.  The key and salt are delivered to end user devices after a
+registration transaction, which is both authenticated and encrypted.
+
+Configuration
+-------------
+
+Secure configuration values should stored in Hashicorp Vault, with full encryption
+and authentication enabled.  Connecting and authenticating to any service requires
+accessing at least one secure property in Vault, ensuring that any malicious entities
+must go through Vault to get into any system in the network.
+
+This does mean that your Vault instance should be carefully guarded: it has all
+of the keys to the castle.  However, it is a system designed specifically to
+guard these secrets, so when used properly it is one of the best safeguards
+available, along with a healthy dose of common-sense.

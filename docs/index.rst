@@ -5,6 +5,7 @@
    :caption: Contents:
 
    pages/quickstart.rst
+   pages/use.rst
    pages/api.rst
    pages/config.rst
    pages/security.rst

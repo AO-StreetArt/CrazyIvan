@@ -47,17 +47,17 @@ Secure Properties can be loaded from a properties file for development purposes,
 Production scenario should always be loaded from a Vault instance.  Once Crazy Ivan is connected
 to a Vault instance, the following properties can be loaded:
 
-AOSSL_CONSUL_SSL_CERT - The SSL Certificate to use when communicating with Consul
-AOSSL_CONSUL_ACL_TOKEN - The ACL Token to use when communicating with Consul
+CONSUL_SSL_CERT - The SSL Certificate to use when communicating with Consul
+CONSUL_ACL_TOKEN - The ACL Token to use when communicating with Consul
 NEO4J_AUTH_UN - The Username to authenticate with discovered Neo4j instances
 NEO4J_AUTH_PW - The Password to authenticate with discovered Neo4j instances
-{cluster-name}_IVAN_TRANSACTION_SECURITY_AUTH_USER - The username which will authenticate with Crazy Ivan over HTTP(s)
-{cluster-name}_IVAN_TRANSACTION_SECURITY_AUTH_PASSWORD - The password which will authenticate with Crazy Ivan over HTTP(s)
-{cluster-name}_IVAN_TRANSACTION_SECURITY_HASH_PASSWORD - The password for the hashing algorithm used to hash the password prior to storage.
-{cluster-name}_IVAN_EVENT_SECURITY_OUT_AES_KEY - The key for the AES-256 encryption used for sending UDP messages.
-{cluster-name}_IVAN_EVENT_SECURITY_OUT_AES_SALT - The salt used for the AES-256 encryption used for sending UDP messages.
-{cluster-name}_IVAN_EVENT_SECURITY_IN_AES_KEY - The key for the AES-256 encryption used for receiving UDP messages.
-{cluster-name}_IVAN_EVENT_SECURITY_IN_AES_SALT - The salt used for the AES-256 encryption used for receiving UDP messages.
+{cluster-name}_TRANSACTION_SECURITY_AUTH_USER - The username which will authenticate with Crazy Ivan over HTTP(s)
+{cluster-name}_TRANSACTION_SECURITY_AUTH_PASSWORD - The password which will authenticate with Crazy Ivan over HTTP(s)
+{cluster-name}_TRANSACTION_SECURITY_HASH_PASSWORD - The password for the hashing algorithm used to hash the password prior to storage.
+{cluster-name}_EVENT_SECURITY_OUT_AES_KEY - The key for the AES-256 encryption used for sending UDP messages.
+{cluster-name}_EVENT_SECURITY_OUT_AES_SALT - The salt used for the AES-256 encryption used for sending UDP messages.
+{cluster-name}_EVENT_SECURITY_IN_AES_KEY - The key for the AES-256 encryption used for receiving UDP messages.
+{cluster-name}_EVENT_SECURITY_IN_AES_SALT - The salt used for the AES-256 encryption used for receiving UDP messages.
 
 Consul
 ------
@@ -91,9 +91,9 @@ HTTPS Setup
 SSL Context Configuration is performed on startup, if enabled.  If the following properties
 are set, then SSL Certs for Crazy Ivan can be generated dynamically from Vault:
 
-ivan.transaction.security.ssl.ca.vault.active - 'true' or 'false'
-ivan.transaction.security.ssl.ca.vault.role_name - the name of the role to use to generate the SSL Cert
-ivan.transaction.security.ssl.ca.vault.common_name - The Common-Name to use on the Certificate
+transaction.security.ssl.ca.vault.active - 'true' or 'false'
+transaction.security.ssl.ca.vault.role_name - the name of the role to use to generate the SSL Cert
+transaction.security.ssl.ca.vault.common_name - The Common-Name to use on the Certificate
 
 Otherwise, SSL Certificate Generation can be configured from a file in the current working directory called 'ssl.properties'.
 

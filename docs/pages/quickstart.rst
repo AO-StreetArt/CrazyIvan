@@ -10,7 +10,7 @@ Docker
 
 Using the Crazy Ivan Docker image is as simple as:
 
-``docker run aostreetart/crazyivan:v2``
+``docker run --publish=8766:8766 --publish=8764:8764/udp aostreetart/crazyivan:v2``
 
 However, we also need a running instance of Neo4j to do anything interesting.  To
 get you up and running quickly, a Docker Compose file is provided.  To start up
@@ -25,11 +25,24 @@ Alternatively, you can deploy the stack with Docker Swarm using:
 
 Once the services have started, test them by hitting Ivan's healthcheck endpoint:
 
-``curl http://localhost:8765/health``
+``curl http://localhost:8766/health``
 
-The Transaction (HTTP) API is available on port 8765, and the Event (UDP) API
+The Transaction (HTTP) API is available on port 8766, and the Event (UDP) API
 is available on port 8764.  Keep in mind that this is not a secure deployment,
 but is suitable for exploring the :ref:`Crazy Ivan API <api_index>`.
+
+You may also continue on to the discussion of :ref:`How to Use Crazy Ivan <use>`.
+
+Shutdown
+--------
+Shutdown of Crazy Ivan can be initiated with a kill or interrupt signal to the
+container.  However, at least one udp message must be received afterwards in
+order to successfully shut down the main event thread.  You can send one with:
+
+`echo "kill" | nc -u $(ip addr show eth0 | grep -Po 'inet \K[\d.]+') 8764`
+
+Replacing 'eth0' with your network device, if necessary.
+
 
 Building from Source
 --------------------
@@ -99,11 +112,13 @@ You can move on to explore the :ref:`Crazy Ivan API <api_index>`, or
 check out the :ref:`Configuration Section <configuration>` for more details
 on the configuration options available when starting CrazyIvan.
 
+You may also continue on to the discussion of :ref:`How to Use Crazy Ivan <use>`.
+
 Shutdown
 --------
 Shutdown of Crazy Ivan can be initiated with a kill or interrupt signal to the
-main thread.  However, at least one udp message must be recieved in order to
-successfully shut down the main event thread.  You can send one with:
+main thread.  However, at least one udp message must be received afterwards
+in order to successfully shut down the main event thread.  You can send one with:
 
 `echo "kill" | nc -u $(ip addr show eth0 | grep -Po 'inet \K[\d.]+') 8764`
 

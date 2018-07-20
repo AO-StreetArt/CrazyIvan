@@ -1,3 +1,5 @@
+.. _scene_registration_api:
+
 Scene Registration API
 ======================
 

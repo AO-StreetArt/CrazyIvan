@@ -1,3 +1,5 @@
+.. _scene_api:
+
 Scene API
 =========
 
