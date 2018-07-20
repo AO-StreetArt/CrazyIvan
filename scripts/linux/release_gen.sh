@@ -53,8 +53,8 @@ cp crazyivan.service ../$RELEASE_NAME
 cp crazy_ivan ../$RELEASE_NAME
 
 #Copy the configuration file
-cp app.properties ../$RELEASE_NAME/release/app.properties
-cp ssl.properties ../$RELEASE_NAME/release/ssl.properties
+cp app.properties ../$RELEASE_NAME/app.properties
+cp ssl.properties ../$RELEASE_NAME/ssl.properties
 
 #Copy the Release Notes file
 cp release/RELEASE_NOTES.md ../$RELEASE_NAME/RELEASE_NOTES.md
