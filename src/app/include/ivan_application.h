@@ -110,7 +110,6 @@ protected:
   // Initialize the core components of the application
   void initialize(Poco::Util::Application& self) {
     // Have Poco load the configuration file to provide SSL configuration
-    loadConfiguration("ssl.properties");
     Poco::Util::ServerApplication::initialize(self);
   }
 
@@ -348,6 +347,9 @@ protected:
     std::thread es_thread(event_stream, &event_cache, &config);
     es_thread.detach();
 
+    AOSSL::StringBuffer ssl_enabled_buf;
+    config.get_opt(std::string("transaction.security.ssl.enabled"), ssl_enabled_buf);
+
     // Look to see if we should be generating our SSL Certs from Vault
     AOSSL::StringBuffer use_vault_ca_buf;
     AOSSL::StringBuffer vault_role_buf;
@@ -391,11 +393,15 @@ protected:
         }
         Poco::Net::SSLManager::instance().initializeServer(pConsoleHandler, pInvalidCertHandler, pContext);
       }
+    } else {
+      if (ssl_enabled_buf.val == "true") {
+        // If we aren't generating ssl certs from Consul and we still need
+        // to start an https endpoint, then look for an ssl.properties file
+        loadConfiguration("ssl.properties");
+      }
     }
 
     // Main Application Loop (Serving HTTP API)
-    AOSSL::StringBuffer ssl_enabled_buf;
-    config.get_opt(std::string("transaction.security.ssl.enabled"), ssl_enabled_buf);
     std::string http_address = http_host.val + std::string(":") + http_port.val;
     Poco::Net::SocketAddress saddr(http_address);
     main_logger.debug("HTTP Address: %s, Security Enabled: %s", http_address, ssl_enabled_buf.val);
