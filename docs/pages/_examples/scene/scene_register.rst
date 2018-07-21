@@ -13,8 +13,8 @@
             {
               "key":"Ud132",
               "transform":{
-                "translation":[0.0,0.0,0.0],
-                "rotation":[0.0,0.0,0.0]
+                "translation":[0,0,0],
+                "rotation":[0,0,0]
               }
             }
           ]
