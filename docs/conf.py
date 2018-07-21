@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'CrazyIvan'
-copyright = u'2017, AO'
+copyright = u'2018, AO'
 author = u'AO'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -82,16 +82,18 @@ todo_include_todos = False
 # List of HTTP header prefixes which should be ignored in strict mode
 http_headers_ignore_prefixes = []
 
-# Strips the leading segments from the endpoint paths by given list of prefixes:
+# Strips the leading segments from the endpoint paths
+# by given list of prefixes:
 http_index_ignore_prefixes = []
 
 # Short name of the index which will appear on every page:
 http_index_shortname = 'api'
 
 # Full index name which is used on index page:
-http_index_localname = "Aesel HTTP API"
+http_index_localname = "Crazy Ivan"
 
-# When True (default) emits build errors when status codes, methods and headers look non-standard:
+# When True (default) emits build errors when status codes,
+# methods and headers look non-standard:
 http_strict_mode = True
 
 # -- Options for HTML output ----------------------------------------------
@@ -133,7 +135,7 @@ html_theme_options = {
     'navbar_pagenav': True,
 
     # Tab name for the current pages TOC. (Default: "Page")
-    'navbar_pagenav_name': "Page",
+    'navbar_pagenav_name': "Contents",
 
     # Global TOC depth for "site" navbar tab. (Default: 1)
     # Switching to -1 shows all levels.

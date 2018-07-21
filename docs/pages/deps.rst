@@ -26,10 +26,13 @@ of C++ wrappers on many of the C libraries listed here.
 `AOSSL <https://github.com/AO-StreetArt/AOSharedServiceLibrary>`__ is released under an MIT License.
 
 
-LibNeo4j
+NeoCpp
 --------
-`LibNeo4j <https://github.com/cleishm/libneo4j-client/>`__ is used to communicate with Neo4j, a Graph Based Database.
+`NeoCpp <https://github.com/AO-StreetArt/NeoCpp>`__ is a wrapper on
+`LibNeo4j <https://github.com/cleishm/libneo4j-client/>`__, which is used to
+communicate with Neo4j, a Graph Based Database.
 
+`NeoCpp <https://github.com/AO-StreetArt/NeoCpp>`__ is released under an Apache 2 License.
 `LibNeo4j <https://github.com/cleishm/libneo4j-client/>`__ is released under an Apache 2 License.
 
 

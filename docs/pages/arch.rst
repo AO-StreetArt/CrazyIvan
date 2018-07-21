@@ -19,7 +19,7 @@ needing any corrections by returning the pre-calculated differences.
 Technical Overview
 ------------------
 
-Crazy Ivan is designed to be used as a microservice within a larger
+Crazy Ivan is designed to be used as a service within a larger
 architecture. It will take in CRUD messages for scenes, as well as
 track user device registrations (both over HTTP).
 
@@ -46,12 +46,5 @@ The changes streams are designed to be high-speed and high-volume.  Crazy Ivan
 can process many messages in parallel, and registration information is kept up-to-date
 in a cache for immediate retrieval.  A separate background thread periodically loads
 updated values from Neo4j.
-
-Security
---------
-
-Security for Transactions is provided by HTTPS encryption with Basic Authentication.
-
-Security for Events is provided by AES-256 symmetric encryption.
 
 :ref:`Go Home <index>`
