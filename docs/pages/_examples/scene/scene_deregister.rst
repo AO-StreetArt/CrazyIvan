@@ -10,7 +10,7 @@
           "key":"jklmnop",
           "devices":[
             {
-              "key":"Ud\_132"
+              "key":"Ud132"
             }
           ]
         }

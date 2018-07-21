@@ -11,7 +11,7 @@
           "key":"jklmnop",
           "devices":[
             {
-              "key":"Ud\_132",
+              "key":"Ud132",
               "transform":{
                 "translation":[0.0,0.0,0.0],
                 "rotation":[0.0,0.0,0.0]
