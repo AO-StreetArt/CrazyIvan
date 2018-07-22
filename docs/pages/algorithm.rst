@@ -51,14 +51,14 @@ and a can also be represented as a point c in C by:
 
 Apply matrix multiplication to equation (2):
 
-.. math:: a = (T_B)^-1 * b
+.. math:: a = T_B^(-1) * b
 
 Using substitution, we find that:
 
-.. math:: c = T_C * (T_B)^-1 * b
+.. math:: c = T_C * T_B^(-1) * b
 
 Therefore, any point b in B can be represented as a point c in C by applying
-the transform :math:`T_C * (T_B)^-1`.
+the transform :math:`T_C * T_B^(-1)`.
 
 Transformation Calculation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
