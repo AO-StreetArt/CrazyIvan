@@ -64,8 +64,10 @@ the transform :math:`T_C * T_B^{-1}`.
 Transformation Calculation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a device moves from scene A to scene B, it requires a transformation
-that allows it to move from the first scene to the second.  In order to find
+When a device registers to a scene (Scene B), Crazy Ivan checks to see if there are any
+pre-existing registrations to other scenes for that device.  If there are, then
+Crazy Ivan will take the first scene it finds (Scene A) and use it to calculate a
+transformation that allows it to move from Scene A to Scene B.  In order to find
 this, Crazy Ivan uses a shortest-path algorithm (built in to Neo4j) to find
 a route from the node for scene A to the node for scene B, traversing the
 transformations between them.  The resulting series of transformations is then:
