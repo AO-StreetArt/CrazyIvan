@@ -31,7 +31,7 @@ to and, for each scene we find (scene B), we either:
 
 The scene-scene transform is calculated as:
 
-.. math:: (Device-Scene Transform)_A * (Device-Scene Transform)_B^-1
+.. math:: (Device to Scene Transform)_A * ((Device to Scene Transform)_B)^-1
 
 with both links represented as 4x4 matrix transformations.  The direction
 of this transformation is from Scene A to Scene B.
@@ -39,8 +39,8 @@ of this transformation is from Scene A to Scene B.
 Proof
 -----
 
-Given coordinate systems A, B, and C, and transformations T:subscript:`B` and
-T:subscript:`C` such that, for any point a in A, a can be represented as a
+Given coordinate systems A, B, and C, and transformations :math:`T_B` and
+:math:`T_C` such that, for any point a in A, a can be represented as a
 point b in B by:
 
 .. math:: b = T_B * a
@@ -51,14 +51,14 @@ and a can also be represented as a point c in C by:
 
 Apply matrix multiplication to equation (2):
 
-.. math:: a = T_B^-1 * b
+.. math:: a = (T_B)^-1 * b
 
 Using substitution, we find that:
 
-.. math:: c = T_C * T_B^-1 * b
+.. math:: c = T_C * (T_B)^-1 * b
 
 Therefore, any point b in B can be represented as a point c in C by applying
-the transform :math:`T_C * T_B^-1`.
+the transform :math:`T_C * (T_B)^-1`.
 
 Transformation Calculation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
