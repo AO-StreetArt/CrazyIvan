@@ -24,7 +24,8 @@ architecture. It will take in CRUD messages for scenes, as well as
 track user device registrations (both over HTTP).
 
 Running Crazy Ivan requires an instance of `Neo4j <http://www.neo4j.com/>`__
-to connect to in order to run.  Neo4j serves as the backend database for Crazy Ivan.
+to connect to in order to perform most functions.  Neo4j serves as the
+back-end database for Crazy Ivan.
 
 Crazy Ivan can also be deployed with `Consul <https://www.consul.io/>`__
 as a Service Discovery and Distributed Configuration architecture. This
@@ -38,7 +39,7 @@ Object Change Streams (Events)
 ------------------------------
 
 Object Change Streams ensure that all registered User Devices remain up to date about
-objects within their scenes.  Crazy Ivan recieves UDP updates from outside sources,
+objects within their scenes.  Crazy Ivan receives UDP updates from outside sources,
 with a specific format, and then forwards the message, once again via UDP, to all
 registered devices.
 

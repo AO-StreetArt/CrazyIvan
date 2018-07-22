@@ -31,7 +31,11 @@ import sphinx_bootstrap_theme
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinxcontrib.httpdomain', 'sphinxcontrib.httpexample']
+extensions = ['sphinxcontrib.httpdomain', 'sphinxcontrib.httpexample', 'sphinx.ext.mathjax']
+
+# Path to MathJax library
+mathjax_path = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js'
+math_number_all = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
