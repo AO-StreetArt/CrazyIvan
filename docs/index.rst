@@ -1,6 +1,6 @@
 .. _index:
 
-Table of Contents
+.. include:: ../README.rst
 
 .. toctree::
    :maxdepth: 1
@@ -16,5 +16,3 @@ Table of Contents
    pages/arch.rst
    pages/deps.rst
    pages/dev_notes.rst
-
-.. include:: ../README.rst

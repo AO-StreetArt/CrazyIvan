@@ -3,6 +3,9 @@
 Secured Deployment Walkthrough
 ==============================
 
+Overview
+--------
+
 A full deployment of Crazy Ivan involves several steps:
 
 * Consul Setup
@@ -40,7 +43,8 @@ We're going to start by adding an entry to the /etc/hosts file.  This is to ensu
 that the hostname we use resolves to only 127.0.0.1, and not ::1.  Add the following
 line to the file:
 
-::
+.. code-block::
+
   127.0.0.1   local
   127.0.0.1   local.local
 
@@ -91,7 +95,8 @@ Now, generate an encryption key for Consul gossip:
 
 Then, take this value and save it in the file 'consul_config.json':
 
-::
+.. code-block:: json
+
   {
   	"acl_datacenter": "dc1",
   	"acl_master_token": "as3cr3t",
@@ -118,7 +123,8 @@ After this, we'll need to generate an Agent ACL token:
 This will generate a token, that needs to be added into the Consul config file.
 We'll also go ahead and add our HTTPS information to enable encryption:
 
-::
+.. code-block:: json
+
   {
   	"acl_datacenter": "dc1",
   	"acl_master_token": "b1gs33cr3t",
@@ -162,7 +168,8 @@ Create the folder /var/ssl/trusted/neo4j, and copy the /var/ssl/neo4j/server.crt
 
 Then, update the following settings in your Neo4j configuration file:
 
-::
+.. code-block:: properties
+
   dbms.ssl.policy.default.trusted_dir=/var/ssl/trusted/neo4j
   dbms.ssl.policy.default.public_certificate=/var/ssl/neo4j/server.crt
   dbms.ssl.policy.default.private_key=/var/ssl/neo4j/server.key
@@ -212,7 +219,8 @@ going to need an ACL token for Vault to use:
 
 Copy the resulting token, then save the below as a file 'vault_config.hcl':
 
-::
+.. code-block::
+
   storage "consul" {
   address = "127.0.0.1:8500"
   scheme = "https"
@@ -277,7 +285,8 @@ the root key you saw during Vault Initialization.
 Our next step is enabling authentication in Vault.  Save the following
 to a file 'vault_admin_policy.hcl':
 
-::
+.. code-block::
+
   path "secret/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
   }
