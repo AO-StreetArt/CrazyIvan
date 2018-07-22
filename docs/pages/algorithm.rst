@@ -49,7 +49,7 @@ and a can also be represented as a point c in C by:
 
 .. math:: c = T_C * a
 
-Apply matrix multiplication to equation (1):
+Apply matrix multiplication to equation (2):
 
 .. math:: a = T_B^-1 * b
 
