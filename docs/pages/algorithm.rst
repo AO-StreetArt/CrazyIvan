@@ -29,9 +29,10 @@ to and, for each scene we find (scene B), we either:
 * Create a new scene-scene link between scene A and scene B.
 * Overwrite an existing scene-scene link between scene A and scene B.
 
-The scene-scene transform is calculated as:
+Given transform :math:`T_A` from the device to Scene A, and transform :math:`T_B`
+from the device to Scene B, the scene-scene transform is calculated as:
 
-.. math:: (Device to Scene Transform)_A * ((Device to Scene Transform)_B)^-1
+.. math:: T_A * T_B^{-1}
 
 with both links represented as 4x4 matrix transformations.  The direction
 of this transformation is from Scene A to Scene B.
