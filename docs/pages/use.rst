@@ -3,16 +3,16 @@
 How to Use Crazy Ivan
 =====================
 
+Overview
+--------
+
 Use of Crazy Ivan generally boils down to 5 steps:
 
 1. Build Scenes
 2. Calibrate Scenes
-4. Start Event Streams
-3. Register Devices
+3. Start Event Streams
+4. Register Devices
 5. Stream Events
-
-Overview
---------
 
 A Scene is a group of objects, that may or may not be associated to a
 latitude/longitude point.  The updates in each scene are made with respect

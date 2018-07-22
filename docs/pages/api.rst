@@ -1,7 +1,7 @@
 .. _api_index:
 
-Aesel HTTP API
-==============
+Crazy Ivan HTTP API
+===================
 
 .. _http_index:
 
