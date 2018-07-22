@@ -31,7 +31,7 @@ as a Service Discovery and Distributed Configuration architecture. This
 requires the `Consul Agent <https://www.consul.io/downloads.html>`__ to
 be deployed that Crazy Ivan can connect to.
 
-Crazy Ivan can be deployed securely using `Vault <https://www.vaultproject.io`__
+Crazy Ivan can be deployed securely using `Vault <https://www.vaultproject.io>`__
 as a secret store and/or intermediate CA.
 
 Object Change Streams (Events)
@@ -46,5 +46,20 @@ The changes streams are designed to be high-speed and high-volume.  Crazy Ivan
 can process many messages in parallel, and registration information is kept up-to-date
 in a cache for immediate retrieval.  A separate background thread periodically loads
 updated values from Neo4j.
+
+Clustering
+----------
+
+Scene-specific clustering is a central idea in Crazy Ivan.  This is an idea
+borrowed from large-scale MMORPG's, in which large maps are broken apart and
+each piece is run by separate servers.  This allows for horizontal scaling of
+the system to cover additional real-estate, physical or digital.
+
+A cluster name can be provided by Crazy Ivan on startup, and other applications
+should use this cluster name to identify the appropriate Crazy Ivan to send
+messages to.
+
+Note that Crazy Ivan clusters using different Neo4j clusters will not be able
+to store or calculate cross-scene transformations for coordinate systems.
 
 :ref:`Go Home <index>`

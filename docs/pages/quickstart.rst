@@ -44,8 +44,9 @@ You may also continue on to the discussion of :ref:`How to Use Crazy Ivan <use>`
 Shutdown
 --------
 Shutdown of Crazy Ivan can be initiated with a kill or interrupt signal to the
-container.  However, at least one udp message must be received afterwards in
-order to successfully shut down the main event thread.  You can send one with:
+container, or with 'docker stop'.  However, at least one udp message must be
+received afterwards in order to successfully shut down the main event thread.
+You can send one with:
 
 .. code-block:: bash
 

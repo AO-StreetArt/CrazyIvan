@@ -12,8 +12,9 @@ Advanced Topics
    :maxdepth: 1
    :caption: Contents:
 
-   arch.rst
    deploy.rst
+   security.rst
+   pages/advanced_walkthrough.rst
+   arch.rst
    deps.rst
    dev_notes.rst
-   security.rst

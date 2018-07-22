@@ -1,7 +1,7 @@
 .. _api_index:
 
-Crazy Ivan HTTP API
-===================
+API Documentation
+=================
 
 .. _http_index:
 
