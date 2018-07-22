@@ -16,3 +16,4 @@
    pages/arch.rst
    pages/deps.rst
    pages/dev_notes.rst
+   pages/algorithm.rst

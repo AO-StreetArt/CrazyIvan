@@ -18,3 +18,4 @@ Advanced Topics
    arch.rst
    deps.rst
    dev_notes.rst
+   pages/algorithm.rst
