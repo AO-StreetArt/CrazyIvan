@@ -56,6 +56,12 @@ Boost
 
 It is released under the Boost Software License.
 
+GLM
+---
+`GLM <https://glm.g-truc.net/0.9.9/index.html>`__ is the OpenGL math library,
+and is used to perform transformation calculations between scenes and/or devices.
+
+This is licensed under an MIT license.
 
 Automatic Dependency Resolution
 -------------------------------

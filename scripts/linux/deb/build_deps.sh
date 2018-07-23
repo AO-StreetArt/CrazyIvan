@@ -20,7 +20,7 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev openssl libssl-dev wget
+apt-get install -y git libboost-all-dev openssl libssl-dev wget libglm-dev
 
 # Build and install NeoCpp
 if [ ! -d /usr/local/include/neocpp ]; then
