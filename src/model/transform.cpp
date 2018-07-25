@@ -17,14 +17,22 @@ limitations under the License.
 
 #include "include/transform.h"
 
-// Invert a transform
+void Transform::update_vectors() {
+  // Convert the current transform matrix into a
+  //  translation vector and euler rotation vector
+  vectors_need_updating = false;
+  // Pull Translation Vector
+  tran[0] = transform[3][0];
+  tran[1] = transform[3][1];
+  tran[2] = transform[3][2];
+  // Pull Rotation Vector
+  glm::extractEulerAngleXYZ(transform, rot[0], rot[1], rot[2]);
+}
+
+// Invert this transform
 void Transform::invert() {
-  tran[0] = (-1.0) * tran[0];
-  tran[1] = (-1.0) * tran[1];
-  tran[2] = (-1.0) * tran[2];
-  rot[0] = (-1.0) * rot[0];
-  rot[1] = (-1.0) * rot[1];
-  rot[2] = (-1.0) * rot[2];
+  glm::mat4 new_transform = glm::inverse(transform);
+  transform = new_transform;
 }
 
 // Create a transform with default values
@@ -37,32 +45,25 @@ Transform::Transform() {
   rot.push_back(0.0);
   rot.push_back(0.0);
   rot.push_back(0.0);
+  transform = glm::mat4(1.0);
 }
 
 // Add a Transform together
 void Transform::add_transform(TransformInterface *t, bool inverted) {
+  // Apply the provided transform by LHS matrix multiplication
+  glm::mat4 new_transform;
+  if (inverted) {
+    new_transform = glm::inverse(t->get_transform_vector()) * transform;
+  } else {
+    new_transform = t->get_transform_vector() * transform;
+  }
+  transform = new_transform;
+
+  // Update our internal flags
   if (t->has_translation()) {
-    if (inverted) {
-      tran[0] = tran[0] - t->translation(0);
-      tran[1] = tran[1] - t->translation(1);
-      tran[2] = tran[2] - t->translation(2);
-    } else {
-      tran[0] = tran[0] + t->translation(0);
-      tran[1] = tran[1] + t->translation(1);
-      tran[2] = tran[2] + t->translation(2);
-    }
     tran_flag = true;
   }
   if (t->has_rotation()) {
-    if (inverted) {
-      rot[0] = rot[0] - t->rotation(0);
-      rot[1] = rot[1] - t->rotation(1);
-      rot[2] = rot[2] - t->rotation(2);
-    } else {
-      rot[0] = rot[0] + t->rotation(0);
-      rot[1] = rot[1] + t->rotation(1);
-      rot[2] = rot[2] + t->rotation(2);
-    }
     rot_flag = true;
   }
 }

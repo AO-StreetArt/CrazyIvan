@@ -20,7 +20,7 @@ printf "Calling apt-get update"
 
 #Update the Ubuntu Server
 apt-get -y update
-apt-get install -y git libboost-all-dev openssl libssl-dev wget libglm-dev
+apt-get install -y git libboost-all-dev openssl libssl-dev wget
 
 # Build and install NeoCpp
 if [ ! -d /usr/local/include/neocpp ]; then
@@ -51,6 +51,16 @@ if [ ! -d /usr/local/include/aossl ]; then
   #Build the shared service library
   cd aossl-deb && make clean && make CC=$COMPILER && make install
   cd ../
+
+fi
+
+# Install GLM
+if [ ! -d /usr/local/include/glm ]; then
+
+  wget https://github.com/g-truc/glm/releases/download/0.9.9.0/glm-0.9.9.0.zip
+  unzip glm-0.9.9.0.zip
+  mkdir /usr/local/include/glm/
+  cp cp -r glm/glm/* /usr/local/include/glm/
 
 fi
 

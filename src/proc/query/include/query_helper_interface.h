@@ -60,10 +60,17 @@ struct QueryException: public std::exception {
   }
 };
 
-struct SceneTransformResult {
+class SceneTransformResult {
   TransformInterface *transform = NULL;
   bool result_flag;
+public:
+  SceneTransformResult(TransformInterface *trans) {transform = trans;result_flag = true;}
+  SceneTransformResult() {result_flag = false;}
   void clear() {result_flag = false; transform->clear();}
+  void set_transform(TransformInterface *trans) {transform = trans;}
+  void set_result(bool new_result) {result_flag = new_result;}
+  bool get_result() {return result_flag;}
+  TransformInterface* get_transform() {return transform;}
   ~SceneTransformResult() {if (transform) delete transform;}
 };
 
@@ -124,7 +131,7 @@ class QueryHelperInterface {
 
   // Try to find a path from one scene to the next and calculate
   // the resulting transform
-  virtual SceneTransformResult \
+  virtual SceneTransformResult* \
     calculate_scene_scene_transform(std::string scene_id1, \
     std::string scene_id2) = 0;
 

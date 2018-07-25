@@ -15,6 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <glm/glm.hpp>
+
 #ifndef SRC_MODEL_INCLUDE_TRANSFORM_INTERFACE_H_
 #define SRC_MODEL_INCLUDE_TRANSFORM_INTERFACE_H_
 
@@ -25,13 +27,16 @@ class TransformInterface {
  public:
   virtual ~TransformInterface() {}
 
+  // Access the underlying transform matrix
+  virtual glm::mat4 get_transform_vector() const = 0;
+
   // Translations
-  virtual double translation(int index) const = 0;
+  virtual double translation(int index) = 0;
   virtual bool has_translation() const = 0;
   virtual void translate(int index, double amt) = 0;
 
   // Rotations
-  virtual double rotation(int index) const = 0;
+  virtual double rotation(int index) = 0;
   virtual bool has_rotation() const = 0;
   virtual void rotate(int index, double amt) = 0;
 

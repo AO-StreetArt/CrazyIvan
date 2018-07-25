@@ -40,36 +40,13 @@ void AlgorithmQueryHelper::process_UDUD_transformation(\
       // calculate the correct transform
       BaseQueryHelper::logger().debug("Calculating Transform");
       TransformInterface *new_trans = BaseQueryHelper::create_transform();
-      for (int k = 0; k < 3; k++) {
-        // translation
-        double new_translation = 0.0;
-        if (obj_msg->get_scene(0)->get_device(0)->get_transform()->\
-          has_translation()) {
-          new_translation = new_translation - obj_msg->get_scene(0)->\
-          get_device(0)->get_transform()->translation(k);
-        }
-        if (registered_scenes->get_scene(i)->get_device(0)->\
-          get_transform()->has_translation()) {
-          new_translation = new_translation + registered_scenes->get_scene(i)->\
-          get_device(0)->get_transform()->translation(k);
-        }
-        new_trans->translate(k, new_translation);
-
-        // rotation
-        double new_rotation = 0.0;
-        if (obj_msg->get_scene(0)->get_device(0)->\
-          get_transform()->has_rotation()) {
-          new_rotation = new_rotation - \
-            obj_msg->get_scene(0)->get_device(0)->get_transform()->rotation(k);
-        }
-        if (registered_scenes->get_scene(i)->get_device(0)->\
-          get_transform()->has_rotation()) {
-          new_rotation = new_rotation + \
-            registered_scenes->get_scene(i)->get_device(0)->\
-            get_transform()->rotation(k);
-        }
-        new_trans->rotate(k, new_rotation);
-      }
+      // Start with the inverse of the destination transform
+      new_trans->add_transform(\
+          registered_scenes->get_scene(i)->get_device(0)->get_transform());
+      new_trans->invert();
+      // left multiply the origin transform
+      new_trans->add_transform(\
+          obj_msg->get_scene(0)->get_device(0)->get_transform());
 
       // Get any existing scene links
       BaseQueryHelper::logger().debug("Retrieving existing scene links");
@@ -91,13 +68,16 @@ void AlgorithmQueryHelper::process_UDUD_transformation(\
 
 // Try to find a path from one scene to the next and calculate
 // the resulting transform
-SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
+SceneTransformResult* AlgorithmQueryHelper::calculate_scene_scene_transform(\
   std::string scene_id1, std::string scene_id2) {
   BaseQueryHelper::logger().debug(\
     "Checking for existing paths between scenes: %s -> %s", \
     scene_id1, scene_id2);
 
+  // Build the return transform result
   TransformInterface *new_tran = BaseQueryHelper::create_transform();
+  SceneTransformResult *str = new SceneTransformResult(new_tran);
+  // Allocate memory to hold the Neo4j Results
   Neocpp::ResultsIteratorInterface *results = NULL;
   Neocpp::ResultTreeInterface *tree = NULL;
   Neocpp::DbObjectInterface* obj = NULL;
@@ -158,62 +138,48 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
 
         // Iterate through the path
         int path_size = obj->size();
+        TransformInterface *path_tran = NULL;
         for (int i = 0; i < path_size; i++) {
+          // Allocate a new transform
+          path_tran = BaseQueryHelper::create_transform();
           // Retrieve the path element
           path_obj = obj->get_path_element(i);
 
           // Are we dealing with an edge?
           if (path_obj->is_edge()) {
-            // Transform values
-            double trnx = 0.0;
-            double trny = 0.0;
-            double trnz = 0.0;
-            double rotx = 0.0;
-            double roty = 0.0;
-            double rotz = 0.0;
 
             // Get the property values
             map = path_obj->properties();
             if (map->element_exists("translation_x")) {
-              trnx = map->get_float_element("translation_x");
+              path_tran->translate(0, map->get_float_element("translation_x"));
             }
             if (map->element_exists("translation_y")) {
-              trny = map->get_float_element("translation_y");
+              path_tran->translate(1, map->get_float_element("translation_y"));
             }
             if (map->element_exists("translation_z")) {
-              trnz = map->get_float_element("translation_z");
+              path_tran->translate(2, map->get_float_element("translation_z"));
             }
             if (map->element_exists("rotation_x")) {
-              rotx = map->get_float_element("rotation_x");
+              path_tran->rotate(0, map->get_float_element("rotation_x"));
             }
             if (map->element_exists("rotation_y")) {
-              roty = map->get_float_element("rotation_y");
+              path_tran->rotate(1, map->get_float_element("rotation_y"));
             }
             if (map->element_exists("rotation_z")) {
-              rotz = map->get_float_element("rotation_z");
+              path_tran->rotate(2, map->get_float_element("rotation_z"));
             }
 
             // Is our edge backward?
             if (!(path_obj->forward())) {
-              trnx = (-1) * trnx;
-              trny = (-1) * trny;
-              trnz = (-1) * trnz;
-              rotx = (-1) * rotx;
-              roty = (-1) * roty;
-              rotz = (-1) * rotz;
+              path_tran->invert();
             }
 
             // Update the new transformation with the edge
-            new_tran->translate(0, trnx);
-            new_tran->translate(1, trny);
-            new_tran->translate(2, trnz);
-            new_tran->rotate(0, rotx);
-            new_tran->rotate(1, roty);
-            new_tran->rotate(2, rotz);
+            str->get_transform()->add_transform(path_tran);
           }
           if (path_obj) {delete path_obj; path_obj = NULL;}
           if (map) {delete map; map = NULL;}
-          if (new_tran) {delete new_tran; new_tran = NULL;}
+          if (path_tran) {delete path_tran; path_tran = NULL;}
         }
       } else {
         BaseQueryHelper::logger().error("Non-Object value returned from query");
@@ -224,8 +190,5 @@ SceneTransformResult AlgorithmQueryHelper::calculate_scene_scene_transform(\
   if (tree) delete tree;
   if (results) delete results;
   if (has_exception) throw QueryException(err_str);
-  str.clear();
-  str.transform = new_tran;
-  str.result_flag = true;
   return str;
 }

@@ -136,22 +136,28 @@ ProcessResult* \
     // Iterate through the scenes the device is already registered to
     // Try to find a path from these scenes to the current one in order
     // to establish a transform
-    for (int i = 0; i < registered_scenes->num_scenes(); i++) {
+    bool path_found = false;
+    int i = 0;
+    SceneTransformResult *st_result = NULL;
+    while (i < registered_scenes->num_scenes() && !(path_found)) {
       try {
-        SceneTransformResult st_result = \
-          BaseMessageProcessor::get_query_helper()->\
+        st_result = BaseMessageProcessor::get_query_helper()->\
           calculate_scene_scene_transform(\
           registered_scenes->get_scene(i)->get_key(), \
           obj_msg->get_scene(0)->get_key());
-        if (st_result.result_flag) {
-          new_transform->add_transform(st_result.transform);
-        }
-      }
-      catch (std::exception& e) {
+      } catch (std::exception& e) {
         BaseMessageProcessor::logger().error("{\"Error\": \"%s\"", e.what());
         current_err_code = PROCESSING_ERROR;
         current_err_msg = e.what();
       }
+      if (st_result) {
+        if (st_result->get_result()) {
+          new_transform->add_transform(st_result->get_transform());
+          path_found = true;
+        }
+        delete st_result;
+      }
+      i++;
     }
   }
 

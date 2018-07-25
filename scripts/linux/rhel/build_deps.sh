@@ -11,7 +11,7 @@ RETURN=..
 mkdir $PRE
 
 # Set up a reasonably new version of gcc
-yum -y install openssl-devel boost-devel centos-release-scl wget git gcc gcc-c++ glm-devel
+yum -y install openssl-devel boost-devel centos-release-scl wget git gcc gcc-c++
 yum -y update
 yum -y install devtoolset-6
 scl enable devtoolset-6 bash
@@ -45,6 +45,16 @@ if [ ! -d /usr/local/include/neocpp ]; then
   cd ../$RETURN
   cd NeoCpp && make install
   cd ../
+
+fi
+
+# Install GLM
+if [ ! -d /usr/local/include/glm ]; then
+
+  wget https://github.com/g-truc/glm/releases/download/0.9.9.0/glm-0.9.9.0.zip
+  unzip glm-0.9.9.0.zip
+  mkdir /usr/local/include/glm/
+  cp cp -r glm/glm/* /usr/local/include/glm/
 
 fi
 

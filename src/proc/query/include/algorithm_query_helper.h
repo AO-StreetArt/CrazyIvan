@@ -50,8 +50,6 @@ limitations under the License.
 // algorithmic methods, built on top of basic queries.
 class AlgorithmQueryHelper : public SceneQueryHelper, \
   public QueryHelperInterface {
-  SceneTransformResult str;
-
  public:
   inline AlgorithmQueryHelper(Neocpp::Neo4jInterface *neo, Neocpp::LibNeo4jFactory *nf, \
     AOSSL::KeyValueStoreInterface *con) : SceneQueryHelper(neo, nf, con) {}
@@ -116,7 +114,7 @@ class AlgorithmQueryHelper : public SceneQueryHelper, \
 
   // Try to find a path from one scene to the next and calculate
   // the resulting transform
-  SceneTransformResult calculate_scene_scene_transform(std::string scene_id1, \
+  SceneTransformResult* calculate_scene_scene_transform(std::string scene_id1, \
     std::string scene_id2);
 
 // --------------------------Helper Methods---------------------------------- //
