@@ -60,7 +60,7 @@ if [ ! -d /usr/local/include/glm ]; then
   wget https://github.com/g-truc/glm/releases/download/0.9.9.0/glm-0.9.9.0.zip
   unzip glm-0.9.9.0.zip
   mkdir /usr/local/include/glm/
-  cp cp -r glm/glm/* /usr/local/include/glm/
+  cp -r glm/glm/* /usr/local/include/glm/
 
 fi
 
