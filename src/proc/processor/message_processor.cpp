@@ -34,6 +34,8 @@ ProcessResult* \
   // Current error information
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
+  // Origin Scene ID
+  std::string origin_scene_id;
 
   // Basic checks to ensure we have the needed fields
   if (obj_msg->num_scenes() < 1) {
@@ -154,6 +156,7 @@ ProcessResult* \
         if (st_result->get_result()) {
           new_transform->add_transform(st_result->get_transform());
           path_found = true;
+          origin_scene_id.assign(registered_scenes->get_scene(i)->get_key());
         }
         delete st_result;
       }
@@ -212,6 +215,7 @@ ProcessResult* \
     AOSSL::StringBuffer aes_enabled_buffer;
     AOSSL::StringBuffer aesout_key_buffer;
     AOSSL::StringBuffer aesout_salt_buffer;
+    // Get event encryption keys and include them on the response
     BaseMessageProcessor::get_config_manager()->get_opt(std::string("event.security.aes.enabled"), aes_enabled_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
         std::string(".event.security.out.aes.key"), aesout_key_buffer);
@@ -221,6 +225,11 @@ ProcessResult* \
       resp_interface->set_encryption_key(aesout_key_buffer.val);
       resp_interface->set_encryption_salt(aesout_salt_buffer.val);
     }
+
+    // Add the origin scene to the response
+    SceneInterface *or_scene = BaseMessageProcessor::get_sfactory().build_scene();
+    or_scene->set_key(origin_scene_id);
+    resp_interface->add_scene(or_scene);
   }
 
   // Convert the Response to a string for sending
