@@ -50,11 +50,11 @@ TEST_CASE( "Test Transform Data Structure", "[unit]" ) {
   trans->invert();
 
   REQUIRE(trans->translation(0) + 1.0 < TOLERANCE);
-  REQUIRE(trans->translation(1) + 2.0 < TOLERANCE);
-  REQUIRE(trans->translation(2) + 3.0 < TOLERANCE);
-  REQUIRE(trans->rotation(0) + 45.0 < TOLERANCE);
-  REQUIRE(trans->rotation(1) + 90.0 < TOLERANCE);
-  REQUIRE(trans->rotation(2) + 135.0 < TOLERANCE);
+  REQUIRE(trans->translation(1) - 1.71554 < TOLERANCE);
+  REQUIRE(trans->translation(2) + 2.3627 < TOLERANCE);
+  REQUIRE(trans->rotation(0) + 1.83 < TOLERANCE);
+  REQUIRE(trans->rotation(1) + 0.403 < TOLERANCE);
+  REQUIRE(trans->rotation(2) - 1.0641 < TOLERANCE);
 
   // Add Transform Tests
   TransformInterface *trans2 = tfactory.build_transform();
@@ -70,7 +70,7 @@ TEST_CASE( "Test Transform Data Structure", "[unit]" ) {
   trans->add_transform(trans2);
 
   REQUIRE(trans->translation(0) - 1.0 < TOLERANCE);
-  REQUIRE(trans->translation(1) < TOLERANCE);
+  REQUIRE(trans->translation(1) - 1.7155 < TOLERANCE);
   REQUIRE(trans->translation(2) + 1.0 < TOLERANCE);
   REQUIRE(trans->rotation(0) - 15.0 < TOLERANCE);
   REQUIRE(trans->rotation(1) - 30.0 < TOLERANCE);

@@ -62,7 +62,7 @@ install_log:
 # --------------------------- Clean Project ---------------------------------- #
 
 clean:
-	rm crazy_ivan src/*/*.o src/*/*/*.o
+	rm crazy_ivan src/*/*.o src/*/*/*.o tests/tests
 
 reset: clean
 	rm tests/test_main.o

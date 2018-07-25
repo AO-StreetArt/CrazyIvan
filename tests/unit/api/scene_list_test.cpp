@@ -144,7 +144,7 @@ TEST_CASE( "Test Scene List Data Structure", "[unit]" ) {
 
   std::string comp_key = "testing";
   REQUIRE(translated_json_list->get_scene(0)->get_device(0)->get_key() == comp_key);
-  REQUIRE(translated_json_list->get_scene(0)->get_device(0)->get_translation(0) - 1.0 < TOLERANCE);
+  REQUIRE(translated_json_list->get_scene(0)->get_device(0)->get_translation(0) - 1.537378 < TOLERANCE);
   REQUIRE(translated_json_list->get_scene(0)->get_device(0)->get_translation(1) - 2.0 < TOLERANCE);
   REQUIRE(translated_json_list->get_scene(0)->get_device(0)->get_translation(2) - 3.0 < TOLERANCE);
   REQUIRE(translated_json_list->get_scene(0)->get_device(0)->get_rotation(0) - 45.0 < TOLERANCE);
