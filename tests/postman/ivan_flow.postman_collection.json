@@ -140,7 +140,7 @@
 							"",
 							"pm.test(\"Check Response Body\", function () {",
 							"    pm.expect(jsonData.err_code).to.eql(100);",
-							"    pm.expect(jsonData.num_records).to.eql(1);",
+							"    pm.expect(jsonData.num_records).to.eql(2);",
 							"});",
 							"",
 							"pm.environment.unset(\"SCENE_ID\");",
