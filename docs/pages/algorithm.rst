@@ -29,37 +29,40 @@ to and, for each scene we find (scene B), we either:
 * Create a new scene-scene link between scene A and scene B.
 * Overwrite an existing scene-scene link between scene A and scene B.
 
-Given transform :math:`T_A` from the device to Scene A, and transform :math:`T_B`
-from the device to Scene B, the scene-scene transform is calculated as:
+Given translation :math:`T_A` from the device to Scene A, and translation :math:`T_B`
+from the device to Scene B, the scene-scene translation is calculated as:
 
-.. math:: T_A * T_B^{-1}
+.. math:: T_B * T_A^{-1}
 
-with both links represented as 4x4 matrix transformations.  The direction
+Given local rotation :math:`R_A` from the device to Scene A, and local
+rotation :math:`R_B` from the device to Scene B, the scene-scene rotation
+is calculated as:
+
+.. math:: R_A^{-1} * R_B
+
+with all links represented as 4x4 matrix transformations.  The direction
 of this transformation is from Scene A to Scene B.
 
 Proof
 -----
 
-Given coordinate systems A, B, and C, and transformations :math:`T_B` and
-:math:`T_C` such that, for any point a in A, a can be represented as a
-point b in B by:
+Given coordinate systems A, B, and C, translations :math:`T_B` and
+:math:`T_C`, and rotations :math:`R_B` and :math:`R_C` such that,
+for any point a in A, a can be represented as a point b in B by:
 
-.. math:: b = T_B * a
+.. math:: b = T_B * a * R_B
 
 and a can also be represented as a point c in C by:
 
-.. math:: c = T_C * a
+.. math:: c = T_C * a * R_C
 
 Apply matrix multiplication to equation (2):
 
-.. math:: a = T_B^{-1} * b
+.. math:: a = T_B^{-1} * b * R_B^{-1}
 
 Using substitution, we find that:
 
-.. math:: c = T_C * T_B^{-1} * b
-
-Therefore, any point b in B can be represented as a point c in C by applying
-the transform :math:`T_C * T_B^{-1}`.
+.. math:: c = T_C * T_B^{-1} * b * R_B{-1} * R_C
 
 Transformation Calculation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +77,7 @@ transformations between them.  The resulting series of transformations is then:
 
 * Inverted if necessary, to ensure the same direction on all transformations
 * Converted to matrix representation
-* multiplied together
+* multiplied together (locations using LHS multiplication, rotations with RHS multiplication)
 
 This yields a final transformation which can move directly from scene A
 to scene B.
@@ -82,21 +85,61 @@ to scene B.
 Proof
 -----
 
-Given coordinate systems A, B, and C, and transformations T:subscript:`B` and
-T:subscript:`C` such that, for any point a in A, a can be represented as a
-point b in B by:
+Given a positive integer N > 2 and another positive integer 1 < n < N, we have
+a series of Scenes :math:`S_1, S_2, ..., S_N`, connected by a series of
+Transforms :math:`T_1, T_2, ..., T_{N-1}`, each containing a
+translation :math:`T_N(tr)` and a rotation :math:`T_N(rot)`.  We know that an
+element :math:`s_n` in :math:`S_n` can be represented as an element
+:math:`s_{n+1}` in :math:`S_{n+1}` by:
 
-.. math:: b = T_A * a
+.. math:: s_{n+1} = T_n(tr) * s_n * T_n(rot)
 
-and any point b in B can be represented as a point c in C by:
+Given another positive integer m such that m + n < N, we will show by induction
+that:
 
-.. math:: c = T_B * b
+.. math:: s_{n+m} = T_{n+m-1}(tr) * T_{n+m-2}(tr) * ... * T_n(tr) * s_n * T_n(rot) * ... * T_{n+m-2}(rot) * T_{n+m-1}(rot)
 
-Then, using simple substitution, we find that:
+For our base case, we will consider that n = 1.  In this case, equation 7
+simplifies to:
 
-.. math:: c = T_B * T_A * a
+.. math:: s_2 = T_1(tr) * s_1 * T_1(rot)
 
-Therefore, any point a in A can be represented as a point c in C by applying
-the transform :math:`T_B * T_A`.
+Equation 8 simplifies to:
+
+.. math:: s_{m+1} = T_{m}(tr) * T_{m-1}(tr) * ... * T_1(tr) * s_1 * T_1(rot) * ... * T_{m-1}(rot) * T_{m}(rot)
+
+We can also prove this by induction.  Our base case will be m=1, in which case
+the above simplifies to:
+
+.. math:: s_2 = T_1(tr) * s_1 * T_1(rot)
+
+This is one of our assumptions, and is therefore true.
+
+Given some k < m, we assume that:
+
+.. math:: s_k = T_k(tr) * T_{k-1}(tr) * ... * T_1(tr) * s_1 * T_1(rot) * ... * T_{k-1}(rot) * T_k(rot)
+
+Then, by equation 7, we know that:
+
+.. math:: s_{k+1} = T_k(tr) * s_k * T_k(rot)
+
+Using substitution, we find that:
+
+.. math:: s_{k+1} = T_k(tr) * T_{k-1}(tr) * ... * T_1(tr) * s_1 * T_1(rot) * ... * T_{k-1}(rot) * T_k(rot)
+
+Now, we have proven the base case of our inductive argument.  We can now assume
+that, for some j < n, that the following is true:
+
+.. math:: s_{j+m} = T_{j+m-1}(tr) * T_{j+m-2}(tr) * ... * T_j(tr) * s_j * T_j(rot) * ... * T_{j+m-2}(rot) * T_{j+m-1}(rot)
+
+By Equation 7, we know that:
+
+.. math:: s_{(j+m)+1} = T_{j+m}(tr) * s_{j+m} * T_{j+m}(rot)
+
+Using substitution, we find that:
+
+.. math:: s_{(j+m)+1} = T_{j+m}(tr) * T_{j+m-1}(tr) * T_{j+m-2}(tr) * ... * T_j(tr) * s_j * T_j(rot) * ... * T_{j+m-2}(rot) * T_{j+m-1}(rot) * T_{j+m}(rot)
+
+This concludes our inductive proof, as the above equation is the same as Equation 8.
 
 :ref:`Go Home <index>`
