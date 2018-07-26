@@ -138,7 +138,7 @@ By Equation 7, we know that:
 
 Using substitution, we find that:
 
-.. math:: s_{(j+m)+1} = T_{j+m}(tr) * T_{j+m-1}(tr) * ... * T_j(tr) * s_j * T_j(rot) * ... * T_{j+m-1}(rot) * T_{j+m}(rot)
+.. math:: s_{j+m+1} = T_{j+m}(tr) * T_{j+m-1}(tr) * ... * T_j(tr) * s_j * T_j(rot) * ... * T_{j+m-1}(rot) * T_{j+m}(rot)
 
 This concludes our inductive proof, as the above equation is the same as Equation 8.
 
