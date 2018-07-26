@@ -56,7 +56,7 @@ and a can also be represented as a point c in C by:
 
 .. math:: c = T_C * a * R_C
 
-Apply matrix multiplication to equation (2):
+Apply matrix multiplication to equation (3):
 
 .. math:: a = T_B^{-1} * b * R_B^{-1}
 
@@ -113,7 +113,7 @@ the above simplifies to:
 
 .. math:: s_2 = T_1(tr) * s_1 * T_1(rot)
 
-This is one of our assumptions, and is therefore true.
+This is the same as equation 9, which we already know to be true in this case.
 
 Given some k < m, we assume that:
 
@@ -138,7 +138,7 @@ By Equation 7, we know that:
 
 Using substitution, we find that:
 
-.. math:: s_{(j+m)+1} = T_{j+m}(tr) * T_{j+m-1}(tr) * T_{j+m-2}(tr) * ... * T_j(tr) * s_j * T_j(rot) * ... * T_{j+m-2}(rot) * T_{j+m-1}(rot) * T_{j+m}(rot)
+.. math:: s_{(j+m)+1} = T_{j+m}(tr) * T_{j+m-1}(tr) * ... * T_j(tr) * s_j * T_j(rot) * ... * T_{j+m-1}(rot) * T_{j+m}(rot)
 
 This concludes our inductive proof, as the above equation is the same as Equation 8.
 
