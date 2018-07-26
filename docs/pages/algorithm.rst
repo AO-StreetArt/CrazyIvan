@@ -6,6 +6,10 @@ Algorithm Design
 Overview
 ~~~~~~~~
 
+Anyone visiting this page without any prior knowledge of Crazy Ivan should visit
+both the :ref:`Main Page <index>` and the :ref:`Usage Page <use>` in order to
+become familiar with the basic purpose and functionality of the system.
+
 Crazy Ivan stores Scenes and User Devices as nodes in Neo4j, and Transformations
 (ie. Translation & Rotation) as the edges between nodes.  The creation of this
 network of nodes and edges is the basis of how Crazy Ivan is able to calculate
