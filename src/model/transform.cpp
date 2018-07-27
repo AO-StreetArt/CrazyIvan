@@ -21,16 +21,18 @@ void Transform::update_vectors() {
   // Convert the current transform matrix into a
   //  translation vector and euler rotation vector
   vectors_need_updating = false;
-  // Pull Translation Vector
-  tran[0] = transform[3][0];
-  tran[1] = transform[3][1];
-  tran[2] = transform[3][2];
   // Pull Rotation Vector
   glm::extractEulerAngleXYZ(transform, rot[0], rot[1], rot[2]);
 }
 
 // Invert this transform
 void Transform::invert() {
+  // Invert translation
+  for (int i = 0; i < 3; i++) {
+    tran[i] = -1*tran[i];
+  }
+  // Invert rotation
+  vectors_need_updating = true;
   glm::mat4 new_transform = glm::inverse(transform);
   transform = new_transform;
 }
@@ -50,7 +52,16 @@ Transform::Transform() {
 
 // Add a Transform together
 void Transform::add_transform(TransformInterface *t, bool inverted) {
-  // Apply the provided transform by LHS matrix multiplication
+  // Apply the provided translation
+  for (int i = 0; i < 3; i++) {
+    if (inverted) {
+      tran[i] = tran[i] - t->translation(i);
+    } else {
+      tran[i] = tran[i] + t->translation(i);
+    }
+  }
+
+  // Apply the provided rotation by RHS matrix multiplication
   glm::mat4 new_transform;
   if (inverted) {
     new_transform = glm::inverse(t->get_transform_vector()) * transform;
@@ -66,4 +77,5 @@ void Transform::add_transform(TransformInterface *t, bool inverted) {
   if (t->has_rotation()) {
     rot_flag = true;
   }
+  vectors_need_updating = true;
 }

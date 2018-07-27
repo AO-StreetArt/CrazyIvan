@@ -14,11 +14,19 @@ limitations under the License.
 
 #include <string>
 #include <iostream>
+#include <cmath>
 
 #include "include/transform_interface.h"
 #include "include/transform_factory.h"
 
 #include "catch.hpp"
+
+void print_transform(TransformInterface *trans) {
+  std::cout << "Translation: [" << trans->translation(0) << \
+      "," << trans->translation(1) << "," << trans->translation(2) << \
+      "], Rotation: [" << trans->rotation(0) << "," << trans->rotation(1) << \
+      "," << trans->rotation(2) << "]" << std::endl;
+}
 
 TEST_CASE( "Test Transform Data Structure", "[unit]" ) {
   // Tolerance
@@ -35,26 +43,36 @@ TEST_CASE( "Test Transform Data Structure", "[unit]" ) {
   trans->translate(1, 2.0);
   trans->translate(2, 3.0);
 
-  REQUIRE(trans->translation(0) - 1.0 < TOLERANCE);
-  REQUIRE(trans->translation(1) - 2.0 < TOLERANCE);
-  REQUIRE(trans->translation(2) - 3.0 < TOLERANCE);
+  std::cout <<"Initial Translation:" << std::endl;
+  print_transform(trans);
 
-  trans->rotate(0, 45.0);
-  trans->rotate(1, 90.0);
-  trans->rotate(2, 135.0);
+  REQUIRE(std::abs(trans->translation(0) - 1.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(1) - 2.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(2) - 3.0) < TOLERANCE);
 
-  REQUIRE(trans->rotation(0) - 45.0 < TOLERANCE);
-  REQUIRE(trans->rotation(1) - 90.0 < TOLERANCE);
-  REQUIRE(trans->rotation(2) - 135.0 < TOLERANCE);
+  trans->rotate(0, 0.79);
+  trans->rotate(1, 1.57);
+  trans->rotate(2, 2.36);
 
+  std::cout <<"Initial Rotation:" << std::endl;
+  print_transform(trans);
+
+  REQUIRE(std::abs(trans->rotation(0) - 0.79) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(1) - 1.57) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(2) - 2.36) < TOLERANCE);
+
+  std::cout <<"Initial Transform:" << std::endl;
+  print_transform(trans);
   trans->invert();
+  std::cout << "Inverted Transform:" << std::endl;
+  print_transform(trans);
 
-  REQUIRE(trans->translation(0) + 1.0 < TOLERANCE);
-  REQUIRE(trans->translation(1) - 1.71554 < TOLERANCE);
-  REQUIRE(trans->translation(2) + 2.3627 < TOLERANCE);
-  REQUIRE(trans->rotation(0) + 1.83 < TOLERANCE);
-  REQUIRE(trans->rotation(1) + 0.403 < TOLERANCE);
-  REQUIRE(trans->rotation(2) - 1.0641 < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(0) + 1.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(1) + 2.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(2) + 3.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(0) - 1.504) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(1) - 1.562) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(2) - 1.637) < TOLERANCE);
 
   // Add Transform Tests
   TransformInterface *trans2 = tfactory.build_transform();
@@ -63,18 +81,21 @@ TEST_CASE( "Test Transform Data Structure", "[unit]" ) {
   trans2->translate(1, 2.0);
   trans2->translate(2, 2.0);
 
-  trans2->rotate(0, 60.0);
-  trans2->rotate(1, 120.0);
-  trans2->rotate(2, 180.0);
+  trans2->rotate(0, 0.79);
+  trans2->rotate(1, 1.57);
+  trans2->rotate(2, 2.36);
 
   trans->add_transform(trans2);
 
-  REQUIRE(trans->translation(0) - 1.0 < TOLERANCE);
-  REQUIRE(trans->translation(1) - 1.7155 < TOLERANCE);
-  REQUIRE(trans->translation(2) + 1.0 < TOLERANCE);
-  REQUIRE(trans->rotation(0) - 15.0 < TOLERANCE);
-  REQUIRE(trans->rotation(1) - 30.0 < TOLERANCE);
-  REQUIRE(trans->rotation(2) - 45.0 < TOLERANCE);
+  std::cout << "Combined Transform:" << std::endl;
+  print_transform(trans);
+
+  REQUIRE(std::abs(trans->translation(0) - 1.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(1)) < TOLERANCE);
+  REQUIRE(std::abs(trans->translation(2) + 1.0) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(0)) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(1)) < TOLERANCE);
+  REQUIRE(std::abs(trans->rotation(2)) < TOLERANCE);
 
   trans2->clear();
   REQUIRE(!(trans2->has_translation()));

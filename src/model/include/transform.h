@@ -42,16 +42,18 @@ limitations under the License.
 // Stores a translation and rotation which is the relationship between the
 // scene origin/axis and the device origin/axis
 class Transform : public TransformInterface {
-  // 4x4 Matrix to store the transform
-  // This is what gets operated on when we combine transforms or
-  // invert the transform.  It is the master source of information
-  // for the transform while it is stored in memory.
+  // 4x4 Matrix to store the rotation
+  // This is what gets operated on for rotations when we combine transforms or
+  // invert the transform.  It is the master source of information for the
+  // rotation of the transform while it is stored in memory.
   glm::mat4 transform;
-  // Vectors to hold the translation and euler angles.
+  // Vectors to hold the translation
+  // Master source of information for translations
+  std::vector<float> tran;
+  // Vectors to hold the euler angles.
   // These are sent in messages and stored in Neo4j.
   // we build them on-demand, and only if changes to the
   // internal transform have happenned.
-  std::vector<float> tran;
   std::vector<float> rot;
   // Is there a translation element to the transform
   bool tran_flag;
@@ -81,22 +83,7 @@ class Transform : public TransformInterface {
   }
   bool has_translation() const {return tran_flag;}
   inline void translate(int index, double amt) {
-    glm::mat4 new_transform;
-    if (index == 0) {
-      new_transform = glm::translate(transform, \
-          glm::vec3(static_cast<float>(amt), 0.0f, 0.0f));
-    } else if (index == 1) {
-      new_transform = glm::translate(transform, \
-          glm::vec3(0.0f, static_cast<float>(amt), 0.0f));
-    } else if (index == 2) {
-      new_transform = glm::translate(transform, \
-          glm::vec3(0.0f, 0.0f, static_cast<float>(amt)));
-    } else {
-      Poco::Logger::get("Data").error("Invalid Index supplied for transform");
-    }
-
-    transform = new_transform;
-    vectors_need_updating = true;
+    tran[index] = amt;
     tran_flag = true;
   }
 
@@ -120,7 +107,7 @@ class Transform : public TransformInterface {
       Poco::Logger::get("Data").error("Invalid Index supplied for transform");
     }
 
-    glm::mat4 new_transform = rotation_matrix * transform;
+    glm::mat4 new_transform = transform * rotation_matrix;
     transform = new_transform;
     vectors_need_updating = true;
     rot_flag = true;
