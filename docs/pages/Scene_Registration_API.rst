@@ -15,7 +15,9 @@ Scene Registration
 
    Devices are expected to register to scenes as they move through space.
    This tells Aesel what objects that device needs to receive information
-   on. If the specified scene is not present, then it will be created.
+   on. If the specified scene is not present, then it will be created.  The
+   response will contain the transform to the desired scene, as well as the
+   ID of the scene the transform is coming from.
 
    :reqheader Content-Type: Application/json
    :statuscode 200: Success
