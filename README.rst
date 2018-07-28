@@ -10,7 +10,7 @@ Overview
 Crazy Ivan aims to solve several problems necessary to enabling Augmented Reality
 experiences that multiple individuals can interact with.  It is one critical piece
 in joining the digital world and the physical world together seamlessly.  On top
- of this unique functionality is a robust, reliable, and secure core, capable
+of this unique functionality is a robust, reliable, and secure core, capable
 of enabling multi-user animation, design, gaming, and more.  Crazy Ivan is up to
 the challenge of both the digital and physical realms, and that makes it unique.
 

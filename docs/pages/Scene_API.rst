@@ -11,7 +11,7 @@ Scene Creation
 
 .. http:post:: /v1/scene/
 
-   Create a new scene or update an existing one with name `name`.
+   Create a new scene.
 
    :reqheader Content-Type: Application/json
    :statuscode 200: Success
@@ -23,7 +23,7 @@ Scene Update
 
 .. http:post:: /v1/scene/(name)
 
-   Create a new scene or update an existing one with name `name`.
+   Update an existing Scene with name `name`.
 
    :reqheader Content-Type: Application/json
    :statuscode 200: Success

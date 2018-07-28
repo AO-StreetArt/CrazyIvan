@@ -21,3 +21,4 @@ tests/netcat/scene_key.txt
 pid.txt
 *.pem
 *.key
+build.*

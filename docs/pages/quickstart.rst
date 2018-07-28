@@ -68,6 +68,24 @@ the crazy_ivan executable from the main release folder.
 
    ./crazy_ivan
 
+In order to run CrazyIvan, you will need a Neo4j Server installed locally.
+Instructions can be found at https://neo4j.com/developer/get-started/, or Neo4j
+can be started via a Docker image:
+
+.. code-block:: bash
+
+   docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name=database neo4j
+
+Either way, the default connection for CrazyIvan will connect without authentication.
+
+You can move on to explore the :ref:`Crazy Ivan API <api_index>`, or
+check out the :ref:`Configuration Section <configuration>` for more details
+on the configuration options available when starting CrazyIvan.
+
+You may also continue on to the discussion of :ref:`How to Use Crazy Ivan <use>`.
+
+
+
 Building from Source
 --------------------
 
@@ -138,6 +156,8 @@ Neo4j can be started via a Docker image:
 .. code-block:: bash
 
    docker run -d --publish=7474:7474 --publish=7687:7687 --env=NEO4J_AUTH=none --volume=$HOME/neo4j/data:/data --name=database neo4j
+
+Either way, the default connection for CrazyIvan will connect without authentication.
 
 You can move on to explore the :ref:`Crazy Ivan API <api_index>`, or
 check out the :ref:`Configuration Section <configuration>` for more details

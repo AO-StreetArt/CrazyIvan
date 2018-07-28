@@ -1,7 +1,7 @@
 .. _configuration:
 
-Startup
-=======
+Configuration
+=============
 
 Crazy Ivan can be configured from one or more sources:
 
