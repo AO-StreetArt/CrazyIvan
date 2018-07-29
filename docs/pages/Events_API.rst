@@ -16,10 +16,10 @@ Crazy Ivan does not decode the event itself, but rather takes the Scene ID
 from the first line and uses it to perform streaming to other devices.
 
 This means that the only requirement on the format of the messages is that:
-* They start with a valid Scene ID that has been added to the Crazy Ivan cache.
-* Then they contain a new line character.
-* Then they contain the desired message to send.
-* The total, encrypted, message is no more than 275 characters
+- They start with a valid Scene ID that has been added to the Crazy Ivan cache.
+- Then they contain a new line character.
+- Then they contain the desired message to send.
+- The total, encrypted, message is no more than 275 characters
 
 For example:
 
