@@ -269,6 +269,8 @@ protected:
     config.get_opt(std::string("http.host"), http_host);
     AOSSL::StringBuffer http_port;
     config.get_opt(std::string("http.port"), http_port);
+    AOSSL::StringBuffer udp_port;
+    config.get_opt(std::string("udp.port"), udp_port);
     if (config.get_consul()) {
       main_logger.information("Registering with Consul");
       std::vector<std::string> tags;
@@ -278,6 +280,10 @@ protected:
       my_app = \
         consul_factory.get_service_interface(std::string("CrazyIvan"), \
         std::string("CrazyIvan"), http_host.val, http_port.val, tags);
+      config.get_consul()->register_service(*my_app);
+      my_app_udp = \
+        consul_factory.get_service_interface(std::string("CrazyIvan_Udp"), \
+        std::string("CrazyIvan_Udp"), http_host.val, udp_port.val, tags);
       config.get_consul()->register_service(*my_app);
     }
 
