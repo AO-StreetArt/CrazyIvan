@@ -102,6 +102,7 @@ class CrazyIvan: public Poco::Util::ServerApplication {
   bool need_to_cleanup_neo4j_interface = false;
   AccountManagerInterface *acct_manager = NULL;
   AOSSL::ServiceInterface *my_app = NULL;
+  AOSSL::ServiceInterface *my_app_udp = NULL;
 public:
  CrazyIvan() {}
  ~CrazyIvan() {}
@@ -434,6 +435,10 @@ protected:
     if (my_app) {
       config.get_consul()->deregister_service(*my_app);
       delete my_app;
+    }
+    if (my_app_udp) {
+      config.get_consul()->deregister_service(*my_app_udp);
+      delete my_app_udp;
     }
     while(is_sender_running.load()) {usleep(1000000);}
     Poco::ErrorHandler::set(pOldEH);
