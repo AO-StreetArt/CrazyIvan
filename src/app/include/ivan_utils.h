@@ -40,6 +40,8 @@ const int DEVICE_ALIGN = 6;
 const int DEVICE_GET = 7;
 const int CACHE_ADD = 8;
 const int CACHE_DEL = 9;
+const int ASSET_ADD = 10;
+const int ASSET_DEL = 11;
 const int KILL = 999;
 const int PING = 555;
 

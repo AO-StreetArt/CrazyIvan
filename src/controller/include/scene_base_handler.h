@@ -15,12 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// This implements the Configuration Manager
-
-// This takes in a Command Line Interpreter, and based on the options provided,
-// decides how the application needs to be configured.  It may configure either
-// from a configuration file, or from a Consul agent
-
 #include <iostream>
 #include <boost/cstdint.hpp>
 
@@ -59,9 +53,12 @@ class SceneBaseRequestHandler: public Poco::Net::HTTPRequestHandler {
   int msg_type = -1;
   SceneListFactory scene_list_factory;
   SceneFactory scene_factory;
+  std::string input_id = "";
  public:
   SceneBaseRequestHandler(AOSSL::KeyValueStoreInterface *conf, ProcessorInterface *processor, int mtype) \
     {config=conf;proc=processor;msg_type=mtype;}
+  SceneBaseRequestHandler(AOSSL::KeyValueStoreInterface *conf, ProcessorInterface *processor, int mtype, std::string& id) \
+    {config=conf;proc=processor;msg_type=mtype;input_id.assign(id);}
   void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) {
     Poco::Logger::get("Controller").debug("Responding to Scene Request");
     response.setChunkedTransferEncoding(true);
@@ -93,6 +90,9 @@ class SceneBaseRequestHandler: public Poco::Net::HTTPRequestHandler {
       } else if (msg_type == SCENE_LEAVE) {
         result = proc->process_deregistration_message(inp_doc);
       } else if (msg_type == SCENE_CRT) {
+        if (!(input_id.empty()) && inp_doc->num_scenes() > 0) {
+          inp_doc->get_scene(0)->set_key(input_id);
+        }
         result = proc->process_create_message(inp_doc);
       } else if (msg_type == SCENE_GET) {
         result = proc->process_query_message(inp_doc);

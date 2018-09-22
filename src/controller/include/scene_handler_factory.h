@@ -27,6 +27,7 @@ limitations under the License.
 #include "user/include/account_manager_interface.h"
 #include "app/include/ivan_utils.h"
 
+#include "asset_update_handler.h"
 #include "cache_handler.h"
 #include "heartbeat_handler.h"
 #include "scene_base_handler.h"
@@ -126,6 +127,9 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
       } else if (uri_path.size() == 3 && uri_path[1] == "query" && uri_path[2] ==  "device") {
         return new SceneBaseRequestHandler(config, proc, DEVICE_GET);
       }
+    } else if (uri_path.size() == 3 && request.getMethod() == "PUT" && \
+        uri_path[0] == "v1" && uri_path[1] == "scene") {
+      return new SceneBaseRequestHandler(config, proc, SCENE_CRT, uri_path[2]);
     } else if (uri_path.size() == 4 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && uri_path[2] == "cache") {
       if (request.getMethod() == "PUT") {
@@ -136,6 +140,15 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     } else if (uri_path.size() == 3 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && request.getMethod() == "DELETE") {
       return new SceneDeleteRequestHandler(config, proc, uri_path[2]);
+    } else if (uri_path.size() == 5 && uri_path[0] == "v1" && \
+        uri_path[1] == "scene" && uri_path[3] == "asset") {
+      if (request.getMethod() == "PUT") {
+        // Asset addition
+        return new AssetUpdateRequestHandler(config, proc, uri_path[2], uri_path[4], ASSET_ADD);
+      } else if (request.getMethod() == "DELETE") {
+        // Asset removal
+        return new AssetUpdateRequestHandler(config, proc, uri_path[2], uri_path[4], ASSET_DEL);
+      }
     } else if (uri_path.size() == 1 && uri_path[0] == "health" && \
         request.getMethod() == "GET") {
       return new HeartbeatHandler();

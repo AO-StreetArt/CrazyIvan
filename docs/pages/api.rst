@@ -18,3 +18,4 @@ API Documentation
    Scene_Registration_API.rst
    Cache_API.rst
    Events_API.rst
+   Asset_API.rst

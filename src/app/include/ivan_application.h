@@ -48,6 +48,7 @@ limitations under the License.
 #include "database_manager.h"
 
 #include "aossl/core/include/buffers.h"
+#include "aossl/core/include/base_http_client.h"
 #include "aossl/profile/include/network_app_profile.h"
 #include "aossl/consul/include/consul_interface.h"
 #include "aossl/consul/include/factory_consul.h"
@@ -103,6 +104,7 @@ class CrazyIvan: public Poco::Util::ServerApplication {
   AccountManagerInterface *acct_manager = NULL;
   AOSSL::ServiceInterface *my_app = NULL;
   AOSSL::ServiceInterface *my_app_udp = NULL;
+  AOSSL::BaseHttpClient *http_client = nullptr;
 public:
  CrazyIvan() {}
  ~CrazyIvan() {}
@@ -120,6 +122,7 @@ protected:
     if (proc) delete proc;
     if (neo && need_to_cleanup_neo4j_interface) delete neo;
     if (acct_manager) delete acct_manager;
+    if (http_client) delete http_client;
   }
 
   // Define basic CLI Opts
@@ -165,6 +168,11 @@ protected:
       config.add_secure_opt(op);
     }
     // Set default values for configuration
+    config.add_opt(std::string("adrestia"), \
+      std::string("http://localhost:8080"));
+    config.add_opt(std::string("adrestia.discover"), std::string("false"));
+    config.add_opt(std::string("adrestia.secure"), std::string("false"));
+    config.add_opt(std::string("adrestia.cache.load"), std::string("false"));
     config.add_opt(std::string("neo4j"), \
       std::string("neo4j://localhost:7687"));
     config.add_opt(std::string("neo4j.discover"), std::string("false"));
@@ -337,6 +345,63 @@ protected:
     // Start the Device Cache
     DeviceCache event_cache;
     DeviceCacheLoader loader(&event_cache, neo);
+
+    // Query Adrestia to see if we have any scenes to load into the cache
+    AOSSL::StringBuffer adrestia_buffer;
+    AOSSL::StringBuffer adrestia_secure_buffer;
+    AOSSL::StringBuffer adrestia_discover_buffer;
+    AOSSL::StringBuffer adrestia_load_cache_buffer;
+    config.get_opt("adrestia.cache.load", adrestia_load_cache_buffer);
+    config.get_opt("adrestia.discover", adrestia_discover_buffer);
+    config.get_opt("adrestia.secure", adrestia_secure_buffer);
+    config.get_opt("adrestia", adrestia_buffer);
+    if (adrestia_load_cache_buffer.val == "true") {
+      std::string adrestia_address = "";
+      if (adrestia_secure_buffer.val == "true") {
+        adrestia_address = "https://";
+      } else {
+        adrestia_address = "http://";
+      }
+      if (adrestia_discover_buffer.val == "true") {
+        // Discover an Adrestia Instance
+        AOSSL::ServiceInterface *adrestia = config.get_service("Adrestia");
+        if (adrestia) {
+          adrestia_address = adrestia_address + adrestia->get_address() + ":" + adrestia->get_port();
+        }
+        delete adrestia;
+      } else {
+        // Use the provided Adrestia instance
+        adrestia_address = adrestia_buffer.val;
+      }
+
+      // Execute the HTTP request
+      if (adrestia_secure_buffer.val == "true") {
+        std::string adrestia_cert = "";
+        http_client = new AOSSL::BaseHttpClient(adrestia_address, 5, adrestia_cert);
+      } else {
+        http_client = new AOSSL::BaseHttpClient(adrestia_address, 5);
+      }
+      std::string adrestia_query_url = "/cluster/" + config.get_cluster_name();
+      AOSSL::StringBuffer adrestia_response;
+      http_client->get_by_reference(adrestia_query_url, adrestia_response);
+
+      // Parse the response and add elements to the scene cache
+      rapidjson::Document doc;
+      doc.Parse<rapidjson::kParseStopWhenDoneFlag>(adrestia_response.val.c_str());
+      if (doc.HasParseError()) {
+        main_logger.error("Failed to parse Adrestia response");
+        main_logger.error(rapidjson::GetParseError_En(doc.GetParseError()));
+      } else {
+        main_logger.information("Loading Scenes into Cache from Adrestia");
+        if (doc.IsArray()) {
+          for (auto& itr : doc.GetArray()) {
+            if (itr.IsString()) {
+              event_cache.add_scene(itr.GetString());
+            }
+          }
+        }
+      }
+    }
 
     // Start the background thread error handler
     IvanErrorHandler eh;
