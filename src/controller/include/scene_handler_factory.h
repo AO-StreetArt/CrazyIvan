@@ -114,10 +114,10 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     if (uri_path.size() > 1 && uri_path[0] == "v1" && request.getMethod() == "POST") {
       if (uri_path.size() == 2 && uri_path[1] == "scene") {
         return new SceneBaseRequestHandler(config, proc, SCENE_CRT);
+      } else if (uri_path.size() == 3 && uri_path[1] == "scene" && uri_path[2] ==  "query") {
+        return new SceneBaseRequestHandler(config, proc, SCENE_GET);
       } else if (uri_path.size() == 3 && uri_path[1] == "scene") {
         return new SceneUpdateRequestHandler(config, proc, uri_path[2]);
-      } else if (uri_path.size() == 3 && uri_path[1] == "query" && uri_path[2] ==  "scene") {
-        return new SceneBaseRequestHandler(config, proc, SCENE_GET);
       } else if (uri_path.size() == 2 && uri_path[1] == "register") {
         return new SceneBaseRequestHandler(config, proc, SCENE_ENTER);
       } else if (uri_path.size() == 2 && uri_path[1] == "deregister") {

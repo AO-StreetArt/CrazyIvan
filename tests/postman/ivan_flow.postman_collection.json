@@ -165,7 +165,7 @@
 					"raw": "{\n  \"scenes\":[\n    {\n      \"name\":\"testScene\"\n    }\n  ]\n}\n"
 				},
 				"url": {
-					"raw": "{{AESEL_URL}}/v1/query/scene/",
+					"raw": "{{AESEL_URL}}/v1/scene/query/",
 					"host": [
 						"{{AESEL_URL}}"
 					],

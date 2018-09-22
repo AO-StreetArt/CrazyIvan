@@ -62,7 +62,7 @@ Scene Deletion
 Scene Query
 ~~~~~~~~~~~
 
-.. http:post:: /v1/query/scene
+.. http:post:: /v1/scene/query
 
    Devices can find scenes by any attribute, including distance.
 
