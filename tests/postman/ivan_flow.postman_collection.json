@@ -188,8 +188,8 @@
 						"id": "8e8c763b-52f0-4773-81b1-28077892f7eb",
 						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"Response time is less than 200ms\", function () {",
-							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
@@ -244,8 +244,8 @@
 						"id": "8e8c763b-52f0-4773-81b1-28077892f7eb",
 						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"Response time is less than 200ms\", function () {",
-							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
