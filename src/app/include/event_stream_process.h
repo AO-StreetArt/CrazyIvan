@@ -27,7 +27,7 @@
 // 1 bit for new line delimiter
 // 179 bits for object json
 // 1 bit for final new line
-const int EVENT_LENGTH = 275;
+const int EVENT_LENGTH = 550;
 
 // Global atomic booleans for shutting down
 std::atomic<bool> is_app_running(false);

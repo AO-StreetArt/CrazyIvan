@@ -57,13 +57,49 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         set_encryption_key(enckey_iter->value.GetString());
       }
     }
-    // Encryption Key
+    // Encryption Salt
     rapidjson::Value::ConstMemberIterator encsalt_iter = \
       d.FindMember("encryption_salt");
     if (encsalt_iter != d.MemberEnd()) {
       SceneList::logger().debug("Encryption Salt found");
       if (!(encsalt_iter->value.IsNull())) {
-        set_encryption_key(encsalt_iter->value.GetString());
+        set_encryption_salt(encsalt_iter->value.GetString());
+      }
+    }
+    // Decryption Key
+    rapidjson::Value::ConstMemberIterator deckey_iter = \
+      d.FindMember("decryption_key");
+    if (deckey_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Decryption Key found");
+      if (!(deckey_iter->value.IsNull())) {
+        set_decryption_key(deckey_iter->value.GetString());
+      }
+    }
+    // Decryption Salt
+    rapidjson::Value::ConstMemberIterator decsalt_iter = \
+      d.FindMember("decryption_salt");
+    if (decsalt_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Decryption Salt found");
+      if (!(decsalt_iter->value.IsNull())) {
+        set_decryption_salt(decsalt_iter->value.GetString());
+      }
+    }
+    // Event Destination Host
+    rapidjson::Value::ConstMemberIterator edhkey_iter = \
+      d.FindMember("event_destination_host");
+    if (edhkey_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Event Destination Host found");
+      if (!(edhkey_iter->value.IsNull())) {
+        set_event_destination_host(edhkey_iter->value.GetString());
+      }
+    }
+    // Event Destination Port
+    rapidjson::Value::ConstMemberIterator edpsalt_iter = \
+      d.FindMember("event_destination_port");
+    if (edpsalt_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Event Destination Port found");
+      if (!(edpsalt_iter->value.IsNull())) {
+        set_event_destination_port(edpsalt_iter->value.GetInt());
       }
     }
     // Error Code
@@ -356,11 +392,34 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       writer.String(get_encryption_key().c_str(), \
       (rapidjson::SizeType)get_encryption_key().length());
     }
-    // Add the Encryption Key
+    // Add the Encryption Salt
     if (!(get_encryption_salt().empty())) {
       writer.Key("encryption_salt");
       writer.String(get_encryption_salt().c_str(), \
       (rapidjson::SizeType)get_encryption_salt().length());
+    }
+    // Add the Decryption Key
+    if (!(get_decryption_key().empty())) {
+      writer.Key("decryption_key");
+      writer.String(get_decryption_key().c_str(), \
+      (rapidjson::SizeType)get_decryption_key().length());
+    }
+    // Add the Decryption Salt
+    if (!(get_decryption_salt().empty())) {
+      writer.Key("decryption_salt");
+      writer.String(get_decryption_salt().c_str(), \
+      (rapidjson::SizeType)get_decryption_salt().length());
+    }
+    // Add the Event Destination Host
+    if (!(get_event_destination_host().empty())) {
+      writer.Key("event_destination_host");
+      writer.String(get_event_destination_host().c_str(), \
+      (rapidjson::SizeType)get_event_destination_host().length());
+    }
+    // Add the Event Destination Port
+    if (get_event_destination_port() > 0) {
+      writer.Key("event_destination_port");
+      writer.Int(get_event_destination_port());
     }
     // Determine how many scenes we want to return in the message
     int num_return_scenes = num_scenes();

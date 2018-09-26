@@ -199,6 +199,13 @@ This can be done with curl, for example:
 In addition, the username/password for the instance is normally set on startup in the UI.
 Be sure to take note of this, as we'll need it to configure Crazy Ivan.
 
+Once Neo4j is started, login to the web browser and run the following
+
+.. code-block:: bash
+
+   CREATE CONSTRAINT ON (scn:Scene) ASSERT scn.key IS UNIQUE
+   CREATE INDEX ON :Scene(key)
+
 Vault Setup
 -----------
 

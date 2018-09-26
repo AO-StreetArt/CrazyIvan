@@ -50,6 +50,15 @@ be registered with Consul in order to be picked up by Service Discovery.  This c
 
 `curl -X PUT -d '{"ID": "neo4j", "Name": "neo4j", "Tags": ["Primary"], "Address": "localhost", "Port": 7687}' http://127.0.0.1:8500/v1/agent/service/register`
 
+In addition, there are several schema optimizations that are recommended.  To apply them,
+run the following against any Neo4j servers:
+
+`CREATE CONSTRAINT ON (scn:Scene) ASSERT scn.key IS UNIQUE`
+
+`CREATE INDEX ON :Scene(key)`
+
+Note that these are optional, but are highly recommended in production settings.
+
 Vault Setup
 -----------
 

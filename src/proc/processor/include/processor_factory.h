@@ -21,6 +21,8 @@ limitations under the License.
 #include "aossl/core/include/kv_store_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 
+#include "aossl/profile/include/network_app_profile.h"
+#include "aossl/consul/include/consul_interface.h"
 #include "proc/processor/include/processor_interface.h"
 #include "proc/processor/include/message_processor.h"
 
@@ -33,7 +35,7 @@ class ProcessorFactory {
   ProcessorFactory() {}
   ~ProcessorFactory() {}
   ProcessorInterface* build_processor(Neocpp::LibNeo4jFactory *nf, \
-    Neocpp::Neo4jInterface *neo4j, AOSSL::KeyValueStoreInterface *con, \
+    Neocpp::Neo4jInterface *neo4j, AOSSL::NetworkApplicationProfile *con, \
     AOSSL::UuidInterface *u, std::string cluster) {
     // Build and return a new message processor
     return new MessageProcessor(nf, neo4j, con, u, cluster);

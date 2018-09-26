@@ -34,6 +34,8 @@ limitations under the License.
 #include "neocpp/connection/interface/neo4j_interface.h"
 #include "neocpp/connection/impl/libneo4j_factory.h"
 
+#include "aossl/profile/include/network_app_profile.h"
+#include "aossl/consul/include/consul_interface.h"
 #include "aossl/core/include/kv_store_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 
@@ -46,7 +48,7 @@ class BaseMessageProcessor {
   // Internal Variables
   Neocpp::Neo4jInterface *n = NULL;
   Neocpp::LibNeo4jFactory *neo_factory = NULL;
-  AOSSL::KeyValueStoreInterface *config = NULL;
+  AOSSL::NetworkApplicationProfile *config = NULL;
   AOSSL::UuidInterface *ugen = NULL;
   QueryHelperInterface *qh = NULL;
   SceneListFactory slfactory;
@@ -60,7 +62,7 @@ class BaseMessageProcessor {
   // Access internal components
   Neocpp::Neo4jInterface* get_neo4j_interface() {return n;}
   Neocpp::LibNeo4jFactory* get_neo4j_factory() {return neo_factory;}
-  AOSSL::KeyValueStoreInterface* get_config_manager() {return config;}
+  AOSSL::NetworkApplicationProfile* get_config_manager() {return config;}
   QueryHelperInterface* get_query_helper() {return qh;}
   SceneListFactory get_slfactory() {return slfactory;}
   SceneFactory get_sfactory() {return sfactory;}
@@ -92,7 +94,7 @@ class BaseMessageProcessor {
   // Constructor
   inline BaseMessageProcessor(Neocpp::LibNeo4jFactory *nf, \
       Neocpp::Neo4jInterface *neo4j, \
-      AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u) : \
+      AOSSL::NetworkApplicationProfile *con, AOSSL::UuidInterface *u) : \
       log(Poco::Logger::get("MessageProcessor")) {
     n = neo4j;
     config = con;

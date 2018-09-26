@@ -34,6 +34,8 @@ limitations under the License.
 #include "neocpp/connection/interface/neo4j_interface.h"
 #include "neocpp/connection/impl/libneo4j_factory.h"
 
+#include "aossl/profile/include/network_app_profile.h"
+#include "aossl/consul/include/consul_interface.h"
 #include "aossl/core/include/kv_store_interface.h"
 #include "aossl/uuid/include/uuid_interface.h"
 
@@ -52,7 +54,7 @@ class MessageProcessor : public CrudMessageProcessor, \
  public:
   // Constructor
   MessageProcessor(Neocpp::LibNeo4jFactory *nf, Neocpp::Neo4jInterface *neo4j, \
-    AOSSL::KeyValueStoreInterface *con, AOSSL::UuidInterface *u, std::string cluster) : \
+    AOSSL::NetworkApplicationProfile *con, AOSSL::UuidInterface *u, std::string cluster) : \
     CrudMessageProcessor(nf, neo4j, con, u) {cluster_name.assign(cluster);}
 
   // Destructor

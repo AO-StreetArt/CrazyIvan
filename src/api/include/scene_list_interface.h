@@ -34,6 +34,10 @@ class SceneListInterface {
   virtual void set_msg_type(int new_msg_type) = 0;
   virtual void set_op_type(int new_operation) = 0;
   virtual void set_err_msg(std::string new_err) = 0;
+  virtual void set_event_destination_host(std::string new_host) = 0;
+  virtual void set_event_destination_port(int new_port) = 0;
+  virtual void set_decryption_key(std::string new_key) = 0;
+  virtual void set_decryption_salt(std::string new_salt) = 0;
   virtual void set_encryption_key(std::string new_key) = 0;
   virtual void set_encryption_salt(std::string new_salt) = 0;
   virtual void set_transaction_id(std::string new_tran_id) = 0;
@@ -45,7 +49,11 @@ class SceneListInterface {
   virtual int get_op_type() = 0;
   virtual std::string get_err() = 0;
   virtual std::string get_transaction_id() = 0;
+  virtual std::string get_event_destination_host() = 0;
+  virtual int get_event_destination_port() = 0;
+  virtual std::string get_decryption_key() = 0;
   virtual std::string get_encryption_key() = 0;
+  virtual std::string get_decryption_salt() = 0;
   virtual std::string get_encryption_salt() = 0;
   virtual int get_err_code() = 0;
   virtual SceneInterface* get_scene(unsigned int i) = 0;

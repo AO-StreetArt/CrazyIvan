@@ -41,8 +41,7 @@ limitations under the License.
 #include "user/include/account_manager_interface.h"
 #include "user/include/account_manager.h"
 
-#include "cache_loader_process.h"
-#include "config_loader_process.h"
+#include "loader_process.h"
 #include "event_stream_process.h"
 #include "thread_error_handler.h"
 #include "database_manager.h"
@@ -159,6 +158,10 @@ protected:
     secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.out.aes.salt"));
     secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".event.security.registration.aes.key"));
+    secure_ops.push_back(config.get_cluster_name() + \
+        std::string(".event.security.registration.aes.salt"));
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.in.aes.key"));
     secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.in.aes.salt"));
@@ -173,6 +176,7 @@ protected:
     config.add_opt(std::string("adrestia.discover"), std::string("false"));
     config.add_opt(std::string("adrestia.secure"), std::string("false"));
     config.add_opt(std::string("adrestia.cache.load"), std::string("false"));
+    config.add_opt(std::string("clyman.service.name"), std::string("Clyman"));
     config.add_opt(std::string("neo4j"), \
       std::string("neo4j://localhost:7687"));
     config.add_opt(std::string("neo4j.discover"), std::string("false"));
@@ -407,12 +411,8 @@ protected:
     IvanErrorHandler eh;
     Poco::ErrorHandler* pOldEH = Poco::ErrorHandler::set(&eh);
 
-    // Kick off the Configuration Update background thread
-    std::thread config_thread(update_config, &config, 300000000);
-    config_thread.detach();
-
-    // Kick off the Cache Loader background thread
-    std::thread cl_thread(load_device_cache, &loader, 5000000);
+    // Kick off the Loader background thread
+    std::thread cl_thread(load_data, &config, &loader, 5000000);
     cl_thread.detach();
 
     // Kick off the Event Stream background thread

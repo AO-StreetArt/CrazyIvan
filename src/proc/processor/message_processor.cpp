@@ -209,21 +209,42 @@ ProcessResult* \
     resp_interface->get_scene(0)->add_device(ud_interface);
   }
 
-  // If we successfully registered, add an encryption key and salt
+  // If we successfully registered, add event information
   // to the response message
   if (current_err_code == NO_ERROR) {
     AOSSL::StringBuffer aes_enabled_buffer;
+    AOSSL::StringBuffer clyman_name_buffer;
     AOSSL::StringBuffer aesout_key_buffer;
     AOSSL::StringBuffer aesout_salt_buffer;
-    // Get event encryption keys and include them on the response
+    AOSSL::StringBuffer aesreg_key_buffer;
+    AOSSL::StringBuffer aesreg_salt_buffer;
+    // Get event encryption/decryption keys
     BaseMessageProcessor::get_config_manager()->get_opt(std::string("event.security.aes.enabled"), aes_enabled_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(std::string("clyman.service.name"), clyman_name_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
         std::string(".event.security.out.aes.key"), aesout_key_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
         std::string(".event.security.out.aes.salt"), aesout_salt_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".event.security.registration.aes.key"), aesreg_key_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".event.security.registration.aes.salt"), aesreg_salt_buffer);
     if (aes_enabled_buffer.val == "true") {
-      resp_interface->set_encryption_key(aesout_key_buffer.val);
-      resp_interface->set_encryption_salt(aesout_salt_buffer.val);
+      // Find a CLyman instance in the cluster
+      AOSSL::ServiceInterface *clyman_instance = \
+        BaseMessageProcessor::get_config_manager()->get_service_by_metadata(\
+        clyman_name_buffer.val, std::string("cluster"), cluster_name);
+
+      // Set event information on the response
+      if (clyman_instance) {
+        resp_interface->set_event_destination_host(clyman_instance->get_address());
+        resp_interface->set_event_destination_port(std::stoi(clyman_instance->get_port()));
+        delete clyman_instance;
+      }
+      resp_interface->set_encryption_key(aesreg_key_buffer.val);
+      resp_interface->set_encryption_salt(aesreg_salt_buffer.val);
+      resp_interface->set_decryption_key(aesout_key_buffer.val);
+      resp_interface->set_decryption_salt(aesout_salt_buffer.val);
     }
 
     // Add the origin scene to the response
