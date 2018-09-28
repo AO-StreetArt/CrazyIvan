@@ -27,7 +27,7 @@ Scene Registration
 Scene De-Registration
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. http:delete:: /v1/scene/(name)/registration
+.. http:post:: /v1/scene/(name)/registration
 
    Devices are expected to register to scenes as they move through space.
    This tells Aesel what objects that device needs to receive information
