@@ -80,14 +80,16 @@ public:
     } else {
       split_from_index(event_string, event_items, '\n', 0);
     }
-    logger.debug(event_items[0]);
+    for (auto elt : event_items) {
+      logger.debug(elt);
+    }
     // Build a UDP Socket to send our messages
     boost::asio::ip::udp::socket socket(*io_service);
     socket.open(boost::asio::ip::udp::v4());
     // Scene ID is now in entry 0, event json is in entry 1
     // load the scene out of the cache
     std::vector<std::pair<std::string, int>> found_devices = cache->get_devices(event_items[0]);
-    logger.debug("Found Total Number of Devices %i", found_devices.size());
+    logger.debug("Found Total Number of Devices %s", found_devices.size());
     for (std::pair<std::string, int> device : found_devices) {
       try {
         boost::asio::ip::udp::endpoint remote_endpoint;
