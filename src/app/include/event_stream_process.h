@@ -87,7 +87,7 @@ public:
     // Scene ID is now in entry 0, event json is in entry 1
     // load the scene out of the cache
     std::vector<std::pair<std::string, int>> found_devices = cache->get_devices(event_items[0]);
-    logger.debug("Found Total Number of Devices %d", found_devices.size());
+    logger.debug("Found Total Number of Devices %i", found_devices.size());
     for (std::pair<std::string, int> device : found_devices) {
       try {
         boost::asio::ip::udp::endpoint remote_endpoint;
@@ -95,9 +95,9 @@ public:
         boost::system::error_code err;
         if (encrypted) {
           std::string encrypted = eCipher->encryptString(event_items[1], Poco::Crypto::Cipher::ENC_BASE64);
-          socket.send_to(boost::asio::buffer(encrypted, encrypted.size()), remote_endpoint, 0, err);
+          socket.send_to(boost::asio::buffer(encrypted, encrypted.size()+1), remote_endpoint, 0, err);
         } else {
-          socket.send_to(boost::asio::buffer(event_items[1], event_items[1].size()), remote_endpoint, 0, err);
+          socket.send_to(boost::asio::buffer(event_items[1], event_items[1].size()+1), remote_endpoint, 0, err);
         }
       } catch (std::exception& e) {
         logger.error(e.what());
