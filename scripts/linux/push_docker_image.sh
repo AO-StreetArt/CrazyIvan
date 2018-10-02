@@ -5,11 +5,11 @@ DOCKER_PASS=$2
 BRANCH_NAME=$3
 DIR=$4
 
-TAG_NAME="latest"
+TAG_NAME="v2"
 
 echo $BRANCH_NAME
 
-if [ $BRANCH_NAME != "master" ]; then
+if [ $BRANCH_NAME != "v2" ]; then
   TAG_NAME=$BRANCH_NAME
 fi
 

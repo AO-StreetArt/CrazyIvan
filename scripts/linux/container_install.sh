@@ -19,7 +19,7 @@ export CC=gcc-6
 git clone --depth=50 --branch=$BRANCH https://github.com/AO-StreetArt/CrazyIvan.git
 mkdir ivan_deps
 cp CrazyIvan/scripts/linux/deb/build_deps.sh ivan_deps
-cd ivan_deps && ./build_deps.sh
+cd ivan_deps && ./build_deps.sh g++-6 -no-poco
 export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 cd ../CrazyIvan && make && make test
 cp crazy_ivan /usr/bin

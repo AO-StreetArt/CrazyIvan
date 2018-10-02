@@ -2,7 +2,7 @@
   "builders": [
     {
       "type": "docker",
-      "image": "ubuntu:18.04",
+      "image": "aostreetart/docker-poco-base:latest",
       "commit": "true",
       "changes": [
         "ENTRYPOINT [\"crazy_ivan\"]"

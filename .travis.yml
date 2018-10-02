@@ -15,18 +15,6 @@ matrix:
             - python-pip
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-            - nodejs
-            - python
-            - python-pip
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 services:
   - docker
 before_install:
@@ -41,6 +29,9 @@ before_install:
   - npm install newman --global;
   - pip install --user requests
   - cd $TRAVIS_BUILD_DIR
+  - wget https://releases.hashicorp.com/packer/1.3.1/packer_1.3.1_linux_amd64.zip
+  - unzip packer_1.3.1_linux_amd64.zip
+  - sudo chmod +x packer
   - export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 install:
   - cd $TRAVIS_BUILD_DIR && make CC=$CXX && make test CC=$CXX
@@ -58,6 +49,10 @@ script:
   - sleep 1
   - echo "kill" | nc -u -w 3 $(ip addr show eth0 | grep -Po 'inet \K[\d.]+') 8764
   - docker logs udp-listener
+after_success:
+  - cd $TRAVIS_BUILD_DIR
+  - ./packer build packer.json
+  - cd scripts/linux && ./push_docker_image.sh $DOCKER_MAIL $DOCKER_UN $DOCKER_PW $TRAVIS_BRANCH
 notifications:
   slack:
     secure: YGqapA0ZH4TFv9G0otZRcqQXTpL0Y/4J51V0pm6mNp9bQi9XIoE8zoCEtZcCPnEFWjPoq8Nj1tA86WzRnriOzZIkzm83Ou/ZRcB4ZCmro0qC9fffALubzEvbqqG3TW77Xq3N7orz7Bjs8H2nxYgNQPjfQtaIMqL8ziGvf6s22LBQOBlusFJF3uELhtFCXvToKTO6XkkmLQ7Oj/qeX/kF6k7R1+lLna4JVNgkIpoEoubticMqY+/3MiS1tY41Y9phW3rxOi1O4upWnRo0fR/1fXS6Gn2Tr2PBSxdNzaJsbhJWUHf+e4DJtPkuqc7ftqSrb4DZhSukBnjXpMtE45oYcWo3h4txxTGnnzD9yMnEHegvlj1kQbcwCNc8We3RDAP80DWgvH3i1rghJ01n0okOQ4Zokz0Ntw+8pExFXO7qfa1vH3s36oIOF97cU+HWGGxqDmcBNVLNBvYfEWqWEOpZeP5p6YvnOCBwSoPXvjbcu+PeP1n9b+95ZBTTzoTJ5sHy54q7r8o/037n5kij3BfKJIjgVHkFPpXVMWkSsMZnQpBHe0RF+Iiv9SIcySF1ln3jUWIBM4heXYywYNjE6Qpw0xVQ3oq4xBPxmcSN+kcWC7wiwMGLzBQErNhbI2IRNVRAZCWIpGVnrHXB4Ev6+A2YgH4c3pWZsXmXu3L1esLv0ac=
