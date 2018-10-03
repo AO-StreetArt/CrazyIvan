@@ -97,9 +97,9 @@ public:
         boost::system::error_code err;
         if (encrypted) {
           std::string encrypted = eCipher->encryptString(event_items[1], Poco::Crypto::Cipher::ENC_BASE64);
-          socket.send_to(boost::asio::buffer(encrypted, encrypted.size()+1), remote_endpoint, 0, err);
+          socket.send_to(boost::asio::buffer(encrypted, encrypted.size()), remote_endpoint, 0, err);
         } else {
-          socket.send_to(boost::asio::buffer(event_items[1], event_items[1].size()+1), remote_endpoint, 0, err);
+          socket.send_to(boost::asio::buffer(event_items[1], event_items[1].size()), remote_endpoint, 0, err);
         }
       } catch (std::exception& e) {
         logger.error(e.what());
