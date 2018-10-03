@@ -6,9 +6,12 @@ set -e
 #Not intended for use with other OS (should function correctly with Debian 7, untested)
 
 COMPILER="g++"
-
+INSTALL_OPT="-none"
 if [ "$#" -gt 0 ]; then
   COMPILER=$1
+fi
+if [ "$#" -gt 1 ]; then
+  INSTALL_OPT=$2
 fi
 
 printf "Creating Dependency Folder"
@@ -45,7 +48,7 @@ if [ ! -d /usr/local/include/aossl ]; then
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
   cp aossl-deb/deps/build_deps.sh $PRE/aossl_deps/
-  cd $PRE/aossl_deps && ./build_deps.sh
+  cd $PRE/aossl_deps && ./build_deps.sh $INSTALL_OPT
   cd ../$RETURN
 
   #Build the shared service library
