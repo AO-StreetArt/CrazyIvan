@@ -292,6 +292,7 @@ class BaseQueryHelper {
       Neocpp::Neo4jQueryParameterInterface *key_param = neo_factory->get_neo4j_query_parameter(key);
       log.debug("Key: %s", key);
       scene_params.emplace("inp_key", key_param);
+    } else {
       if (crud_op == GET_QUERY_TYPE) {
         Neocpp::Neo4jQueryParameterInterface *skip_param = neo_factory->get_neo4j_query_parameter(skip_val);
         scene_params.emplace("inp_skip", skip_param);
