@@ -33,9 +33,6 @@ limitations under the License.
 #include "cache/include/device_cache.h"
 #include "cache/include/cache_loader.h"
 
-#include "controller/include/scene_base_handler.h"
-#include "controller/include/scene_update_handler.h"
-#include "controller/include/scene_delete_handler.h"
 #include "controller/include/scene_handler_factory.h"
 
 #include "user/include/account_manager_interface.h"

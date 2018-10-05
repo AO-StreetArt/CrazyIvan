@@ -144,6 +144,8 @@ class QueryHelperInterface {
       int op_type, SceneInterface *scn, std::string &query_str) = 0;
   virtual void generate_scene_query_parameters(std::string key, int crud_op, SceneInterface *scn, \
       std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> &scene_params) = 0;
+  virtual void generate_query_parameters(std::string key, int crud_op, SceneInterface *scn, int skip_val, \
+      int max_val, std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> &scene_params) = 0;
 };
 
 #endif  // SRC_PROC_QUERY_INCLUDE_QUERY_HELPER_INTERFACE_H_

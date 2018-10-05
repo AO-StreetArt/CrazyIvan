@@ -44,6 +44,7 @@ class SceneListInterface {
   virtual void set_err_code(int new_code) = 0;
   virtual void add_scene(SceneInterface *scn) = 0;
   virtual void set_num_records(int new_num) = 0;
+  virtual void set_start_record(int new_num) = 0;
   // Getters
   virtual int get_msg_type() = 0;
   virtual int get_op_type() = 0;
@@ -59,6 +60,7 @@ class SceneListInterface {
   virtual SceneInterface* get_scene(unsigned int i) = 0;
   virtual int num_scenes() = 0;
   virtual int get_num_records() = 0;
+  virtual int get_start_record() = 0;
   virtual void print() = 0;
 };
 

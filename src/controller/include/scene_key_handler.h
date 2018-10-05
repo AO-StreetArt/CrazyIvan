@@ -51,20 +51,21 @@ limitations under the License.
 
 #include "Poco/Logger.h"
 
-#ifndef SRC_CONTROLLER_INCLUDE_SCENE_DELETE_HANDLER_H_
-#define SRC_CONTROLLER_INCLUDE_SCENE_DELETE_HANDLER_H_
+#ifndef SRC_CONTROLLER_INCLUDE_SCENE_KEY_HANDLER_H_
+#define SRC_CONTROLLER_INCLUDE_SCENE_KEY_HANDLER_H_
 
-class SceneDeleteRequestHandler: public Poco::Net::HTTPRequestHandler {
+class SceneKeyRequestHandler: public Poco::Net::HTTPRequestHandler {
   ProcessorInterface *proc = NULL;
   AOSSL::KeyValueStoreInterface *config = NULL;
   std::string input_key;
   SceneListFactory scene_list_factory;
   SceneFactory scene_factory;
+  int msg_type = -1;
  public:
-  SceneDeleteRequestHandler(AOSSL::KeyValueStoreInterface *conf, ProcessorInterface *processor, std::string &inp_key) \
-    {config=conf;proc=processor;input_key.assign(inp_key);}
+  SceneKeyRequestHandler(AOSSL::KeyValueStoreInterface *conf, ProcessorInterface *processor, std::string &inp_key, int mtype) \
+    {config=conf;proc=processor;input_key.assign(inp_key);msg_type=mtype;}
   void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) {
-    Poco::Logger::get("Controller").debug("Responding to Scene Delete Request");
+    Poco::Logger::get("Controller").debug("Responding to Scene Key Request");
     response.setChunkedTransferEncoding(true);
     response.setContentType("application/json");
     SceneListInterface *response_body = scene_list_factory.build_json_scene();
@@ -73,18 +74,23 @@ class SceneDeleteRequestHandler: public Poco::Net::HTTPRequestHandler {
     response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
     SceneInterface *inp_doc = scene_factory.build_scene();
     inp_doc->set_key(input_key);
-    query_body->set_msg_type(SCENE_DEL);
     query_body->add_scene(inp_doc);
-    ProcessResult *result = proc->process_delete_message(query_body);
+    ProcessResult *result = nullptr;
+    if (msg_type == SCENE_DEL) {
+      query_body->set_msg_type(SCENE_DEL);
+      result = proc->process_delete_message(query_body);
+    } else if (msg_type == SCENE_GET) {
+      query_body->set_msg_type(SCENE_GET);
+      result = proc->process_query_message(query_body);
+    }
+    response_body->set_msg_type(msg_type);
     // Set up the response
     if (result->successful()) {
       SceneInterface *key_scn = scene_factory.build_scene();
-      response_body->set_msg_type(SCENE_DEL);
       response_body->set_err_code(NO_ERROR);
       key_scn->set_key(result->get_return_string());
       response_body->add_scene(key_scn);
     } else {
-      response_body->set_msg_type(SCENE_DEL);
       response_body->set_err_code(result->get_error_code());
       response_body->set_err_msg(result->get_error_description());
     }
@@ -100,4 +106,4 @@ class SceneDeleteRequestHandler: public Poco::Net::HTTPRequestHandler {
   }
 };
 
-#endif  // SRC_CONTROLLER_INCLUDE_SCENE_DELETE_HANDLER_H_
+#endif  // SRC_CONTROLLER_INCLUDE_SCENE_KEY_HANDLER_H_

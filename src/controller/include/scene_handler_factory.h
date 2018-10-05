@@ -31,7 +31,7 @@ limitations under the License.
 #include "cache_handler.h"
 #include "heartbeat_handler.h"
 #include "scene_base_handler.h"
-#include "scene_delete_handler.h"
+#include "scene_key_handler.h"
 #include "scene_update_handler.h"
 
 #include "aossl/profile/include/tiered_app_profile.h"
@@ -124,7 +124,7 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
         return new SceneBaseRequestHandler(config, proc, SCENE_LEAVE);
       } else if (uri_path.size() == 2 && uri_path[1] == "align") {
         return new SceneBaseRequestHandler(config, proc, DEVICE_ALIGN);
-      } else if (uri_path.size() == 3 && uri_path[1] == "query" && uri_path[2] ==  "device") {
+      } else if (uri_path.size() == 3 && uri_path[1] == "device" && uri_path[2] ==  "query") {
         return new SceneBaseRequestHandler(config, proc, DEVICE_GET);
       }
     } else if (uri_path.size() == 3 && request.getMethod() == "PUT" && \
@@ -139,7 +139,7 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
       }
     } else if (uri_path.size() == 3 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && request.getMethod() == "DELETE") {
-      return new SceneDeleteRequestHandler(config, proc, uri_path[2]);
+      return new SceneKeyRequestHandler(config, proc, uri_path[2], SCENE_DEL);
     } else if (uri_path.size() == 5 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && uri_path[3] == "asset") {
       if (request.getMethod() == "PUT") {
@@ -149,6 +149,8 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
         // Asset removal
         return new AssetUpdateRequestHandler(config, proc, uri_path[2], uri_path[4], ASSET_DEL);
       }
+    } else if (request.getMethod() == "GET" && uri_path[0] == "v1" && uri_path[1] == "scene") {
+return new SceneKeyRequestHandler(config, proc, uri_path[2], SCENE_GET);
     } else if (uri_path.size() == 1 && uri_path[0] == "health" && \
         request.getMethod() == "GET") {
       return new HeartbeatHandler();

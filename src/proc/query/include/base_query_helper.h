@@ -271,17 +271,33 @@ class BaseQueryHelper {
       query_str.append("})");
     }
     query_str.append(" RETURN scn");
+    // If we have a query message type, then enable ordering & offset
+    if (crud_op == GET_QUERY_TYPE && !key_query) {
+      query_str.append(" ORDER BY scn.key SKIP {inp_skip} LIMIT {inp_limit}");
+    }
+  }
+
+  inline void generate_scene_query_parameters(std::string key, int crud_op, \
+      SceneInterface *scn, \
+      std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> &scene_params) {
+    generate_query_parameters(key, crud_op, scn, 0, 0, scene_params);
   }
 
   // Generate a map of query parameters from a scene
-  inline void generate_scene_query_parameters(std::string key, int crud_op, \
-      SceneInterface *scn, \
+  inline void generate_query_parameters(std::string key, int crud_op, \
+      SceneInterface *scn, int skip_val, int max_val, \
       std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> &scene_params) {
     // Key
     if (!(key.empty())) {
       Neocpp::Neo4jQueryParameterInterface *key_param = neo_factory->get_neo4j_query_parameter(key);
       log.debug("Key: %s", key);
       scene_params.emplace("inp_key", key_param);
+      if (crud_op == GET_QUERY_TYPE) {
+        Neocpp::Neo4jQueryParameterInterface *skip_param = neo_factory->get_neo4j_query_parameter(skip_val);
+        scene_params.emplace("inp_skip", skip_param);
+        Neocpp::Neo4jQueryParameterInterface *max_param = neo_factory->get_neo4j_query_parameter(max_val);
+        scene_params.emplace("inp_limit", max_param);
+      }
     }
     if (scn) {
       // Active

@@ -211,8 +211,8 @@ ProcessResult* \
       BaseMessageProcessor::logger().debug("Executing Query: %s", scene_query);
 
       // Set up the query parameters for scene retrieval
-      BaseMessageProcessor::get_query_helper()->generate_scene_query_parameters(obj_msg->get_scene(0)->get_key(), \
-        GET_QUERY_TYPE, obj_msg->get_scene(0), scene_params);
+      BaseMessageProcessor::get_query_helper()->generate_query_parameters(obj_msg->get_scene(0)->get_key(), \
+        GET_QUERY_TYPE, obj_msg->get_scene(0), obj_msg->get_start_record(), obj_msg->get_num_records(), scene_params);
 
       // Execute the query
       try {

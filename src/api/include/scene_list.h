@@ -46,6 +46,7 @@ class SceneList : public SceneListInterface {
   std::string encryption_key;
   std::string encryption_salt;
   std::vector<SceneInterface*> data;
+  int start_record = 0;
   int num_records = 10;
   std::string ret_string = "";
   const char* ret_val;
@@ -87,6 +88,7 @@ class SceneList : public SceneListInterface {
   void set_err_code(int new_code) {err_code = new_code;}
   void add_scene(SceneInterface *scn) {data.push_back(scn);}
   void set_num_records(int new_num) {num_records = new_num;}
+  void set_start_record(int new_num) {start_record = new_num;}
   // Getters
   int get_msg_type() {return msg_type;}
   int get_op_type() {return operation;}
@@ -106,6 +108,7 @@ class SceneList : public SceneListInterface {
   }
   int num_scenes() {return data.size();}
   int get_num_records() {return num_records;}
+  int get_start_record() {return start_record;}
   inline void print() {
     logr.debug("{\"SceneList\": {\"msg_type\": %d, \"operation\": %d, \"err_msg\": %s, \"err_code\": %d, \"transaction_id\": \"%s\", \"num_records\": %d}}",
       msg_type, operation, err_msg, err_code, transaction_id, num_records);

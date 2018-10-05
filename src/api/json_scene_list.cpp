@@ -125,8 +125,17 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("num_records");
     if (maxrcrd_iter != d.MemberEnd()) {
       SceneList::logger().debug("Max Records found");
-      if (!(maxrcrd_iter->value.IsNull())) {
+      if (maxrcrd_iter->value.IsInt()) {
         set_num_records(maxrcrd_iter->value.GetInt());
+      }
+    }
+    // Query Start Record
+    rapidjson::Value::ConstMemberIterator startrcrd_iter = \
+      d.FindMember("start_record");
+    if (startrcrd_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Start Record found");
+      if (startrcrd_iter->value.IsInt()) {
+        set_start_record(startrcrd_iter->value.GetInt());
       }
     }
     // Scene List
@@ -428,6 +437,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
     }
     writer.Key("num_records");
     writer.Uint(num_return_scenes);
+    writer.Key("start_record");
+    writer.Uint(get_start_record());
     // Add the scene list
     writer.Key("scenes");
     writer.StartArray();
