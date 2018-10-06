@@ -34,7 +34,7 @@ before_install:
   - sudo chmod +x packer
   - export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 install:
-  - cd $TRAVIS_BUILD_DIR && make CC=$CXX && make test CC=$CXX
+  - cd $TRAVIS_BUILD_DIR && make CC=$CXX CFLAGS=-O2 && make test CC=$CXX
 before_script:
   - docker logs database
 script:
@@ -44,6 +44,7 @@ script:
   - echo $! > $TRAVIS_BUILD_DIR/pid.txt
   - sleep 5
   - cd $TRAVIS_BUILD_DIR/tests/postman && newman run ivan_flow.postman_collection.json -e ivan_flow.postman_environment.json
+  - cd $TRAVIS_BUILD_DIR/tests/postman && newman run ivan_failure_flow.postman_collection.json -e ivan_flow.postman_environment.json
   - cd $TRAVIS_BUILD_DIR/tests/netcat && ./udp_test.sh
   - kill $(cat $TRAVIS_BUILD_DIR/pid.txt)
   - sleep 1

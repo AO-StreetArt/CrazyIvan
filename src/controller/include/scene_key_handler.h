@@ -95,6 +95,11 @@ class SceneKeyRequestHandler: public Poco::Net::HTTPRequestHandler {
       response_body->set_err_msg(result->get_error_description());
     }
     // Send the response
+    if (response_body->get_err_code() == NOT_FOUND) {
+      response.setStatus(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
+    } else if (response_body->get_err_code() != NO_ERROR) {
+      response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+    }
     std::ostream& ostr = response.send();
     std::string response_body_string;
     response_body->to_msg_string(response_body_string);

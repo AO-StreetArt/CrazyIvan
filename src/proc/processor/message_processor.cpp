@@ -61,17 +61,19 @@ ProcessResult* \
 
   // Build a new device key, if necessary
   std::string new_id;
-  if (obj_msg->get_scene(0)->get_device(0)->get_key().empty()) {
-    // Generate a new key
-    BaseMessageProcessor::create_uuid(new_id);
-    if (new_id.empty()) {
-      BaseMessageProcessor::logger().error("Unknown error generating new key for scene");
-      current_err_msg = "Error generating key for device";
-      current_err_code = PROCESSING_ERROR;
+  if (current_err_code == NO_ERROR) {
+    if (obj_msg->get_scene(0)->get_device(0)->get_key().empty()) {
+      // Generate a new key
+      BaseMessageProcessor::create_uuid(new_id);
+      if (new_id.empty()) {
+        BaseMessageProcessor::logger().error("Unknown error generating new key for scene");
+        current_err_msg = "Error generating key for device";
+        current_err_code = PROCESSING_ERROR;
+      }
+      BaseMessageProcessor::logger().information("Key Generated: %s", new_id);
+    } else {
+      new_id = obj_msg->get_scene(0)->get_device(0)->get_key();
     }
-    BaseMessageProcessor::logger().information("Key Generated: %s", new_id);
-  } else {
-    new_id = obj_msg->get_scene(0)->get_device(0)->get_key();
   }
 
   // Determine if this is the first device being registered to the scene
@@ -273,6 +275,15 @@ ProcessResult* MessageProcessor::process_deregistration_message(\
   int current_err_code = NO_ERROR;
   std::string current_err_msg = "";
 
+  // Basic checks to ensure we have the needed fields
+  if (obj_msg->num_scenes() < 1) {
+    current_err_code = INSUFF_DATA_ERROR;
+    current_err_msg = "Scene needed to process registration";
+  } else if (obj_msg->get_scene(0)->num_devices() < 1) {
+    current_err_code = INSUFF_DATA_ERROR;
+    current_err_msg = "Device needed to process registration";
+  }
+
   // Remove the User Device
   if (current_err_code == NO_ERROR) {
     BaseMessageProcessor::logger().debug("Removing Device from Scene");
@@ -312,6 +323,15 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
   std::string current_err_msg = "";
 
   bool registration_found = false;
+  // Basic checks to ensure we have the needed fields
+  if (obj_msg->num_scenes() < 1) {
+    current_err_code = INSUFF_DATA_ERROR;
+    current_err_msg = "Scene needed to process alignment";
+  } else if (obj_msg->get_scene(0)->num_devices() < 1) {
+    current_err_code = INSUFF_DATA_ERROR;
+    current_err_msg = "Device needed to process alignment";
+  }
+
   // Update the transformation between the scene and user device
   if (current_err_code == NO_ERROR) {
     try {
@@ -330,7 +350,7 @@ ProcessResult* MessageProcessor::process_device_alignment_message(\
 
   // If we could not find an existing registration to update
   // then we want to return a not found error code
-  if (!registration_found) {
+  if (!registration_found && current_err_code == NO_ERROR) {
     BaseMessageProcessor::logger().debug("Existing Registration not found");
     current_err_code = NOT_FOUND;
     current_err_msg = "No Existing Registrations Found";

@@ -26,7 +26,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("msg_type");
     if (msgtype_iter != d.MemberEnd()) {
       SceneList::logger().debug("Message Type found");
-      if (!(msgtype_iter->value.IsNull())) {
+      if (msgtype_iter->value.IsInt()) {
         set_msg_type(msgtype_iter->value.GetInt());
       }
     }
@@ -35,7 +35,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("operation");
     if (optype_iter != d.MemberEnd()) {
       SceneList::logger().debug("Operation Type found");
-      if (!(optype_iter->value.IsNull())) {
+      if (optype_iter->value.IsInt()) {
         set_op_type(optype_iter->value.GetInt());
       }
     }
@@ -44,7 +44,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("transaction_id");
     if (tranid_iter != d.MemberEnd()) {
       SceneList::logger().debug("Transaction ID found");
-      if (!(tranid_iter->value.IsNull())) {
+      if (tranid_iter->value.IsString()) {
         set_transaction_id(tranid_iter->value.GetString());
       }
     }
@@ -53,7 +53,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("encryption_key");
     if (enckey_iter != d.MemberEnd()) {
       SceneList::logger().debug("Encryption Key found");
-      if (!(enckey_iter->value.IsNull())) {
+      if (enckey_iter->value.IsString()) {
         set_encryption_key(enckey_iter->value.GetString());
       }
     }
@@ -62,7 +62,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("encryption_salt");
     if (encsalt_iter != d.MemberEnd()) {
       SceneList::logger().debug("Encryption Salt found");
-      if (!(encsalt_iter->value.IsNull())) {
+      if (encsalt_iter->value.IsString()) {
         set_encryption_salt(encsalt_iter->value.GetString());
       }
     }
@@ -71,7 +71,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("decryption_key");
     if (deckey_iter != d.MemberEnd()) {
       SceneList::logger().debug("Decryption Key found");
-      if (!(deckey_iter->value.IsNull())) {
+      if (deckey_iter->value.IsString()) {
         set_decryption_key(deckey_iter->value.GetString());
       }
     }
@@ -80,7 +80,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("decryption_salt");
     if (decsalt_iter != d.MemberEnd()) {
       SceneList::logger().debug("Decryption Salt found");
-      if (!(decsalt_iter->value.IsNull())) {
+      if (decsalt_iter->value.IsString()) {
         set_decryption_salt(decsalt_iter->value.GetString());
       }
     }
@@ -89,7 +89,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("event_destination_host");
     if (edhkey_iter != d.MemberEnd()) {
       SceneList::logger().debug("Event Destination Host found");
-      if (!(edhkey_iter->value.IsNull())) {
+      if (edhkey_iter->value.IsString()) {
         set_event_destination_host(edhkey_iter->value.GetString());
       }
     }
@@ -98,7 +98,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("event_destination_port");
     if (edpsalt_iter != d.MemberEnd()) {
       SceneList::logger().debug("Event Destination Port found");
-      if (!(edpsalt_iter->value.IsNull())) {
+      if (edpsalt_iter->value.IsString()) {
         set_event_destination_port(edpsalt_iter->value.GetInt());
       }
     }
@@ -107,7 +107,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("err_code");
     if (errcode_iter != d.MemberEnd()) {
       SceneList::logger().debug("Error Code found");
-      if (!(errcode_iter->value.IsNull())) {
+      if (errcode_iter->value.IsInt()) {
         set_err_code(errcode_iter->value.GetInt());
       }
     }
@@ -116,7 +116,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       d.FindMember("err_msg");
     if (errmsg_iter != d.MemberEnd()) {
       SceneList::logger().debug("Error Message found");
-      if (!(errmsg_iter->value.IsNull())) {
+      if (errmsg_iter->value.IsString()) {
         set_err_msg(errmsg_iter->value.GetString());
       }
     }
@@ -150,7 +150,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           itr.FindMember("key");
           if (key_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Key found");
-            if (!(key_iter->value.IsNull())) {
+            if (key_iter->value.IsString()) {
               scd->set_key(key_iter->value.GetString());
             }
           } else {SceneList::logger().debug("Key not found");}
@@ -159,7 +159,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("name");
           if (name_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Name found");
-            if (!(name_iter->value.IsNull())) {
+            if (name_iter->value.IsString()) {
               scd->set_name(name_iter->value.GetString());
             }
           }
@@ -168,7 +168,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("active");
           if (active_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Active flag found");
-            if (!(active_iter->value.IsNull())) {
+            if (!(active_iter->value.IsBool())) {
               scd->set_active(active_iter->value.GetBool());
             }
           }
@@ -176,7 +176,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("region");
           if (region_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Region found");
-            if (!(region_iter->value.IsNull())) {
+            if (region_iter->value.IsString()) {
               scd->set_region(region_iter->value.GetString());
             }
           }
@@ -185,7 +185,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           itr.FindMember("latitude");
           if (lat_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Latitude found");
-            if (!(lat_iter->value.IsNull())) {
+            if (lat_iter->value.IsDouble()) {
               scd->set_latitude(lat_iter->value.GetDouble());
             }
           }
@@ -194,7 +194,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("longitude");
           if (long_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Longitude found");
-            if (!(long_iter->value.IsNull())) {
+            if (long_iter->value.IsDouble()) {
               scd->set_longitude(long_iter->value.GetDouble());
             }
           }
@@ -203,7 +203,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("distance");
           if (dist_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Distance found");
-            if (!(dist_iter->value.IsNull())) {
+            if (dist_iter->value.IsDouble()) {
               scd->set_distance(dist_iter->value.GetDouble());
             }
           }
@@ -213,9 +213,11 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("assets");
           if (assets_itr != itr.MemberEnd()) {
             SceneList::logger().debug("Scene Assets found");
-            if (!(assets_itr->value.IsNull())) {
+            if (assets_itr->value.IsArray()) {
               for (auto& asset_itr : assets_itr->value.GetArray()) {
-                scd->add_asset(asset_itr.GetString());
+                if (asset_itr.IsString()) {
+                  scd->add_asset(asset_itr.GetString());
+                }
               }
             }
           }
@@ -225,9 +227,11 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("tags");
           if (tags_itr != itr.MemberEnd()) {
             SceneList::logger().debug("Tags found");
-            if (!(tags_itr->value.IsNull())) {
+            if (tags_itr->value.IsArray()) {
               for (auto& tag_itr : tags_itr->value.GetArray()) {
-                scd->add_tag(tag_itr.GetString());
+                if (tag_itr.IsString()) {
+                  scd->add_tag(tag_itr.GetString());
+                }
               }
             }
           }
@@ -238,31 +242,37 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             TransformInterface *new_scene_transform = \
               SceneList::create_transform();
             const rapidjson::Value& scene_trn_val = itr["transform"];
-            if (!(scene_trn_val.IsNull())) {
+            if (scene_trn_val.IsObject()) {
               for (
                 rapidjson::Value::ConstMemberIterator scn_trns_itr = \
                 scene_trn_val.MemberBegin();
                 scn_trns_itr != scene_trn_val.MemberEnd();
                 ++scn_trns_itr
               ) {
-                const char * name_cstring = scn_trns_itr->name.GetString();
-                SceneList::logger().debug("Processing Transform Member: %s", name_cstring);
-                if (strcmp(name_cstring, "translation") == 0) {
-                  SceneList::logger().debug("Translation found");
-                  const rapidjson::Value& translation_val = scn_trns_itr->value;
-                  int i = 0;
-                  for (auto& translation_itr : translation_val.GetArray()) {
-                    new_scene_transform->translate(i, \
-                      translation_itr.GetDouble());
-                    ++i;
-                  }
-                } else if (strcmp(name_cstring, "rotation") == 0) {
-                  SceneList::logger().debug("Rotation found");
-                  const rapidjson::Value& rotation_val = scn_trns_itr->value;
-                  int i = 0;
-                  for (auto& rotation_itr : rotation_val.GetArray()) {
-                    new_scene_transform->rotate(i, rotation_itr.GetDouble());
-                    ++i;
+                if (scn_trns_itr->name.IsString()) {
+                  const char * name_cstring = scn_trns_itr->name.GetString();
+                  SceneList::logger().debug("Processing Transform Member: %s", name_cstring);
+                  if (strcmp(name_cstring, "translation") == 0) {
+                    SceneList::logger().debug("Translation found");
+                    const rapidjson::Value& translation_val = scn_trns_itr->value;
+                    int i = 0;
+                    if (translation_val.IsArray()) {
+                      for (auto& translation_itr : translation_val.GetArray()) {
+                        new_scene_transform->translate(i, \
+                          translation_itr.GetDouble());
+                        ++i;
+                      }
+                    }
+                  } else if (strcmp(name_cstring, "rotation") == 0) {
+                    SceneList::logger().debug("Rotation found");
+                    const rapidjson::Value& rotation_val = scn_trns_itr->value;
+                    int i = 0;
+                    if (rotation_val.IsArray()) {
+                      for (auto& rotation_itr : rotation_val.GetArray()) {
+                        new_scene_transform->rotate(i, rotation_itr.GetDouble());
+                        ++i;
+                      }
+                    }
                   }
                 }
               }
@@ -274,13 +284,13 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
           if (itr.HasMember("devices")) {
             SceneList::logger().debug("Device List found");
             const rapidjson::Value& device_list_val = itr["devices"];
-            if (!(device_list_val.IsNull())) {
+            if (device_list_val.IsArray()) {
               for (auto& device_itr : device_list_val.GetArray()) {
                 // Process the device key
                 rapidjson::Value::ConstMemberIterator ud_key_iter = \
                 device_itr.FindMember("key");
                 if (ud_key_iter != device_itr.MemberEnd()) {
-                  if (!(ud_key_iter->value.IsNull())) {
+                  if (ud_key_iter->value.IsString()) {
                     SceneList::logger().debug("UD Key found");
                     UserDeviceInterface *new_device = \
                       SceneList::create_device(ud_key_iter->value.GetString());
@@ -289,7 +299,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     rapidjson::Value::ConstMemberIterator ud_conn_iter = \
                       device_itr.FindMember("connection_string");
                     if (ud_conn_iter != device_itr.MemberEnd()) {
-                      if (!(ud_conn_iter->value.IsNull())) {
+                      if (ud_conn_iter->value.IsString()) {
                         new_device->set_connection_string(ud_conn_iter->value.GetString());
                       }
                     }
@@ -297,7 +307,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     rapidjson::Value::ConstMemberIterator ud_host_iter = \
                       device_itr.FindMember("hostname");
                     if (ud_host_iter != device_itr.MemberEnd()) {
-                      if (!(ud_host_iter->value.IsNull())) {
+                      if (ud_host_iter->value.IsString()) {
                         new_device->set_hostname(ud_host_iter->value.GetString());
                       }
                     }
@@ -305,7 +315,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     rapidjson::Value::ConstMemberIterator ud_port_iter = \
                       device_itr.FindMember("port");
                     if (ud_port_iter != device_itr.MemberEnd()) {
-                      if (!(ud_port_iter->value.IsNull())) {
+                      if (ud_port_iter->value.IsInt()) {
                         new_device->set_port(ud_port_iter->value.GetInt());
                       }
                     }
@@ -316,35 +326,41 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                       TransformInterface *new_ud_transform = \
                         SceneList::create_transform();
                       const rapidjson::Value& ud_trn_val = device_itr["transform"];
-                      if (!(ud_trn_val.IsNull())) {
+                      if (ud_trn_val.IsObject()) {
                         for (rapidjson::Value::ConstMemberIterator ud_trns_itr = \
                           ud_trn_val.MemberBegin(); \
                           ud_trns_itr != ud_trn_val.MemberEnd(); ++ud_trns_itr) {
-                            const char * udname_cstring = \
-                              ud_trns_itr->name.GetString();
-                            SceneList::logger().debug("Processing Transform Member: %s", udname_cstring);
-                            if (strcmp(udname_cstring, "translation") == 0) {
-                              SceneList::logger().debug("Translation found");
-                              const rapidjson::Value& udtranslation_val = \
-                                ud_trns_itr->value;
-                              if (!(udtranslation_val.IsNull())) {
-                                int i = 0;
-                                for (auto& translation_itr : \
-                                  udtranslation_val.GetArray()) {
-                                  new_ud_transform->translate(i, \
-                                    translation_itr.GetDouble());
-                                  ++i;
+                            if (ud_trns_itr->name.IsString()) {
+                              const char * udname_cstring = \
+                                ud_trns_itr->name.GetString();
+                              SceneList::logger().debug("Processing Transform Member: %s", udname_cstring);
+                              if (strcmp(udname_cstring, "translation") == 0) {
+                                SceneList::logger().debug("Translation found");
+                                const rapidjson::Value& udtranslation_val = \
+                                  ud_trns_itr->value;
+                                if (udtranslation_val.IsArray()) {
+                                  int i = 0;
+                                  for (auto& translation_itr : \
+                                      udtranslation_val.GetArray()) {
+                                    if (translation_itr.IsDouble()) {
+                                      new_ud_transform->translate(i, \
+                                        translation_itr.GetDouble());
+                                    }
+                                    ++i;
+                                  }
                                 }
-                              }
-                            } else if (strcmp(udname_cstring, "rotation") == 0) {
-                              SceneList::logger().debug("Rotation found");
-                              const rapidjson::Value& udrotation_val = \
-                              ud_trns_itr->value;
-                              if (!(udrotation_val.IsNull())) {
-                                int i = 0;
-                                for (auto& rotation_itr : udrotation_val.GetArray()) {
-                                  new_ud_transform->rotate(i, rotation_itr.GetDouble());
-                                  ++i;
+                              } else if (strcmp(udname_cstring, "rotation") == 0) {
+                                SceneList::logger().debug("Rotation found");
+                                const rapidjson::Value& udrotation_val = \
+                                ud_trns_itr->value;
+                                if (udrotation_val.IsArray()) {
+                                  int i = 0;
+                                  for (auto& rotation_itr : udrotation_val.GetArray()) {
+                                    if (rotation_itr.IsDouble()) {
+                                      new_ud_transform->rotate(i, rotation_itr.GetDouble());
+                                    }
+                                    ++i;
+                                  }
                                 }
                               }
                             }

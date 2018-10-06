@@ -1,0 +1,972 @@
+{
+	"info": {
+		"_postman_id": "d9a78b7a-71d1-46d9-bcee-140120ba1ce7",
+		"name": "CrazyIvan Failure Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Scene Post - Bad Values",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b780d72d-de7b-4a66-b2ab-da87f23e2373",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"name\":1,\n      \"latitude\":\"100.0\",\n      \"longitude\":[100.0],\n      \"distance\":\"10.0\",\n      \"region\":false,\n      \"assets\":\"asset1\",\n      \"tags\":1\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scene Post - Invalid JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4cda5442-7567-4eae-8476-ee5c28c435ff",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is not 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"name\":1,\n      \"latitude\":\"100.0\",\n      \"longitude\":[100.0],\n      \"distanc"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Scene with ID - Bad Values",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8a63f92a-7b0e-4943-a956-271c179e1e16",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"    pm.expect(jsonData.num_records).to.eql(1);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":1,\n      \"name\":345,\n      \"latitude\":\"100.0\",\n      \"longitude\":\"s\",\n      \"region\":1,\n      \"assets\":\"asset1\",\n      \"tags\":\"tag1\"\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/12345",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"12345"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Scene with ID - Invalid JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "936d2db7-2701-4a02-ac75-b0d3b28c7b6b",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Status code is not 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":1,\n      \"name\":3\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/12345",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"12345"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scene Query - Bad Value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c39c71d9-6266-4304-a905-718a3fad5582",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is not 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"name\":1\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/query/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"query",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scene Query - Invalid JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e5b750d2-72bd-45d9-b299-0f04c000d891",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"na\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/query/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"query",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asset Addition",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8e8c763b-52f0-4773-81b1-28077892f7eb",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/badKey/asset/asset5",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"badKey",
+						"asset",
+						"asset5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asset Removal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8e8c763b-52f0-4773-81b1-28077892f7eb",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/badKey/asset/asset5",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"badKey",
+						"asset",
+						"asset5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Device - Bad Values",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "625bc68c-7772-48bc-b163-36b1764c3f06",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":12345,\n      \"devices\":[\n      \t{\n      \t\t\"key\": 12345,\n  \t\t\t\"hostname\": 127,\n  \t\t\t\"port\":\"4444\",\n  \t\t\t\"connection_string\": 127.0,\n      \t\t\"transform\": {\n      \t\t\t\"translation\": 0.0, \n      \t\t\t\"rotation\": 0.0\n      \t\t}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/register/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Device - Invalid JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4308cdba-a57e-4a0d-b360-d1562e232808",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is not 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":12345,\n      \"devices\":[\n      \t{\n      \t\t\"key\": 12345,\n  \t\t\t\"hostname\": 127,\n  \t\t\t\"port\":\"4444\",\n  \t\t\t\"connection_string\": 127.0,\n      \t\t\"transform\": {\n      \t\t\t\"translation\": 0.0\n      \t\t\t\"rotation\": 0.0\n      \t\t}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/register/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sync Device - Bad Values",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "298dc8c9-adbe-425a-ad49-fd84f00900e9",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":12345,\n      \"devices\":[\n      \t{\n      \t\t\"key\": 12345,\n      \t\t\"transform\": {\n      \t\t\t\"translation\": 0.0, \n      \t\t\t\"rotation\": 0.0\n      \t\t}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/align/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"align",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sync Device - Invalid JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "dbdbd867-0cb3-48b6-a953-cd5c877f45b6",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is not 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":12345,\n      \"devices\":[\n      \t{\n      \t\t\"key\": 12345,\n      \t\t\"transform\": {\n      \t\t\t\"translation\": 0.0, \n      \t\t\t\"rotation\": 0.0\n      \t\t}}\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/align/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"align",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Scene to Event Cache",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6ced39c7-ac75-4bc7-8e85-c8cbcd6c34ad",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/cache/badKey",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"cache",
+						"badKey"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scene from Event Cache",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0099a09f-2812-4233-b120-95a56de52e24",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/cache/badKey",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"cache",
+						"badKey"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Scene",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "87992778-9149-412a-b4a4-4f38bef364be",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":\"\",\n      \"name\":\"testScene\",\n      \"latitude\":100.0,\n      \"longitude\":100.0,\n      \"distance\":10.0,\n      \"region\":\"us-ga\",\n      \"assets\":[\"asset1\"],\n      \"tags\":[\"tag1\"]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/badKey",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"badKey"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deregister Device - Bad Values",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fb340f29-0765-49b4-81de-4b12b44b5e75",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":12345,\n      \"devices\":[\n      \t{\n      \t\t\"key\": 12345\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/deregister/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"deregister",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deregister Device - Invalid JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9f885664-a1d3-4f6f-845b-4e2d0a069ddc",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is not 200\", function () {",
+							"    pm.response.to.not.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Check Response Body\", function () {",
+							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"key\":12345,\n      \"devices\":[\n      \t{\n      \t\t\"key\": 12345,\n      \t}\n      ]\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/deregister/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"deregister",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Scene",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "351e398f-6f73-43ac-80cf-3f888da9c938",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/badKey",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"badKey"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

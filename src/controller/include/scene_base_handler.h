@@ -102,6 +102,11 @@ class SceneBaseRequestHandler: public Poco::Net::HTTPRequestHandler {
         result = proc->process_device_get_message(inp_doc);
       }
       // Set up the response
+      if (result->get_error_code() == NOT_FOUND) {
+        response.setStatus(Poco::Net::HTTPResponse::HTTP_NOT_FOUND);
+      } else if (result->get_error_code() != NO_ERROR) {
+        response.setStatus(Poco::Net::HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+      }
       std::ostream& ostr = response.send();
       if (result->successful()) {
         if (msg_type == SCENE_GET || msg_type == SCENE_ENTER || \
