@@ -21,6 +21,7 @@ mkdir ivan_deps
 cp CrazyIvan/scripts/linux/deb/build_deps.sh ivan_deps
 cd ivan_deps && ./build_deps.sh g++-6 -no-poco
 export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+export CFLAGS=-O2
 cd ../CrazyIvan && make && make test
 cp crazy_ivan /usr/bin
 mkdir /etc/ivan
