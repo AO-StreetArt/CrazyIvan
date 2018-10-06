@@ -31,6 +31,18 @@ Scene Creation
 
 .. include:: _examples/scene/scene_create_key.rst
 
+
+Scene Get
+~~~~~~~~~
+
+.. http:get:: /v1/scene/(key)
+
+   Get a Scene by key.
+
+   :statuscode 200: Success
+
+.. include:: _examples/scene/scene_get.rst
+
 Scene Update
 ~~~~~~~~~~~~
 
