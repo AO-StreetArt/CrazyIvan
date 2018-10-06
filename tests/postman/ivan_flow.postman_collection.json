@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "72429bbd-1d0a-4948-93f0-98973947549e",
+		"_postman_id": "3e5d2c85-de60-4892-b882-cbf3cc3502eb",
 		"name": "CrazyIvan copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -173,6 +173,61 @@
 						"v1",
 						"scene",
 						"query",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scene Get",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6cb8f408-83d3-49b7-9132-02f3d0333d47",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check Error Code\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.err_code).to.eql(100);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is present\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"scenes\":[\n    {\n      \"name\":\"testScene\"\n    }\n  ]\n}\n"
+				},
+				"url": {
+					"raw": "{{AESEL_URL}}/v1/scene/12345/",
+					"host": [
+						"{{AESEL_URL}}"
+					],
+					"path": [
+						"v1",
+						"scene",
+						"12345",
 						""
 					]
 				}

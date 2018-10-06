@@ -102,8 +102,12 @@ class SceneKeyRequestHandler: public Poco::Net::HTTPRequestHandler {
     }
     std::ostream& ostr = response.send();
     std::string response_body_string;
-    response_body->to_msg_string(response_body_string);
-    ostr << response_body_string;
+    if (msg_type == SCENE_DEL) {
+      response_body->to_msg_string(response_body_string);
+      ostr << response_body_string;
+    } else if (msg_type == SCENE_GET) {
+      ostr << result->get_return_string();
+    }
     ostr.flush();
     delete inp_doc;
     delete result;
