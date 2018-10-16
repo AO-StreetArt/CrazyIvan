@@ -27,7 +27,7 @@ Scene Registration
 Scene De-Registration
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /v1/scene/(name)/deregister
+.. http:post:: /v1/deregister
 
    Devices are expected to register to scenes as they move through space.
    This tells Aesel what objects that device needs to receive information
@@ -48,7 +48,7 @@ Scene De-Registration
 Scene Synchronization
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. http:post:: /v1/scene/(name)/align
+.. http:post:: /v1/align
 
    Aesel will not always be able to supply a device with an accurate
    transformation upon registering to a scene. In particular, this will
