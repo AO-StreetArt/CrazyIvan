@@ -216,21 +216,33 @@ ProcessResult* \
   if (current_err_code == NO_ERROR) {
     AOSSL::StringBuffer aes_enabled_buffer;
     AOSSL::StringBuffer clyman_name_buffer;
-    AOSSL::StringBuffer aesout_key_buffer;
+    AOSSL::StringBuffer aesout_password_buffer;
     AOSSL::StringBuffer aesout_salt_buffer;
-    AOSSL::StringBuffer aesreg_key_buffer;
+    AOSSL::StringBuffer aesout_key_buffer;
+    AOSSL::StringBuffer aesout_iv_buffer;
+    AOSSL::StringBuffer aesreg_password_buffer;
     AOSSL::StringBuffer aesreg_salt_buffer;
+    AOSSL::StringBuffer aesreg_key_buffer;
+    AOSSL::StringBuffer aesreg_iv_buffer;
     // Get event encryption/decryption keys
     BaseMessageProcessor::get_config_manager()->get_opt(std::string("event.security.aes.enabled"), aes_enabled_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(std::string("clyman.service.name"), clyman_name_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
-        std::string(".event.security.out.aes.key"), aesout_key_buffer);
+        std::string(".event.security.out.aes.password"), aesout_password_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
         std::string(".event.security.out.aes.salt"), aesout_salt_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
-        std::string(".event.security.registration.aes.key"), aesreg_key_buffer);
+        std::string(".event.security.out.aes.key"), aesout_key_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".event.security.out.aes.iv"), aesout_iv_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".event.security.registration.aes.password"), aesreg_password_buffer);
     BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
         std::string(".event.security.registration.aes.salt"), aesreg_salt_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".event.security.registration.aes.key"), aesreg_key_buffer);
+    BaseMessageProcessor::get_config_manager()->get_opt(cluster_name + \
+        std::string(".event.security.registration.aes.iv"), aesreg_iv_buffer);
     if (aes_enabled_buffer.val == "true") {
       // Find a CLyman instance in the cluster
       AOSSL::ServiceInterface *clyman_instance = \
@@ -243,10 +255,14 @@ ProcessResult* \
         resp_interface->set_event_destination_port(std::stoi(clyman_instance->get_port()));
         delete clyman_instance;
       }
-      resp_interface->set_encryption_key(aesreg_key_buffer.val);
+      resp_interface->set_encryption_password(aesreg_password_buffer.val);
       resp_interface->set_encryption_salt(aesreg_salt_buffer.val);
-      resp_interface->set_decryption_key(aesout_key_buffer.val);
+      resp_interface->set_encryption_key(aesreg_key_buffer.val);
+      resp_interface->set_encryption_iv(aesreg_iv_buffer.val);
+      resp_interface->set_decryption_password(aesout_password_buffer.val);
       resp_interface->set_decryption_salt(aesout_salt_buffer.val);
+      resp_interface->set_decryption_key(aesout_key_buffer.val);
+      resp_interface->set_decryption_iv(aesout_iv_buffer.val);
     }
 
     // Add the origin scene to the response

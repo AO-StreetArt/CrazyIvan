@@ -48,13 +48,13 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         set_transaction_id(tranid_iter->value.GetString());
       }
     }
-    // Encryption Key
-    rapidjson::Value::ConstMemberIterator enckey_iter = \
-      d.FindMember("encryption_key");
-    if (enckey_iter != d.MemberEnd()) {
-      SceneList::logger().debug("Encryption Key found");
-      if (enckey_iter->value.IsString()) {
-        set_encryption_key(enckey_iter->value.GetString());
+    // Encryption Password
+    rapidjson::Value::ConstMemberIterator encpass_iter = \
+      d.FindMember("encryption_password");
+    if (encpass_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Encryption Password found");
+      if (encpass_iter->value.IsString()) {
+        set_encryption_key(encpass_iter->value.GetString());
       }
     }
     // Encryption Salt
@@ -66,13 +66,31 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         set_encryption_salt(encsalt_iter->value.GetString());
       }
     }
-    // Decryption Key
-    rapidjson::Value::ConstMemberIterator deckey_iter = \
-      d.FindMember("decryption_key");
-    if (deckey_iter != d.MemberEnd()) {
-      SceneList::logger().debug("Decryption Key found");
-      if (deckey_iter->value.IsString()) {
-        set_decryption_key(deckey_iter->value.GetString());
+    // Encryption Key
+    rapidjson::Value::ConstMemberIterator enckey_iter = \
+      d.FindMember("encryption_key");
+    if (enckey_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Encryption Key found");
+      if (enckey_iter->value.IsString()) {
+        set_encryption_key(enckey_iter->value.GetString());
+      }
+    }
+    // Encryption IV
+    rapidjson::Value::ConstMemberIterator enciv_iter = \
+      d.FindMember("encryption_iv");
+    if (enciv_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Encryption IV found");
+      if (enciv_iter->value.IsString()) {
+        set_encryption_salt(enciv_iter->value.GetString());
+      }
+    }
+    // Decryption Password
+    rapidjson::Value::ConstMemberIterator decpass_iter = \
+      d.FindMember("decryption_password");
+    if (decpass_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Decryption Password found");
+      if (decpass_iter->value.IsString()) {
+        set_decryption_password(decpass_iter->value.GetString());
       }
     }
     // Decryption Salt
@@ -82,6 +100,24 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       SceneList::logger().debug("Decryption Salt found");
       if (decsalt_iter->value.IsString()) {
         set_decryption_salt(decsalt_iter->value.GetString());
+      }
+    }
+    // Decryption Key
+    rapidjson::Value::ConstMemberIterator deckey_iter = \
+      d.FindMember("decryption_key");
+    if (deckey_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Decryption Key found");
+      if (deckey_iter->value.IsString()) {
+        set_decryption_key(deckey_iter->value.GetString());
+      }
+    }
+    // Decryption IV
+    rapidjson::Value::ConstMemberIterator deciv_iter = \
+      d.FindMember("decryption_iv");
+    if (deciv_iter != d.MemberEnd()) {
+      SceneList::logger().debug("Decryption IV found");
+      if (deciv_iter->value.IsString()) {
+        set_decryption_iv(deciv_iter->value.GetString());
       }
     }
     // Event Destination Host
@@ -411,11 +447,11 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       writer.String(get_transaction_id().c_str(), \
       (rapidjson::SizeType)get_transaction_id().length());
     }
-    // Add the Encryption Key
-    if (!(get_encryption_key().empty())) {
-      writer.Key("encryption_key");
-      writer.String(get_encryption_key().c_str(), \
-      (rapidjson::SizeType)get_encryption_key().length());
+    // Add the Encryption Password
+    if (!(get_encryption_password().empty())) {
+      writer.Key("encryption_password");
+      writer.String(get_encryption_password().c_str(), \
+      (rapidjson::SizeType)get_encryption_password().length());
     }
     // Add the Encryption Salt
     if (!(get_encryption_salt().empty())) {
@@ -423,17 +459,41 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       writer.String(get_encryption_salt().c_str(), \
       (rapidjson::SizeType)get_encryption_salt().length());
     }
-    // Add the Decryption Key
-    if (!(get_decryption_key().empty())) {
-      writer.Key("decryption_key");
-      writer.String(get_decryption_key().c_str(), \
-      (rapidjson::SizeType)get_decryption_key().length());
+    // Add the Encryption Key
+    if (!(get_encryption_key().empty())) {
+      writer.Key("encryption_key");
+      writer.String(get_encryption_key().c_str(), \
+      (rapidjson::SizeType)get_encryption_key().length());
+    }
+    // Add the Encryption IV
+    if (!(get_encryption_iv().empty())) {
+      writer.Key("encryption_iv");
+      writer.String(get_encryption_iv().c_str(), \
+      (rapidjson::SizeType)get_encryption_iv().length());
+    }
+    // Add the Decryption Password
+    if (!(get_decryption_password().empty())) {
+      writer.Key("decryption_password");
+      writer.String(get_decryption_password().c_str(), \
+      (rapidjson::SizeType)get_decryption_password().length());
     }
     // Add the Decryption Salt
     if (!(get_decryption_salt().empty())) {
       writer.Key("decryption_salt");
       writer.String(get_decryption_salt().c_str(), \
       (rapidjson::SizeType)get_decryption_salt().length());
+    }
+    // Add the Decryption Key
+    if (!(get_decryption_key().empty())) {
+      writer.Key("decryption_key");
+      writer.String(get_decryption_key().c_str(), \
+      (rapidjson::SizeType)get_decryption_key().length());
+    }
+    // Add the Decryption IV
+    if (!(get_decryption_iv().empty())) {
+      writer.Key("decryption_iv");
+      writer.String(get_decryption_iv().c_str(), \
+      (rapidjson::SizeType)get_decryption_iv().length());
     }
     // Add the Event Destination Host
     if (!(get_event_destination_host().empty())) {

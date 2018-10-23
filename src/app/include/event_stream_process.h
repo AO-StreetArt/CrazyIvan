@@ -43,9 +43,9 @@ class EventSender : public Poco::Runnable {
   bool encrypted = false;
   bool decrypted = false;
   std::string encrypt_key;
-  std::string encrypt_salt;
+  std::string encrypt_iv;
   std::string decrypt_key;
-  std::string decrypt_salt;
+  std::string decrypt_iv;
   Poco::Logger& logger;
 public:
   EventSender(DeviceCache *c, char *evt, boost::asio::io_service &ios) : logger(Poco::Logger::get("Event")) {
@@ -53,23 +53,27 @@ public:
     event = evt;
     io_service = &ios;
   }
-  EventSender(DeviceCache *c, char *evt, boost::asio::io_service &ios, std::string& epasswd, std::string& esalt, std::string& dpasswd, std::string& dsalt) : logger(Poco::Logger::get("Event"))  {
+  EventSender(DeviceCache *c, char *evt, boost::asio::io_service &ios, std::string& ekey, std::string& eiv, std::string& dkey, std::string& deciv) : logger(Poco::Logger::get("Event"))  {
     cache = c;
     event = evt;
     io_service = &ios;
     encrypted = true;
     decrypted = true;
-    encrypt_key.assign(epasswd);
-    encrypt_salt.assign(esalt);
-    decrypt_key.assign(dpasswd);
-    decrypt_salt.assign(dsalt);
+    encrypt_key.assign(ekey);
+    encrypt_iv.assign(eiv);
+    decrypt_key.assign(dkey);
+    decrypt_iv.assign(deciv);
   }
   virtual void run() {
     logger.debug("Sending Object Updates");
     Poco::Crypto::CipherFactory& factory = Poco::Crypto::CipherFactory::defaultFactory();
     // Creates a 256-bit AES cipher (one for encryption, one for decryption)
-    Poco::Crypto::Cipher* eCipher = factory.createCipher(Poco::Crypto::CipherKey("aes-256-cbc", encrypt_key, encrypt_salt));
-    Poco::Crypto::Cipher* dCipher = factory.createCipher(Poco::Crypto::CipherKey("aes-256-cbc", decrypt_key, decrypt_salt));
+    std::vector<unsigned char> encrypt_key_vect(encrypt_key.begin(), encrypt_key.end());
+    std::vector<unsigned char> encrypt_iv_vect(encrypt_iv.begin(), encrypt_iv.end());
+    std::vector<unsigned char> decrypt_key_vect(decrypt_key.begin(), decrypt_key.end());
+    std::vector<unsigned char> decrypt_iv_vect(decrypt_iv.begin(), decrypt_iv.end());
+    Poco::Crypto::Cipher* eCipher = factory.createCipher(Poco::Crypto::CipherKey("aes-256-cbc", encrypt_key_vect, encrypt_iv_vect));
+    Poco::Crypto::Cipher* dCipher = factory.createCipher(Poco::Crypto::CipherKey("aes-256-cbc", decrypt_key_vect, decrypt_iv_vect));
     // Find the Scene ID
     std::string event_string(event);
     logger.debug(event_string);
@@ -116,25 +120,11 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
   Poco::Logger& logger = Poco::Logger::get("Event");
   logger.information("Starting Event Stream");
   is_sender_running = true;
-  std::vector<EventSender*> evt_senders {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+  std::vector<EventSender*> evt_senders {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
   try {
-    // Get the configuration values out of the configuration profile
-    AOSSL::StringBuffer aes_enabled_buffer;
-    AOSSL::StringBuffer aesin_key_buffer;
-    AOSSL::StringBuffer aesin_salt_buffer;
-    AOSSL::StringBuffer aesout_key_buffer;
-    AOSSL::StringBuffer aesout_salt_buffer;
+    // Get the udp port out of the configuration profile
     AOSSL::StringBuffer udp_port;
     config->get_opt(std::string("udp.port"), udp_port);
-    config->get_opt(std::string("event.security.aes.enabled"), aes_enabled_buffer);
-    config->get_opt(config->get_cluster_name() + \
-        std::string(".event.security.out.aes.key"), aesout_key_buffer);
-    config->get_opt(config->get_cluster_name() + \
-        std::string(".event.security.out.aes.salt"), aesout_salt_buffer);
-    config->get_opt(config->get_cluster_name() + \
-        std::string(".event.security.in.aes.key"), aesin_key_buffer);
-    config->get_opt(config->get_cluster_name() + \
-        std::string(".event.security.in.aes.salt"), aesin_salt_buffer);
     int port = std::stoi(udp_port.val);
     bool aes_enabled = false;
     if (aes_enabled_buffer.val == "true") aes_enabled = true;
@@ -144,6 +134,22 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
     boost::asio::ip::udp::socket socket(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port));
     // Listen on the UDP Socket
     while (is_app_running.load()) {
+      // Load Security config, having it here allows dynamic
+      // security updates.
+      AOSSL::StringBuffer aes_enabled_buffer;
+      AOSSL::StringBuffer aesin_key_buffer;
+      AOSSL::StringBuffer aesin_iv_buffer;
+      AOSSL::StringBuffer aesout_key_buffer;
+      AOSSL::StringBuffer aesout_iv_buffer;
+      config->get_opt(std::string("event.security.aes.enabled"), aes_enabled_buffer);
+      config->get_opt(config->get_cluster_name() + \
+          std::string(".event.security.out.aes.key"), aesout_key_buffer);
+      config->get_opt(config->get_cluster_name() + \
+          std::string(".event.security.out.aes.iv"), aesout_iv_buffer);
+      config->get_opt(config->get_cluster_name() + \
+          std::string(".event.security.in.aes.key"), aesin_key_buffer);
+      config->get_opt(config->get_cluster_name() + \
+          std::string(".event.security.in.aes.iv"), aesin_iv_buffer);
       // Build a buffer and recieve a message
       char recv_buf[EVENT_LENGTH];
       boost::asio::mutable_buffers_1 bbuffer = boost::asio::buffer(recv_buf);
@@ -162,18 +168,25 @@ void event_stream(DeviceCache *cache, AOSSL::TieredApplicationProfile *config) {
         if (evt_senders[sender_index]) delete evt_senders[sender_index];
         // Build the new event sender
         if (aes_enabled) {
-          evt_senders[sender_index] = new EventSender(cache, event_msg, io_service, aesout_key_buffer.val, aesout_salt_buffer.val, aesin_key_buffer.val, aesin_salt_buffer.val);
+          evt_senders[sender_index] = new EventSender(cache, event_msg, io_service, aesout_key_buffer.val, aesout_iv_buffer.val, aesin_key_buffer.val, aesin_iv_buffer.val);
         } else {
           evt_senders[sender_index] = new EventSender(cache, event_msg, io_service);
         }
         // Fire off another thread to actually send UDP messages
+        if (sender_index == 12) {
+            // If we have used up all the space in our array of senders,
+            // then we should wait for other threads to complete before
+            // pulling the next message.
+            Poco::ThreadPool::defaultPool().joinAll();
+            sender_index = 0;
+        }
         try {
           Poco::ThreadPool::defaultPool().start(*(evt_senders[sender_index]));
           sender_index = sender_index + 1;
         } catch (Poco::NoThreadAvailableException& e) {
-          // If no more threads are available, then execute the updates on the
-          // main thread, and wait for other threads to complete before pulling
-          // the next message.
+          // If no more threads are available, then we execute on the main
+          // thread, and wait for other threads to complete before
+          // pulling the next message.
           evt_senders[sender_index]->run();
           Poco::ThreadPool::defaultPool().joinAll();
           sender_index = 0;

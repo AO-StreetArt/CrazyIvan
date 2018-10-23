@@ -36,10 +36,14 @@ class SceneListInterface {
   virtual void set_err_msg(std::string new_err) = 0;
   virtual void set_event_destination_host(std::string new_host) = 0;
   virtual void set_event_destination_port(int new_port) = 0;
-  virtual void set_decryption_key(std::string new_key) = 0;
+  virtual void set_decryption_password(std::string new_password) = 0;
   virtual void set_decryption_salt(std::string new_salt) = 0;
-  virtual void set_encryption_key(std::string new_key) = 0;
+  virtual void set_decryption_key(std::string new_key) = 0;
+  virtual void set_decryption_iv(std::string new_iv) = 0;
+  virtual void set_encryption_password(std::string new_password) = 0;
   virtual void set_encryption_salt(std::string new_salt) = 0;
+  virtual void set_encryption_key(std::string new_key) = 0;
+  virtual void set_encryption_iv(std::string new_iv) = 0;
   virtual void set_transaction_id(std::string new_tran_id) = 0;
   virtual void set_err_code(int new_code) = 0;
   virtual void add_scene(SceneInterface *scn) = 0;

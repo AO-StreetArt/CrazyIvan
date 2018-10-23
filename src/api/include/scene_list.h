@@ -34,25 +34,36 @@ limitations under the License.
 
 // A single scene message, may include data for multiple scene objects
 class SceneList : public SceneListInterface {
+  // Factories
+  TransformFactory tfactory;
+  UserDeviceFactory udfactory;
+  // Logger
+  Poco::Logger& logr;
+  // Core attributes
   int msg_type = -1;
   int operation = APPEND;
   std::string err_msg = "";
   int err_code = 100;
   std::string transaction_id = "";
-  std::string event_destination_host;
-  int event_destination_port;
-  std::string decryption_key;
-  std::string decryption_salt;
-  std::string encryption_key;
-  std::string encryption_salt;
-  std::vector<SceneInterface*> data;
   int start_record = 0;
   int num_records = 10;
+  std::vector<SceneInterface*> data;
+  // Attributes to store json string values
   std::string ret_string = "";
   const char* ret_val;
-  TransformFactory tfactory;
-  UserDeviceFactory udfactory;
-  Poco::Logger& logr;
+  // Returned during registration
+  std::string event_destination_host;
+  int event_destination_port;
+  // Decryption info
+  std::string decryption_password;
+  std::string decryption_salt;
+  std::string decryption_key;
+  std::string decryption_iv;
+  // Encryption info
+  std::string encryption_password;
+  std::string encryption_salt;
+  std::string encryption_key;
+  std::string encryption_iv;
  public:
   inline Poco::Logger& logger() {return logr;}
   inline TransformInterface* create_transform() \
@@ -81,10 +92,14 @@ class SceneList : public SceneListInterface {
     {transaction_id = new_tran_id;}
   void set_event_destination_host(std::string new_host) {event_destination_host.assign(new_host);}
   void set_event_destination_port(int new_port) {event_destination_port=new_port;}
-  void set_decryption_key(std::string new_key) {decryption_key.assign(new_key);}
+  void set_decryption_password(std::string new_password) {decryption_password.assign(new_password);}
   void set_decryption_salt(std::string new_salt) {decryption_salt.assign(new_salt);}
-  void set_encryption_key(std::string new_key) {encryption_key.assign(new_key);}
+  void set_decryption_key(std::string new_key) {decryption_key.assign(new_key);}
+  void set_decryption_iv(std::string new_iv) {decryption_iv.assign(new_iv);}
+  void set_encryption_password(std::string new_password) {encryption_password.assign(new_password);}
   void set_encryption_salt(std::string new_salt) {encryption_salt.assign(new_salt);}
+  void set_encryption_key(std::string new_key) {encryption_key.assign(new_key);}
+  void set_encryption_iv(std::string new_iv) {encryption_iv.assign(new_iv);}
   void set_err_code(int new_code) {err_code = new_code;}
   void add_scene(SceneInterface *scn) {data.push_back(scn);}
   void set_num_records(int new_num) {num_records = new_num;}
@@ -96,10 +111,14 @@ class SceneList : public SceneListInterface {
   std::string get_transaction_id() {return transaction_id;}
   std::string get_event_destination_host() {return event_destination_host;}
   int get_event_destination_port() {return event_destination_port;}
-  std::string get_decryption_key() {return decryption_key;}
+  std::string get_decryption_password() {return decryption_password;}
   std::string get_decryption_salt() {return decryption_salt;}
-  std::string get_encryption_key() {return encryption_key;}
+  std::string get_decryption_key() {return decryption_key;}
+  std::string get_decryption_iv() {return decryption_iv;}
+  std::string get_encryption_password() {return encryption_password;}
   std::string get_encryption_salt() {return encryption_salt;}
+  std::string get_encryption_key() {return encryption_key;}
+  std::string get_encryption_iv() {return encryption_iv;}
   int get_err_code() {return err_code;}
   inline SceneInterface* get_scene(unsigned int i) {
     if (i < data.size()) return data[i];
