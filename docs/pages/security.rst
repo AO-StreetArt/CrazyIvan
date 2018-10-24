@@ -27,7 +27,13 @@ a client cert.  This can be used to test the secured transactional setup.
 Events
 ------
 
-UDP Events utilize AES encryption, with the key and salt set in the application configuration.
+UDP Events utilize AES-256-cbc encryption, with the key, password, salt, and IV
+set in the application configuration.  AES-256 bit keys can be generated with
+the below command:
+
+`openssl enc -aes-256-cbc -k secret -P -md sha1`
+
+Where 'secret' is a password for generating the key.
 
 Keep in mind that AES encryption is symmetrical, meaning that the encryption keys
 must be distributed to the clients in order to encrypt traffic between them
