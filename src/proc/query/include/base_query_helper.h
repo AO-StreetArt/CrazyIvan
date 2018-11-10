@@ -220,9 +220,8 @@ class BaseQueryHelper {
       query_str.append(")");
       bool is_started = false;
       // Check for Tags
-      // We will only query for the first tag supplied
       if (scn->num_tags() > 0) {
-        query_str.append(" WHERE {inp_tag} in scn.tags");
+        query_str.append(" WHERE ALL(x in {inp_tags} WHERE x in scn.tags)");
         is_started = true;
       }
       // Check for a distance-based query
