@@ -221,7 +221,7 @@ class BaseQueryHelper {
       bool is_started = false;
       // Check for Tags
       if (scn->num_tags() > 0) {
-        query_str.append(" WHERE ALL(x in {inp_tag} WHERE x in scn.tags)");
+        query_str.append(" WHERE ALL(x in {inp_tags} WHERE x in scn.tags)");
         is_started = true;
       }
       // Check for a distance-based query
@@ -352,7 +352,7 @@ class BaseQueryHelper {
           tag_param->add_value(scn->get_tag(j));
           log.debug("Tag: %s", scn->get_tag(j));
         }
-        scene_params.emplace("inp_tag", tag_param);
+        scene_params.emplace("inp_tags", tag_param);
       }
     }
   }
