@@ -227,13 +227,8 @@
 						"id": "c39c71d9-6266-4304-a905-718a3fad5582",
 						"type": "text/javascript",
 						"exec": [
-							"pm.test(\"Status code is not 200\", function () {",
-							"    pm.response.to.not.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Check Error Code\", function () {",
-							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.err_code).to.not.eql(100);",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
 							"});",
 							""
 						]
