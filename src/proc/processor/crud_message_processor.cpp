@@ -193,83 +193,72 @@ ProcessResult* \
     Neocpp::ResultsIteratorInterface *results = NULL;
     BaseMessageProcessor::logger().debug("Processing Scene Retrieve message");
 
-    if (obj_msg->get_scene(0)->get_name().empty() && \
-      obj_msg->get_scene(0)->get_latitude() + 9999.0 < 0.0001 && \
-      obj_msg->get_scene(0)->get_longitude() + 9999.0 < 0.0001 && \
-      obj_msg->get_scene(0)->get_distance() < 0.0001 && \
-      obj_msg->get_scene(0)->get_key().empty() && \
-      obj_msg->get_scene(0)->get_region().empty() && \
-      obj_msg->get_scene(0)->num_tags() == 0) {
-      BaseMessageProcessor::logger().error("No fields found in get message");
-      response->set_error(INSUFF_DATA_ERROR, "Insufficient fields for get");
-    } else {
-      // Set up the Cypher Query for scene retrieval
-      std::string scene_query;
-      BaseMessageProcessor::get_query_helper()->generate_scene_crud_query(obj_msg->get_scene(0)->get_key(), \
-        GET_QUERY_TYPE, APPEND, obj_msg->get_scene(0), scene_query);
+    // Set up the Cypher Query for scene retrieval
+    std::string scene_query;
+    BaseMessageProcessor::get_query_helper()->generate_scene_crud_query(obj_msg->get_scene(0)->get_key(), \
+      GET_QUERY_TYPE, APPEND, obj_msg->get_scene(0), scene_query);
 
-      BaseMessageProcessor::logger().debug("Executing Query: %s", scene_query);
+    BaseMessageProcessor::logger().debug("Executing Query: %s", scene_query);
 
-      // Set up the query parameters for scene retrieval
-      BaseMessageProcessor::get_query_helper()->generate_query_parameters(obj_msg->get_scene(0)->get_key(), \
-        GET_QUERY_TYPE, obj_msg->get_scene(0), obj_msg->get_start_record(), obj_msg->get_num_records(), scene_params);
+    // Set up the query parameters for scene retrieval
+    BaseMessageProcessor::get_query_helper()->generate_query_parameters(obj_msg->get_scene(0)->get_key(), \
+      GET_QUERY_TYPE, obj_msg->get_scene(0), obj_msg->get_start_record(), obj_msg->get_num_records(), scene_params);
 
-      // Execute the query
-      try {
-        results = \
-          BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
-          scene_params);
-        if (!results) {
-          BaseMessageProcessor::logger().error("No results returned from query");
-          response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
-        } else {
-          // Pull results and return
-          SceneListInterface *sc = BaseMessageProcessor::get_slfactory().build_json_scene();
-          sc->set_err_code(NO_ERROR);
-          sc->set_msg_type(SCENE_GET);
-          sc->set_transaction_id(obj_msg->get_transaction_id());
-          Neocpp::ResultTreeInterface *tree = results->next();
-          int num_results = 0;
-          while (tree) {
-            SceneInterface *data = \
-              BaseMessageProcessor::get_sfactory().build_scene();
+    // Execute the query
+    try {
+      results = \
+        BaseMessageProcessor::get_neo4j_interface()->execute(scene_query, \
+        scene_params);
+      if (!results) {
+        BaseMessageProcessor::logger().error("No results returned from query");
+        response->set_error(PROCESSING_ERROR, "Error processing Scene Get");
+      } else {
+        // Pull results and return
+        SceneListInterface *sc = BaseMessageProcessor::get_slfactory().build_json_scene();
+        sc->set_err_code(NO_ERROR);
+        sc->set_msg_type(SCENE_GET);
+        sc->set_transaction_id(obj_msg->get_transaction_id());
+        Neocpp::ResultTreeInterface *tree = results->next();
+        int num_results = 0;
+        while (tree) {
+          SceneInterface *data = \
+            BaseMessageProcessor::get_sfactory().build_scene();
 
-            // Get the first DB Object (Node)
-            Neocpp::DbObjectInterface* obj = tree->get(0);
-            BaseMessageProcessor::logger().debug("Query Result: %s", obj->to_string());
+          // Get the first DB Object (Node)
+          Neocpp::DbObjectInterface* obj = tree->get(0);
+          BaseMessageProcessor::logger().debug("Query Result: %s", obj->to_string());
 
-            // Leave the loop if we don't have anything in this result tree
-            if (!(obj->is_node()) && !(obj->is_edge())) break;
-            num_results = num_results + 1;
+          // Leave the loop if we don't have anything in this result tree
+          if (!(obj->is_node()) && !(obj->is_edge())) break;
+          num_results = num_results + 1;
 
-            // Pull the node properties and assign them to the new
-            // Scene object
-            BaseMessageProcessor::get_query_helper()->assign_scene_properties(\
-              obj, data);
+          // Pull the node properties and assign them to the new
+          // Scene object
+          BaseMessageProcessor::get_query_helper()->assign_scene_properties(\
+            obj, data);
 
-            sc->add_scene(data);
+          sc->add_scene(data);
 
-            // Iterate to the next result
-            if (tree) delete tree;
-            if (obj) delete obj;
-            tree = results->next();
-          }
-          if (num_results > 0) {
-            sc->print();
-            std::string msg_string;
-            sc->to_msg_string(msg_string);
-            response->set_return_string(msg_string);
-          } else {
-            response->set_error(NOT_FOUND, "Document not found");
-          }
-          if (sc) delete sc;
+          // Iterate to the next result
+          if (tree) delete tree;
+          if (obj) delete obj;
+          tree = results->next();
         }
+        if (num_results > 0) {
+          sc->print();
+          std::string msg_string;
+          sc->to_msg_string(msg_string);
+          response->set_return_string(msg_string);
+        } else {
+          response->set_error(NOT_FOUND, "Document not found");
+        }
+        if (sc) delete sc;
       }
-      catch (std::exception& e) {
-        BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
-          scene_query, e.what());
-        response->set_error(PROCESSING_ERROR, e.what());
-      }
+    }
+    catch (std::exception& e) {
+      BaseMessageProcessor::logger().error("{\"Query\": \"%s\", \"Error\": \"%s\"", \
+        scene_query, e.what());
+      response->set_error(PROCESSING_ERROR, e.what());
     }
     if (results) delete results;
     for (std::pair<std::string, Neocpp::Neo4jQueryParameterInterface*> element : scene_params) {
