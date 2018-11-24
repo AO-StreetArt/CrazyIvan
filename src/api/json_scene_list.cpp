@@ -223,6 +223,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             SceneList::logger().debug("Latitude found");
             if (lat_iter->value.IsDouble()) {
               scd->set_latitude(lat_iter->value.GetDouble());
+            } else if (lat_iter->value.IsInt()) {
+              scd->set_latitude(static_cast<double>(lat_iter->value.GetInt()));
             }
           }
           // Scene Longitude
@@ -232,6 +234,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             SceneList::logger().debug("Longitude found");
             if (long_iter->value.IsDouble()) {
               scd->set_longitude(long_iter->value.GetDouble());
+            } else if (long_iter->value.IsInt()) {
+              scd->set_longitude(static_cast<double>(long_iter->value.GetInt()));
             }
           }
           // Query Distance
@@ -241,6 +245,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             SceneList::logger().debug("Distance found");
             if (dist_iter->value.IsDouble()) {
               scd->set_distance(dist_iter->value.GetDouble());
+            } else if (dist_iter->value.IsInt()) {
+              scd->set_distance(static_cast<double>(dist_iter->value.GetInt()));
             }
           }
 
@@ -294,8 +300,13 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     int i = 0;
                     if (translation_val.IsArray()) {
                       for (auto& translation_itr : translation_val.GetArray()) {
-                        new_scene_transform->translate(i, \
-                          translation_itr.GetDouble());
+                        if (translation_itr.IsDouble()) {
+                          new_scene_transform->translate(i, \
+                            translation_itr.GetDouble());
+                        } else if (translation_itr.IsInt()) {
+                          new_scene_transform->translate(i, \
+                            translation_itr.GetInt());
+                        }
                         ++i;
                       }
                     }
@@ -305,7 +316,11 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                     int i = 0;
                     if (rotation_val.IsArray()) {
                       for (auto& rotation_itr : rotation_val.GetArray()) {
-                        new_scene_transform->rotate(i, rotation_itr.GetDouble());
+                        if (rotation_itr.IsDouble()) {
+                          new_scene_transform->rotate(i, rotation_itr.GetDouble());
+                        } else if (rotation_itr.IsInt()) {
+                          new_scene_transform->rotate(i, rotation_itr.GetInt());
+                        }
                         ++i;
                       }
                     }
@@ -381,6 +396,9 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                                     if (translation_itr.IsDouble()) {
                                       new_ud_transform->translate(i, \
                                         translation_itr.GetDouble());
+                                    } else if (translation_itr.IsInt()) {
+                                      new_ud_transform->translate(i, \
+                                        translation_itr.GetInt());
                                     }
                                     ++i;
                                   }
@@ -394,6 +412,8 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
                                   for (auto& rotation_itr : udrotation_val.GetArray()) {
                                     if (rotation_itr.IsDouble()) {
                                       new_ud_transform->rotate(i, rotation_itr.GetDouble());
+                                    } else if (rotation_itr.IsInt()) {
+                                      new_ud_transform->rotate(i, rotation_itr.GetInt());
                                     }
                                     ++i;
                                   }
