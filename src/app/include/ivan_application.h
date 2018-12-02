@@ -453,8 +453,8 @@ protected:
           ssl_properties_loaded = true;
         }
         // In the /ssl folder (when running in a container)
-        if (file_exists("/ssl/ssl.properties")) {
-          loadConfiguration("/ssl/ssl.properties");
+        if (file_exists("/ssl/ivan/ssl.properties")) {
+          loadConfiguration("/ssl/ivan/ssl.properties");
           ssl_properties_loaded = true;
         }
         if (!ssl_properties_loaded) {
