@@ -146,38 +146,42 @@ protected:
     }
 
     // Add secure opts
-    config.add_secure_opt(config.get_cluster_name() + \
+    std::vector<std::string> secure_ops;
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".transaction.security.auth.user"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".transaction.security.auth.password"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".transaction.security.hash.password"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.out.aes.key"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.out.aes.iv"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.out.aes.password"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.out.aes.salt"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.registration.aes.key"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.registration.aes.salt"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.registration.aes.password"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.registration.aes.iv"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.in.aes.key"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.in.aes.salt"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.in.aes.iv"));
-    config.add_secure_opt(config.get_cluster_name() + \
+    secure_ops.push_back(config.get_cluster_name() + \
         std::string(".event.security.in.aes.password"));
-    config.add_secure_opt(std::string("neo4j.auth.un"));
-    config.add_secure_opt(std::string("neo4j.auth.pw"));
+    secure_ops.push_back(std::string("neo4j.auth.un"));
+    secure_ops.push_back(std::string("neo4j.auth.pw"));
+    for (std::string op: secure_ops) {
+      config.add_secure_opt(op);
+    }
 
     // Set default values for configuration
     config.add_opt(std::string("adrestia"), \
