@@ -33,20 +33,28 @@ class SceneInterface {
   // Setters
   virtual void set_key(std::string new_key) = 0;
   virtual void set_name(std::string new_name) = 0;
+  virtual void set_description(std::string new_desc) = 0;
+  virtual void set_thumbnail(std::string new_thumbnail) = 0;
+  virtual void set_user(std::string new_user) = 0;
   virtual void set_region(std::string new_region) = 0;
   virtual void set_latitude(double new_lat) = 0;
   virtual void set_longitude(double new_long) = 0;
   virtual void set_distance(double new_dist) = 0;
   virtual void set_active(bool new_active) = 0;
+  virtual void set_public(bool new_public) = 0;
 
   // Getters
   virtual std::string get_key() const = 0;
   virtual std::string get_name() const = 0;
+  virtual std::string get_description() const = 0;
+  virtual std::string get_thumbnail() const = 0;
+  virtual std::string get_user() const = 0;
   virtual std::string get_region() const = 0;
   virtual double get_latitude() const = 0;
   virtual double get_longitude() const = 0;
   virtual double get_distance() const = 0;
   virtual bool active() const = 0;
+  virtual bool is_public() const = 0;
 
   // DeviceList
   virtual void add_device(UserDeviceInterface *d) = 0;

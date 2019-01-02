@@ -22,11 +22,15 @@ SceneDocument::SceneDocument(const SceneDocument& sd) {
   // Basic Attributes
   key = sd.get_key();
   name = sd.get_name();
+  description = sd.get_description();
+  user = sd.get_user();
+  thumbnail = sd.get_thumbnail();
   region = sd.get_region();
   SceneData::set_latitude(sd.get_latitude());
   SceneData::set_longitude(sd.get_longitude());
   distance = sd.get_distance();
   is_active = sd.active();
+  _is_public = sd.is_public();
   trns_flag = false;
   //Scene Assets
   for (int i = 0; i < sd.num_assets(); i++) {

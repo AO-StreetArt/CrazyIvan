@@ -63,6 +63,9 @@ TEST_CASE( "Test Scene List Data Structure", "[unit]" ) {
 
   std::string sk = "12345";
   std::string sname = "Test Name";
+  std::string sdesc = "Test Description";
+  std::string suser = "Test User";
+  std::string sthumbnail = "Test Thumbnail";
   std::string asset1 = "First Asset";
   std::string asset2 = "Second Asset";
   std::string asset3 = "Third Asset";
@@ -75,6 +78,9 @@ TEST_CASE( "Test Scene List Data Structure", "[unit]" ) {
   std::string region2 = "Italy";
   scene->set_key(sk);
   scene->set_name(sname);
+  scene->set_description(sdesc);
+  scene->set_thumbnail(sthumbnail);
+  scene->set_user(suser);
   scene->set_latitude(100.0);
   scene->set_longitude(120.0);
   scene->set_distance(20.0);
@@ -133,6 +139,8 @@ TEST_CASE( "Test Scene List Data Structure", "[unit]" ) {
 
   REQUIRE(translated_json_list->get_scene(0)->get_key() == "12345");
   REQUIRE(translated_json_list->get_scene(0)->get_name() == "Test Name");
+  REQUIRE(translated_json_list->get_scene(0)->get_description() == "Test Description");
+  REQUIRE(translated_json_list->get_scene(0)->get_thumbnail() == "Test Thumbnail");
   REQUIRE(translated_json_list->get_scene(0)->get_region() == "USA");
   REQUIRE(translated_json_list->get_scene(0)->get_latitude() - 100.0 < TOLERANCE);
   REQUIRE(translated_json_list->get_scene(0)->get_longitude() - 120.0 < TOLERANCE);

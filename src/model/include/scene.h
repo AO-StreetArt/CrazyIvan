@@ -44,8 +44,12 @@ class SceneDocument : public SceneData, public SceneInterface {
   std::string key = "";
   std::string name = "";
   std::string region = "";
+  std::string description = "";
+  std::string thumbnail = "";
+  std::string user = "";
   double distance = 0.0;
   bool is_active = true;
+  bool _is_public = true;
   bool trns_flag = false;
   TransformInterface* scene_transform;
   std::vector<std::string> tag_vect;
@@ -63,20 +67,28 @@ class SceneDocument : public SceneData, public SceneInterface {
   // Setters
   void set_key(std::string new_key) {key = new_key;}
   void set_name(std::string new_name) {name = new_name;}
+  void set_description(std::string new_desc) {description = new_desc;}
+  void set_user(std::string new_user) {user = new_user;}
   void set_region(std::string new_region) {region = new_region;}
+  void set_thumbnail(std::string new_thumbnail) {thumbnail = new_thumbnail;}
   void set_latitude(double new_lat) {SceneData::set_latitude(new_lat);}
   void set_longitude(double new_long) {SceneData::set_longitude(new_long);}
   void set_distance(double new_dist) {distance = new_dist;}
   void set_active(bool new_active) {is_active = new_active;}
+  void set_public(bool new_public) {_is_public = new_public;}
 
   // Getters
   std::string get_key() const {return key;}
+  std::string get_description() const {return description;}
   std::string get_name() const {return name;}
+  std::string get_user() const {return user;}
+  std::string get_thumbnail() const {return thumbnail;}
   std::string get_region() const {return region;}
   double get_latitude() const {return SceneData::get_latitude();}
   double get_longitude() const {return SceneData::get_longitude();}
   double get_distance() const {return distance;}
   bool active() const {return is_active;}
+  bool is_public() const {return _is_public;}
 
   // List
   void add_device(UserDeviceInterface *d) {SceneData::add_device(d);}
@@ -108,8 +120,8 @@ class SceneDocument : public SceneData, public SceneInterface {
 
   // Print
   inline void print() {
-    Poco::Logger::get("Data").debug("{\"Scene\": {\"key\": \"%s\", \"name\": \"%s\", \"latitude\": %f, \"longitude\": %f, \"distance\": %f}}", \
-      key, name, get_latitude(), get_longitude(), distance);
+    Poco::Logger::get("Data").debug("{\"Scene\": {\"key\": \"%s\", \"name\": \"%s\", \"description\": \"%s\", \"user\": \"%s\", \"thumbnail\": \"%s\", \"latitude\": %f, \"longitude\": %f, \"distance\": %f}}", \
+      key, name, description, user, thumbnail, get_latitude(), get_longitude(), distance);
     for (int i = 0; i < num_devices(); i++) {get_device(i)->print();}
     for (int j = 0; j < num_assets(); j++) {Poco::Logger::get("Data").debug(get_asset(j));}
     if (trns_flag) {scene_transform->print();}

@@ -61,9 +61,10 @@ class SceneKeyRequestHandler: public Poco::Net::HTTPRequestHandler {
   SceneListFactory scene_list_factory;
   SceneFactory scene_factory;
   int msg_type = -1;
+  std::string aesel_principal = "";
  public:
-  SceneKeyRequestHandler(AOSSL::KeyValueStoreInterface *conf, ProcessorInterface *processor, std::string &inp_key, int mtype) \
-    {config=conf;proc=processor;input_key.assign(inp_key);msg_type=mtype;}
+  SceneKeyRequestHandler(AOSSL::KeyValueStoreInterface *conf, ProcessorInterface *processor, std::string &inp_key, int mtype, std::string& principal_header) \
+    {config=conf;proc=processor;input_key.assign(inp_key);msg_type=mtype;aesel_principal.assign(principal_header);}
   void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response) {
     Poco::Logger::get("Controller").debug("Responding to Scene Key Request");
     response.setChunkedTransferEncoding(true);

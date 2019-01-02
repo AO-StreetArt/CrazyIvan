@@ -104,6 +104,15 @@ class BaseQueryHelper {
     if (map->element_exists("region")) {
       data->set_region(map->get_string_element("region"));
     }
+    if (map->element_exists("description")) {
+      data->set_description(map->get_string_element("description"));
+    }
+    if (map->element_exists("user")) {
+      data->set_user(map->get_string_element("user"));
+    }
+    if (map->element_exists("thumbnail")) {
+      data->set_thumbnail(map->get_string_element("thumbnail"));
+    }
     if (map->element_exists("latitude")) {
       data->set_latitude(map->get_float_element("latitude"));
     }
@@ -161,12 +170,17 @@ class BaseQueryHelper {
     if (!(key.empty())) {
       query_str.append(" {key: {inp_key}");
       key_query = true;
+      if (!(scn->get_user().empty() || scn->is_public())) {
+        query_str.append(", user: {inp_user}");
+      } else if (scn->is_public()) {
+        query_str.append(", public: {inp_public}");
+      }
       if (crud_op == GET_QUERY_TYPE) {query_str.append("})");}
     }
 
     // Build an update query
     if (crud_op == UPDATE_QUERY_TYPE) {
-      query_str.append("}) SET scn.active = {inp_active}");
+      query_str.append("}) SET scn.active = {inp_active}, scn.public = {inp_public}");
       if (!(scn->get_name().empty())) {
         query_str.append(", scn.name = {inp_name}");
       }
@@ -178,6 +192,15 @@ class BaseQueryHelper {
       }
       if (!(scn->get_region().empty())) {
         query_str.append(", scn.region = {inp_region}");
+      }
+      if (!(scn->get_description().empty())) {
+        query_str.append(", scn.description = {inp_description}");
+      }
+      if (!(scn->get_user().empty())) {
+        query_str.append(", scn.user = {inp_user}");
+      }
+      if (!(scn->get_thumbnail().empty())) {
+        query_str.append(", scn.thumbnail = {inp_thumbnail}");
       }
       if (scn->num_assets() > 0) {
         if (op_type == APPEND) {
@@ -203,17 +226,31 @@ class BaseQueryHelper {
       bool inp_name_empty = scn->get_name().empty();
       bool inp_region_empty = scn->get_region().empty();
       if ((!inp_name_empty) || (!inp_region_empty)) {
+        bool is_query_started = false;
         query_str.append(" {");
         // Start by checking for a name
         if (!inp_name_empty) {
           query_str.append("name: {inp_name}");
-        }
-        if ((!inp_name_empty) && (!inp_region_empty)) {
-          query_str.append(", ");
+          is_query_started = true;
         }
         // Check for Region
         if (!inp_region_empty) {
+          if (is_query_started) {
+            query_str.append(", ");
+          }
           query_str.append("region: {inp_region}");
+        }
+        // Either query for private scenes by user, or public ones only
+        if (!(scn->get_user().empty() || scn->is_public())) {
+          if (is_query_started) {
+            query_str.append(", ");
+          }
+          query_str.append("user: {inp_user}");
+        } else if (scn->is_public()) {
+          if (is_query_started) {
+            query_str.append(", ");
+          }
+          query_str.append("public: {inp_public}");
         }
         query_str.append("}");
       }
@@ -248,7 +285,7 @@ class BaseQueryHelper {
 
     // Build a create query
     } else if (crud_op == CREATE_QUERY_TYPE) {
-      query_str.append(", active: {inp_active}");
+      query_str.append(", public: {inp_public}, active: {inp_active}");
       if (!(scn->get_name().empty())) {
         query_str.append(", name: {inp_name}");
       }
@@ -260,6 +297,15 @@ class BaseQueryHelper {
       }
       if (!(scn->get_region().empty())) {
         query_str.append(", region: {inp_region}");
+      }
+      if (!(scn->get_description().empty())) {
+        query_str.append(", description: {inp_description}");
+      }
+      if (!(scn->get_user().empty())) {
+        query_str.append(", user: {inp_user}");
+      }
+      if (!(scn->get_thumbnail().empty())) {
+        query_str.append(", thumbnail: {inp_thumbnail}");
       }
       if (scn->num_assets() > 0) {
         query_str.append(", assets: {inp_assets}");
@@ -303,6 +349,8 @@ class BaseQueryHelper {
       // Active
       Neocpp::Neo4jQueryParameterInterface *active_param = neo_factory->get_neo4j_query_parameter(scn->active());
       scene_params.emplace("inp_active", active_param);
+      Neocpp::Neo4jQueryParameterInterface *public_param = neo_factory->get_neo4j_query_parameter(scn->is_public());
+      scene_params.emplace("inp_public", public_param);
       // Name
       if (!(scn->get_name().empty())) {
         std::string qname = scn->get_name();
@@ -333,6 +381,24 @@ class BaseQueryHelper {
         Neocpp::Neo4jQueryParameterInterface *region_param = neo_factory->get_neo4j_query_parameter(scn->get_region());
         log.debug("Region: %s", scn->get_region());
         scene_params.emplace("inp_region", region_param);
+      }
+      // Description
+      if (!(scn->get_description().empty())) {
+        Neocpp::Neo4jQueryParameterInterface *desc_param = neo_factory->get_neo4j_query_parameter(scn->get_description());
+        log.debug("Description: %s", scn->get_description());
+        scene_params.emplace("inp_description", desc_param);
+      }
+      // User
+      if (!(scn->get_user().empty() || scn->is_public()) || scn->is_public()) {
+        Neocpp::Neo4jQueryParameterInterface *user_param = neo_factory->get_neo4j_query_parameter(scn->get_user());
+        log.debug("User: %s", scn->get_user());
+        scene_params.emplace("inp_user", user_param);
+      }
+      // Thumbnail
+      if (!(scn->get_thumbnail().empty())) {
+        Neocpp::Neo4jQueryParameterInterface *thumbnail_param = neo_factory->get_neo4j_query_parameter(scn->get_thumbnail());
+        log.debug("Thumbnail: %s", scn->get_thumbnail());
+        scene_params.emplace("inp_thumbnail", thumbnail_param);
       }
       // Assets
       if (scn->num_assets() > 0) {
