@@ -170,12 +170,14 @@ class BaseQueryHelper {
     if (!(key.empty())) {
       query_str.append(" {key: {inp_key}");
       key_query = true;
-      if (!(scn->get_user().empty() || scn->is_public())) {
-        query_str.append(", user: {inp_user}");
-      } else if (scn->is_public()) {
-        query_str.append(", public: {inp_public}");
+      if (crud_op == GET_QUERY_TYPE) {
+        if (!(scn->get_user().empty() || scn->is_public())) {
+          query_str.append(", user: {inp_user}");
+        } else if (scn->is_public()) {
+          query_str.append(", public: {inp_public}");
+        }
+        query_str.append("})");
       }
-      if (crud_op == GET_QUERY_TYPE) {query_str.append("})");}
     }
 
     // Build an update query

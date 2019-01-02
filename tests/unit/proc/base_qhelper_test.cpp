@@ -37,6 +37,7 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   // Basic Tests
   SceneFactory sfactory;
   SceneInterface *scene = sfactory.build_scene();
+  SceneInterface *blank_scene = sfactory.build_scene();
 
   std::string sk = "12345";
   std::string sname = "Test Name";
@@ -83,9 +84,9 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   query_string.clear();
 
   // Build a get query (by key)
-  qh.generate_scene_crud_query(sk, GET_QUERY_TYPE, APPEND, NULL, query_string);
+  qh.generate_scene_crud_query(sk, GET_QUERY_TYPE, APPEND, blank_scene, query_string);
   // Validate the query
-  REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}}) RETURN scn");
+  REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}, public: {inp_public}}) RETURN scn");
 
   query_string.clear();
 
@@ -105,7 +106,7 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   query_string.clear();
 
   // Build an update query
-  qh.generate_scene_crud_query(sk, DELETE_QUERY_TYPE, APPEND, NULL, query_string);
+  qh.generate_scene_crud_query(sk, DELETE_QUERY_TYPE, APPEND, blank_scene, query_string);
   // Validate the query
   REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn");
 
