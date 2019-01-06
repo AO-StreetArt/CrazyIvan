@@ -226,6 +226,24 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
               scd->set_active(active_iter->value.GetBool());
             }
           }
+          // Is Scene Public
+          rapidjson::Value::ConstMemberIterator public_iter = \
+            itr.FindMember("public");
+          if (public_iter != itr.MemberEnd()) {
+            SceneList::logger().debug("Public flag found");
+            if (!(public_iter->value.IsBool())) {
+              scd->set_public(public_iter->value.GetBool());
+            }
+          }
+          // Is Scene Private
+          rapidjson::Value::ConstMemberIterator private_iter = \
+            itr.FindMember("private");
+          if (private_iter != itr.MemberEnd()) {
+            SceneList::logger().debug("Private flag found");
+            if (!(private_iter->value.IsBool())) {
+              scd->set_public(!(private_iter->value.GetBool()));
+            }
+          }
           rapidjson::Value::ConstMemberIterator region_iter = \
             itr.FindMember("region");
           if (region_iter != itr.MemberEnd()) {
