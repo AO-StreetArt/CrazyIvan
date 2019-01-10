@@ -60,6 +60,9 @@ TEST_CASE( "Test Scene Data Structure", "[unit]" ) {
 
   std::string sk = "12345";
   std::string sname = "Test Name";
+  std::string sdesc = "Test Description";
+  std::string suser = "Test User";
+  std::string sthumbnail = "Test Thumbnail";
   std::string asset1 = "First Asset";
   std::string asset2 = "Second Asset";
   std::string tag1 = "First Tag";
@@ -67,6 +70,9 @@ TEST_CASE( "Test Scene Data Structure", "[unit]" ) {
   std::string region = "USA";
   scene->set_key(sk);
   scene->set_name(sname);
+  scene->set_description(sdesc);
+  scene->set_user(suser);
+  scene->set_thumbnail(sthumbnail);
   scene->add_asset(asset1);
   scene->add_asset(asset2);
   scene->add_tag(tag1);
@@ -82,6 +88,9 @@ TEST_CASE( "Test Scene Data Structure", "[unit]" ) {
   REQUIRE(scene->num_devices() == 1);
   REQUIRE(scene->get_key() == "12345");
   REQUIRE(scene->get_name() == "Test Name");
+  REQUIRE(scene->get_description() == "Test Description");
+  REQUIRE(scene->get_user() == "Test User");
+  REQUIRE(scene->get_thumbnail() == "Test Thumbnail");
   REQUIRE(scene->get_asset(0) == "First Asset");
   REQUIRE(scene->get_asset(1) == "Second Asset");
   REQUIRE(scene->get_tag(0) == "First Tag");

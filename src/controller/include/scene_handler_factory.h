@@ -49,6 +49,8 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
   AOSSL::TieredApplicationProfile *config = NULL;
   AccountManagerInterface *accounts = NULL;
   DeviceCache *event_cache = NULL;
+  std::string PRINCIPAL_HEADER_NAME = "X-Aesel-Principal";
+  std::string PRINCIPAL_DEFALT_VALUE = "";
  public:
   SceneHandlerFactory(AOSSL::TieredApplicationProfile *conf, ProcessorInterface *processor, AccountManagerInterface *accts, DeviceCache *cache) \
     {config=conf;proc=processor;accounts = accts;event_cache=cache;}
@@ -98,6 +100,9 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     }
     if (authentication_failure) return NULL;
 
+    // Extract the X-Aesel-Principal header, if available
+    std::string principal_header = request.get(PRINCIPAL_HEADER_NAME, PRINCIPAL_DEFALT_VALUE);
+
     // Parse the URI Path
     Poco::Logger::get("Controller").information("Responding to Request at: %s", request.getURI());
     std::vector<std::string> uri_path;
@@ -109,23 +114,23 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
     // Build a request handler for the message
     if (uri_path.size() > 1 && uri_path[0] == "v1" && request.getMethod() == "POST") {
       if (uri_path.size() == 2 && uri_path[1] == "scene") {
-        return new SceneBaseRequestHandler(config, proc, SCENE_CRT);
+        return new SceneBaseRequestHandler(config, proc, SCENE_CRT, principal_header);
       } else if (uri_path.size() == 3 && uri_path[1] == "scene" && uri_path[2] ==  "query") {
-        return new SceneBaseRequestHandler(config, proc, SCENE_GET);
+        return new SceneBaseRequestHandler(config, proc, SCENE_GET, principal_header);
       } else if (uri_path.size() == 3 && uri_path[1] == "scene") {
-        return new SceneUpdateRequestHandler(config, proc, uri_path[2]);
+        return new SceneUpdateRequestHandler(config, proc, uri_path[2], principal_header);
       } else if (uri_path.size() == 2 && uri_path[1] == "register") {
-        return new SceneBaseRequestHandler(config, proc, SCENE_ENTER);
+        return new SceneBaseRequestHandler(config, proc, SCENE_ENTER, principal_header);
       } else if (uri_path.size() == 2 && uri_path[1] == "deregister") {
-        return new SceneBaseRequestHandler(config, proc, SCENE_LEAVE);
+        return new SceneBaseRequestHandler(config, proc, SCENE_LEAVE, principal_header);
       } else if (uri_path.size() == 2 && uri_path[1] == "align") {
-        return new SceneBaseRequestHandler(config, proc, DEVICE_ALIGN);
+        return new SceneBaseRequestHandler(config, proc, DEVICE_ALIGN, principal_header);
       } else if (uri_path.size() == 3 && uri_path[1] == "device" && uri_path[2] ==  "query") {
-        return new SceneBaseRequestHandler(config, proc, DEVICE_GET);
+        return new SceneBaseRequestHandler(config, proc, DEVICE_GET, principal_header);
       }
     } else if (uri_path.size() == 3 && request.getMethod() == "PUT" && \
         uri_path[0] == "v1" && uri_path[1] == "scene") {
-      return new SceneBaseRequestHandler(config, proc, SCENE_CRT, uri_path[2]);
+      return new SceneBaseRequestHandler(config, proc, SCENE_CRT, principal_header, uri_path[2]);
     } else if (uri_path.size() == 4 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && uri_path[2] == "cache") {
       if (request.getMethod() == "PUT") {
@@ -135,7 +140,7 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
       }
     } else if (uri_path.size() == 3 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && request.getMethod() == "DELETE") {
-      return new SceneKeyRequestHandler(config, proc, uri_path[2], SCENE_DEL);
+      return new SceneKeyRequestHandler(config, proc, uri_path[2], SCENE_DEL, principal_header);
     } else if (uri_path.size() == 5 && uri_path[0] == "v1" && \
         uri_path[1] == "scene" && uri_path[3] == "asset") {
       if (request.getMethod() == "PUT") {
@@ -146,7 +151,7 @@ class SceneHandlerFactory: public Poco::Net::HTTPRequestHandlerFactory {
         return new AssetUpdateRequestHandler(config, proc, uri_path[2], uri_path[4], ASSET_DEL);
       }
     } else if (request.getMethod() == "GET" && uri_path[0] == "v1" && uri_path[1] == "scene") {
-return new SceneKeyRequestHandler(config, proc, uri_path[2], SCENE_GET);
+      return new SceneKeyRequestHandler(config, proc, uri_path[2], SCENE_GET, principal_header);
     } else if (uri_path.size() == 1 && uri_path[0] == "health" && \
         request.getMethod() == "GET") {
       return new HeartbeatHandler();

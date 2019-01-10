@@ -37,9 +37,13 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   // Basic Tests
   SceneFactory sfactory;
   SceneInterface *scene = sfactory.build_scene();
+  SceneInterface *blank_scene = sfactory.build_scene();
 
   std::string sk = "12345";
   std::string sname = "Test Name";
+  std::string sdesc = "Test Description";
+  std::string sthumbnail = "Test Thumbnail";
+  std::string suser = "Test User";
   std::string asset1 = "First Asset";
   std::string asset2 = "Second Asset";
   std::string tag1 = "First Tag";
@@ -47,6 +51,9 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   std::string region = "USA";
   scene->set_key(sk);
   scene->set_name(sname);
+  scene->set_description(sname);
+  scene->set_thumbnail(sname);
+  scene->set_user(sname);
   scene->add_asset(asset1);
   scene->add_asset(asset2);
   scene->add_tag(tag1);
@@ -72,24 +79,21 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   // Build a create query
   qh.generate_scene_crud_query(sk, CREATE_QUERY_TYPE, APPEND, scene, query_string);
   // Validate the query
-  main_logging->debug(query_string);
-  REQUIRE(query_string == "CREATE (scn:Scene {key: {inp_key}, active: {inp_active}, name: {inp_name}, latitude: {inp_lat}, longitude: {inp_long}, region: {inp_region}, assets: {inp_assets}, tags: {inp_tags}}) RETURN scn");
+  REQUIRE(query_string == "CREATE (scn:Scene {key: {inp_key}, public: {inp_public}, active: {inp_active}, name: {inp_name}, latitude: {inp_lat}, longitude: {inp_long}, region: {inp_region}, description: {inp_description}, user: {inp_user}, thumbnail: {inp_thumbnail}, assets: {inp_assets}, tags: {inp_tags}}) RETURN scn");
 
   query_string.clear();
 
   // Build a get query (by key)
-  qh.generate_scene_crud_query(sk, GET_QUERY_TYPE, APPEND, NULL, query_string);
+  qh.generate_scene_crud_query(sk, GET_QUERY_TYPE, APPEND, blank_scene, query_string);
   // Validate the query
-  main_logging->debug(query_string);
-  REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}}) RETURN scn");
+  REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}, public: {inp_public}}) RETURN scn");
 
   query_string.clear();
 
   // Build an update query
   qh.generate_scene_crud_query(sk, UPDATE_QUERY_TYPE, APPEND, scene, query_string);
   // Validate the query
-  main_logging->debug(query_string);
-  REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}}) SET scn.active = {inp_active}, scn.name = {inp_name}, scn.latitude = {inp_lat}, scn.longitude = {inp_long}, scn.region = {inp_region}, scn.assets = coalesce(scn.assets, []) + {inp_assets}, scn.tags = coalesce(scn.tags, []) + {inp_tags} RETURN scn");
+  REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}}) SET scn.active = {inp_active}, scn.public = {inp_public}, scn.name = {inp_name}, scn.latitude = {inp_lat}, scn.longitude = {inp_long}, scn.region = {inp_region}, scn.description = {inp_description}, scn.user = {inp_user}, scn.thumbnail = {inp_thumbnail}, scn.assets = coalesce(scn.assets, []) + {inp_assets}, scn.tags = coalesce(scn.tags, []) + {inp_tags} RETURN scn");
 
   query_string.clear();
 
@@ -97,33 +101,31 @@ TEST_CASE( "Test Scene CRUD Query Generation", "[unit]" ) {
   std::string blank_key = "";
   qh.generate_scene_crud_query(blank_key, GET_QUERY_TYPE, APPEND, scene, query_string);
   // Validate the query
-  main_logging->debug(query_string);
-  REQUIRE(query_string == "MATCH (scn:Scene {name: {inp_name}, region: {inp_region}}) WHERE {inp_tag} in scn.tags AND ( 12742000 * asin(sqrt(haversin(radians({inp_lat} - scn.latitude)) + cos(radians({inp_lat})) * cos(radians(scn.latitude)) * haversin(radians(scn.longitude - {inp_long}))))) < {inp_distance} RETURN scn");
+  REQUIRE(query_string == "MATCH (scn:Scene {name: {inp_name}, region: {inp_region}, public: {inp_public}}) WHERE ALL(x in {inp_tags} WHERE x in scn.tags) AND ( 12742000 * asin(sqrt(haversin(radians({inp_lat} - scn.latitude)) + cos(radians({inp_lat})) * cos(radians(scn.latitude)) * haversin(radians(scn.longitude - {inp_long}))))) < {inp_distance} RETURN scn ORDER BY scn.key SKIP {inp_skip} LIMIT {inp_limit}");
 
   query_string.clear();
 
   // Build an update query
-  qh.generate_scene_crud_query(sk, DELETE_QUERY_TYPE, APPEND, NULL, query_string);
+  qh.generate_scene_crud_query(sk, DELETE_QUERY_TYPE, APPEND, blank_scene, query_string);
   // Validate the query
-  main_logging->debug(query_string);
   REQUIRE(query_string == "MATCH (scn:Scene {key: {inp_key}}) DETACH DELETE scn RETURN scn");
 
   // Build & validate lists of query parameters
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> \
     scene_params;
   qh.generate_scene_query_parameters(sk, CREATE_QUERY_TYPE, scene, scene_params);
-  REQUIRE(scene_params.size() == 8);
+  REQUIRE(scene_params.size() == 12);
 
-  std::unordered_map<std::string, Neo4jQueryParameterInterface*> \
+  std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> \
     scene_params2;
   qh.generate_scene_query_parameters(sk, CREATE_QUERY_TYPE, NULL, scene_params2);
   REQUIRE(scene_params2.size() == 1);
 
-  for (std::pair<std::string, Neo4jQueryParameterInterface*> element : scene_params) {
+  for (std::pair<std::string, Neocpp::Neo4jQueryParameterInterface*> element : scene_params) {
     delete element.second;
   }
 
-  for (std::pair<std::string, Neo4jQueryParameterInterface*> element2 : scene_params2) {
+  for (std::pair<std::string, Neocpp::Neo4jQueryParameterInterface*> element2 : scene_params2) {
     delete element2.second;
   }
 

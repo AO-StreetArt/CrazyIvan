@@ -119,6 +119,9 @@ ProcessResult* \
       obj_msg->get_scene(0)->get_longitude() == -9999.0 && \
       obj_msg->get_scene(0)->get_key().empty() && \
       obj_msg->get_scene(0)->get_region().empty() && \
+      obj_msg->get_scene(0)->get_description().empty() && \
+      obj_msg->get_scene(0)->get_user().empty() && \
+      obj_msg->get_scene(0)->get_thumbnail().empty() && \
       obj_msg->get_scene(0)->num_tags() == 0 && \
       obj_msg->get_scene(0)->num_assets() == 0) {
       BaseMessageProcessor::logger().error("No fields found in update message");
@@ -189,7 +192,8 @@ ProcessResult* \
   ProcessResult *response = new ProcessResult;
   std::unordered_map<std::string, Neocpp::Neo4jQueryParameterInterface*> \
     scene_params;
-  if (obj_msg->num_scenes() > 0) {
+  if (obj_msg->num_scenes() > 0 && (obj_msg->get_scene(0)->is_public() || \
+      !(obj_msg->get_scene(0)->get_user().empty() || obj_msg->get_scene(0)->is_public()))) {
     Neocpp::ResultsIteratorInterface *results = NULL;
     BaseMessageProcessor::logger().debug("Processing Scene Retrieve message");
 
@@ -266,7 +270,7 @@ ProcessResult* \
     }
     return response;
   }
-  response->set_error(PROCESSING_ERROR, "No Scene Data recieved");
+  response->set_error(PROCESSING_ERROR, "Insufficient Scene Data recieved");
   return response;
 }
 

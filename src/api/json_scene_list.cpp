@@ -199,6 +199,24 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
               scd->set_name(name_iter->value.GetString());
             }
           }
+          // Scene Description
+          rapidjson::Value::ConstMemberIterator desc_iter = \
+            itr.FindMember("description");
+          if (desc_iter != itr.MemberEnd()) {
+            SceneList::logger().debug("Description found");
+            if (desc_iter->value.IsString()) {
+              scd->set_description(desc_iter->value.GetString());
+            }
+          }
+          // Scene Thumbnail
+          rapidjson::Value::ConstMemberIterator thumbnail_iter = \
+            itr.FindMember("thumbnail");
+          if (thumbnail_iter != itr.MemberEnd()) {
+            SceneList::logger().debug("Thumbnail found");
+            if (thumbnail_iter->value.IsString()) {
+              scd->set_thumbnail(thumbnail_iter->value.GetString());
+            }
+          }
           // Is Scene Active
           rapidjson::Value::ConstMemberIterator active_iter = \
             itr.FindMember("active");
@@ -206,6 +224,24 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             SceneList::logger().debug("Active flag found");
             if (!(active_iter->value.IsBool())) {
               scd->set_active(active_iter->value.GetBool());
+            }
+          }
+          // Is Scene Public
+          rapidjson::Value::ConstMemberIterator public_iter = \
+            itr.FindMember("public");
+          if (public_iter != itr.MemberEnd()) {
+            SceneList::logger().debug("Public flag found");
+            if (!(public_iter->value.IsBool())) {
+              scd->set_public(public_iter->value.GetBool());
+            }
+          }
+          // Is Scene Private
+          rapidjson::Value::ConstMemberIterator private_iter = \
+            itr.FindMember("private");
+          if (private_iter != itr.MemberEnd()) {
+            SceneList::logger().debug("Private flag found");
+            if (!(private_iter->value.IsBool())) {
+              scd->set_public(!(private_iter->value.GetBool()));
             }
           }
           rapidjson::Value::ConstMemberIterator region_iter = \
@@ -557,6 +593,24 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
         writer.String(get_scene(a)->get_name().c_str(), \
         (rapidjson::SizeType)get_scene(a)->get_name().length());
       }
+      // Add the description
+      if (!(get_scene(a)->get_description().empty())) {
+        writer.Key("description");
+        writer.String(get_scene(a)->get_description().c_str(), \
+        (rapidjson::SizeType)get_scene(a)->get_description().length());
+      }
+      // Add the user
+      if (!(get_scene(a)->get_user().empty())) {
+        writer.Key("user");
+        writer.String(get_scene(a)->get_user().c_str(), \
+        (rapidjson::SizeType)get_scene(a)->get_user().length());
+      }
+      // Add the thumbnail
+      if (!(get_scene(a)->get_thumbnail().empty())) {
+        writer.Key("thumbnail");
+        writer.String(get_scene(a)->get_thumbnail().c_str(), \
+        (rapidjson::SizeType)get_scene(a)->get_thumbnail().length());
+      }
       // Add the region
       if (!(get_scene(a)->get_region().empty())) {
         writer.Key("region");
@@ -571,6 +625,9 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
       // Add the active flag
       writer.Key("active");
       writer.Bool(get_scene(a)->active());
+      // Add the public flag
+      writer.Key("public");
+      writer.Bool(get_scene(a)->is_public());
       // Add the longitude
       if (get_scene(a)->get_longitude() > -9999.0) {
         writer.Key("longitude");
