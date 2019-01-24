@@ -222,7 +222,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("active");
           if (active_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Active flag found");
-            if (!(active_iter->value.IsBool())) {
+            if (active_iter->value.IsBool()) {
               scd->set_active(active_iter->value.GetBool());
             }
           }
@@ -231,7 +231,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("public");
           if (public_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Public flag found");
-            if (!(public_iter->value.IsBool())) {
+            if (public_iter->value.IsBool()) {
               scd->set_public(public_iter->value.GetBool());
             }
           }
@@ -240,7 +240,7 @@ JsonSceneList::JsonSceneList(const rapidjson::Document& d) {
             itr.FindMember("private");
           if (private_iter != itr.MemberEnd()) {
             SceneList::logger().debug("Private flag found");
-            if (!(private_iter->value.IsBool())) {
+            if (private_iter->value.IsBool()) {
               scd->set_public(!(private_iter->value.GetBool()));
             }
           }
