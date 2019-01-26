@@ -241,6 +241,7 @@ class BaseQueryHelper {
             query_str.append(", ");
           }
           query_str.append("region: {inp_region}");
+          is_query_started = true;
         }
         // Either query for private scenes by user, or public ones only
         if (!(scn->get_user().empty() || scn->is_public())) {
@@ -248,6 +249,7 @@ class BaseQueryHelper {
             query_str.append(", ");
           }
           query_str.append("user: {inp_user}");
+          is_query_started = true;
         } else if (scn->is_public()) {
           if (is_query_started) {
             query_str.append(", ");
