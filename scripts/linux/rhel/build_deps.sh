@@ -19,8 +19,8 @@ scl enable devtoolset-6 bash
 #Build & Install the Shared Service Library
 if [ ! -d /usr/local/include/aossl ]; then
 
-  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.4.3/aossl-rhel-2.4.3.tar.gz
-  tar -xvzf aossl-rhel-2.4.3.tar.gz
+  wget https://github.com/AO-StreetArt/AOSharedServiceLibrary/releases/download/v2.4.4/aossl-rhel-2.4.4.tar.gz
+  tar -xvzf aossl-rhel-2.4.4.tar.gz
 
   #Build the dependencies for the shared service library
   mkdir $PRE/aossl_deps
